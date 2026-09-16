@@ -1,0 +1,15 @@
+\section{Appendix}
+\subsection{Ablation Details}
+
+Here, we present detailed qualitative and quantitative results from our ablation study comparing our approach against closely related baselines. We first evaluated replacing the KAN with a standard MLP. Additionally, we experimented with incorporating material tokens or features, similar to scaffolded Gaussian Splats; however, the performance was inferior to that of a straightforward MLP. We also attempted to use spherical Gaussians for the view-dependent representation, but this approach yielded suboptimal results. These quantitative comparisons are summarized in Tab.~\ref{tab:combined-ablation-baselines}.
+
+Furthermore, we provide qualitative visualizations that decompose the outputs of our method. Specifically, our rendering function consists of three components: multiple environment maps for self-reflection, a KAN for specular reflection, and a GMM for diffuse lighting. We visualize the distinct contributions of each of these lighting components. To isolate the effects of the 2D GMM, Fig.~\ref{fig:abl_qualitative} compares our method against a 2DGS baseline exhibiting depth-fighting (with spherical harmonics set to zero). Finally, Tab.~\ref{tab:shiny_perscene} details a per-scene quantitative comparison against state-of-the-art methods on the Shiny-Blender dataset.
+
+\input{tabs/tabs}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figs/ablation.pdf}
+    \caption{From left to right: 2DGS baseline, 2D GMM for diffuse light, KAN with one environment map, KAN with multiple environment maps, and ground truth. Especially notice that our multi-environment setting successfully approximate the self-reflection effects on concave objects. While for convex-objects, since there is nearly no self-reflection, the visual results seems highly aligned.}
+    \label{fig:abl_qualitative}
+\end{figure}

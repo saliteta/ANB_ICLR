@@ -1,0 +1,85 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2027_conference,times}
+
+\usepackage[hyphens]{url}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[table]{xcolor}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{pifont} % circled-number badges for the teaser/method legends
+
+% --- Badge colors for the teaser figure legend (colors match figs/tiser.pdf) ---
+\definecolor{tsrGreen}{HTML}{41CE54}
+\definecolor{tsrCyan}{HTML}{41CBCE}
+\definecolor{tsrOlive}{HTML}{C9CE41}
+\definecolor{tsrMagenta}{HTML}{DE6DD7}
+\definecolor{tsrYellow}{HTML}{F7F13F}
+\newcommand{\badgeimg}{\textcolor{tsrGreen}{\ding{182}}}   % (1) images + poses
+\newcommand{\badgemesh}{\textcolor{tsrCyan}{\ding{183}}}   % (2) meshes
+\newcommand{\badgegmm}{\textcolor{tsrOlive}{\ding{184}}}   % (3) 2D Gaussian mixture
+\newcommand{\badgeenv}{\textcolor{tsrMagenta}{\ding{185}}} % (4) hierarchical env map
+\newcommand{\badgekan}{\textcolor{tsrYellow}{\ding{186}}}  % (5) KAN
+% --- Badge colors for the method pipeline figure (fig:method); colors match figs/method.pdf ---
+\definecolor{mtdCoral}{HTML}{E26A64}
+\definecolor{mtdBlue}{HTML}{6ABCE2}
+\definecolor{mtdGreen}{HTML}{4FD370}
+\definecolor{mtdPurple}{HTML}{AE6AE2}
+\definecolor{mtdOrange}{HTML}{E57A08}
+\newcommand{\mtdone}{\textcolor{mtdCoral}{\ding{182}}}    % 1 manifold position
+\newcommand{\mtdtwo}{\textcolor{mtdBlue}{\ding{183}}}     % 2 Euclidean position
+\newcommand{\mtdthree}{\textcolor{mtdBlue}{\ding{184}}}   % 3 normal
+\newcommand{\mtdfour}{\textcolor{mtdBlue}{\ding{185}}}    % 4 view
+\newcommand{\mtdfive}{\textcolor{mtdGreen}{\ding{186}}}   % 5 adaptive env map
+\newcommand{\mtdsix}{\textcolor{mtdPurple}{\ding{187}}}   % 6 diffuse color
+\newcommand{\mtdseven}{\textcolor{mtdPurple}{\ding{188}}} % 7 reflectivity weight
+\newcommand{\mtdeight}{\textcolor{mtdOrange}{\ding{189}}} % 8 specular color
+
+\title{Automatic Neural Baking}
+
+% Authors must not appear in the submitted version. They are hidden
+% as long as the \iclrfinalcopy macro remains commented out below.
+\author{Anonymous Authors}
+
+%\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+
+\maketitle
+
+% --- Teaser figure ---------------------------------------------------
+% Placed directly below the author block and above the abstract, as in
+% the original submission. Edit the caption/label below.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/tiser.pdf}
+\caption{%
+\textbf{Automatic Neural Baking bakes highly reflective, view-dependent appearance directly onto a mesh, rendering it in real time (>60 FPS) with fidelity that surpasses state-of-the-art flexible-mesh methods.}
+\emph{Comparison}: on Shiny-Blender, our method reproduces sharp, high-frequency specular reflections that 2DGS~\citep{2DGS} and DNR~\citep{DNR} smears and that RefGS~\citep{refgs} recovers less crisply, while running natively in a standard rasterizer rather than requiring depth-sorted splat rendering.
+\emph{Pipeline}: from posed reference images ~\badgeimg{} and the corresponding triangle mesh~\badgemesh, we optimize three interchangeable, rasterizer-native modules - an on-manifold 2D Gaussian mixture storing diffuse albedo and reflectivity~\badgegmm, an adaptive, hierarchical environment map capturing self-reflection ~\badgeenv; and a lightweight KAN that evaluating the reflection equation for far-field specular~\badgekan - all evaluated per-fragment in a standard fragment shader
+\badgemesh\,\badgegmm\,\badgeenv\,\badgekan.%
+}
+\label{fig:teaser}
+\end{figure}
+% ----------------------------------------------------------------------
+
+\begin{abstract}
+Interactive applications demand photorealistic, real-time rendering, but traditional baking pipelines struggle to capture highly reflective, view-dependent materials. Simultaneously, modern neural and splat representations achieve exceptional novel-view synthesis but rely on ambient 3D space distributions that do not cleanly integrate with standard mesh-based rasterization pipelines. To bridge this gap, we introduce Automatic Neural Baking, a novel, differentiable pipeline that bakes view-dependent appearance directly onto an explicit 3D mesh as a strictly 2D manifold representation. Our method models appearance using three rasterizer-native modules: a 2D Gaussian Mixture Model anchored to the mesh via barycentric coordinates for diffuse color and reflectivity; an adaptive, hierarchical environment map that decomposes the object into near-convex parts to capture self-reflection; and a lightweight Kolmogorov-Arnold Network (FastKAN) that evaluates the reflection equation for high-frequency specularities. By restricting primitives to the 2D surface, our representation avoids depth-sorting and co-planar degeneracies entirely. The resulting assets can be evaluated locally within a standard fragment shader, achieving real-time rendering speeds (over 60 FPS) while surpassing current state-of-the-art methods on standard novel view synthesis benchmarks.
+\end{abstract}
+
+\input{secs/intro}
+\input{secs/related_work}
+\input{secs/method}
+
+\input{secs/experiments}
+\input{secs/conclusion}
+
+\bibliography{references}
+\bibliographystyle{iclr2027_conference}
+
+\appendix
+\input{secs/appendix}
+
+\end{document}

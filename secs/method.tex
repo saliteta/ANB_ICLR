@@ -1,0 +1,122 @@
+\section{Method}
+\subsection{Overview}
+Given a triangle mesh together with a set of posed reference images, our goal is to bake the object's appearance into a field that a standard rasterizer can render in its fragment shader in real time.
+The mesh is treated as fixed geometry; we optimize only the appearance that lives on it.
+
+We model the baked color at a visible surface point $\mathbf{x}$, seen along view direction $\mathbf{v}$, as a diffuse base plus a gated, view-dependent reflection term:
+\begin{equation}
+c(\mathbf{x}, \mathbf{v}) = \operatorname{sigmoid}\!\Big( \operatorname{logit}\big(a(\mathbf{x})\big) + m(\mathbf{x})\, r(\mathbf{x}, \mathbf{v}) \Big),
+\label{eq:appearance}
+\end{equation}
+where $a(\mathbf{x})\in[0,1]^3$ is a local, view-independent albedo,
+$r(\mathbf{x},\mathbf{v})$ is a view-dependent reflection residual expressed in logit space,
+and $m(\mathbf{x})\in[0,1]$ is a per-point reflectivity that gates how much reflection is added ($m{=}0$ matte, $m{=}1$ mirror).
+Operating in logit space lets the reflection act as an additive residual on the diffuse base while keeping the composite in $[0,1]$ without clamping.
+
+We realize this model with three interchangeable modules:
+A strictly two-dimensional Gaussian mixture anchored to the mesh carries the view-independent fields, the albedo $a$ and the reflectivity gate $m$ (Sec.~\ref{sec:gmm}).
+The reflection $r$ is produced by a compact Fast Kolmogorov--Arnold Network (FastKAN) that fuses a point's surface location $\mathbf{x}$ and reflected direction with a lookup into a neural environment map (Secs.~\ref{sec:env} and~\ref{sec:kan}).
+Rather than evaluate an analytic reflection equation, this decoder \emph{interpolates} the BRDF from the sparse training views, which recovers high-frequency, angle-dependent appearance from few observations; we detail its spline-like construction in Sec.~\ref{sec:kan}.
+Far-field and self-reflection are the same field over different maps: a single global map gives far-field reflection, while self-reflection is obtained by decomposing the object into near-convex parts, giving each its own map,
+and blending their lookups per fragment (Sec.~\ref{sec:env}).
+Every module is evaluated per fragment against a single opaque surface, so the representation is read and written like a texture.
+
+\subsection{2D Gaussian Mixture on the Manifold}
+\label{sec:gmm}
+The albedo and reflectivity fields are stored by a mixture of $N$ two-dimensional Gaussian ``disks'' distributed over the mesh surface ($N{=}10^6$ in our experiments).
+The defining property is that a disk is not a free primitive in $\mathbb{R}^3$; it is parameterized so that it can only ever lie on the surface.
+
+\paragraph{On-manifold anchoring.}
+Each disk $i$ is assigned to a single triangle $f_i$ and a barycentric coordinate $\mathbf{b}_i=(b_{i,0},b_{i,1},b_{i,2})$ with $b_{i,k}\ge 0$ and $\sum_k b_{i,k}=1$.
+Its center is \emph{reconstructed} from the live vertices of that triangle,
+\begin{equation}
+\mathbf{x}_i = b_{i,0}\,\mathbf{p}_0(f_i) + b_{i,1}\,\mathbf{p}_1(f_i) + b_{i,2}\,\mathbf{p}_2(f_i),
+\label{eq:center}
+\end{equation}
+so $\mathbf{x}_i$ is by construction a convex combination of the face's vertices and lies exactly on the triangle.
+There is no free three-dimensional position that could drift off the surface. When the disk pose is optimized,
+the barycentric weights are produced by a softmax and therefore stay on the simplex, keeping the disk on its face throughout training.
+
+\paragraph{Tangent-plane shape.}
+A disk's spatial extent is defined in the tangent frame of its face: two orthonormal in-plane axes $(\mathbf{t}_1,\mathbf{t}_2)$ and the face normal $\mathbf{n}$.
+Its only shape degrees of freedom are an in-plane rotation $\theta_i$ about $\mathbf{n}$ and an anisotropic in-plane scale $(s_{i,1},s_{i,2})$; the disk has \emph{no extent along} $\mathbf{n}$.
+
+\paragraph{Per-disk attributes.}
+Each disk carries two view-independent attributes: an albedo $a_i\in[0,1]^3$ and a scalar reflectivity $m_i\in[0,1]$, both stored as unconstrained logits and squashed at use.
+The continuous fields $a(\mathbf{x})$ and $m(\mathbf{x})$ in Eq.~\eqref{eq:appearance} are obtained by blending these per-disk attributes over the disks near $\mathbf{x}$ (described next).
+
+\paragraph{Partition-of-unity blend.}
+A fragment at $\mathbf{x}$ on face $f$ gathers from $\mathcal{N}(f)$, the fixed set of the $K{=}16$ disks nearest that face. These disks are not restricted to $f$: the top-$K$ set spans $f$ and its neighboring faces, so the gather crosses face boundaries rather than being truncated per face. Each disk is weighted by its own Gaussian density at $\mathbf{x}$, evaluated in the disk's tangent frame:
+\begin{equation}
+\begin{aligned}
+w_k(\mathbf{x}) &= \exp\!\Big(-\tfrac12\big[(u_{k,1}/s_{k,1})^2 + (u_{k,2}/s_{k,2})^2\big]\Big), \\
+\bar{w}_k(\mathbf{x}) &= w_k(\mathbf{x}) \Big/ \sum_{j\in\mathcal{N}(f)} w_j(\mathbf{x}),
+\end{aligned}
+\label{eq:pou}
+\end{equation}
+where $u_{k,j}=(\mathbf{x}-\mathbf{x}_k)\cdot\mathbf{t}_{k,j}$ is the fragment's in-plane offset from disk $k$'s center along its tangent axis $\mathbf{t}_{k,j}$. The per-fragment fields are the resulting convex combination,
+\begin{equation}
+\begin{aligned}
+a(\mathbf{x}) &= \sum_{k\in\mathcal{N}(f)} \bar{w}_k(\mathbf{x})\, a_k, \\
+m(\mathbf{x}) &= \operatorname{sigmoid}\!\Big(\sum_{k\in\mathcal{N}(f)} \bar{w}_k(\mathbf{x})\, \operatorname{logit}(m_k)\Big),
+\end{aligned}
+\label{eq:blend}
+\end{equation}
+with $a_k,m_k$ the squashed per-disk albedo and reflectivity.
+
+Crucially, the weights form a partition of unity ($\sum_{k} \bar{w}_k = 1$), so each field is a \emph{normalized} convex combination of the nearby disks rather than an alpha composite.
+The blend is therefore invariant to the order of the disks: it never asks which disk lies in front, so there is no non-commutative compositing and nothing to depth-sort.
+The co-planar depth ties that would cripple a face-bound 3D splat cannot arise, and this $\mathcal{O}(K)$ local gather replaces the global $\mathcal{O}(N\log N)$ sort of a splat renderer.
+
+\subsection{Adaptive Environment Map}
+\label{sec:env}
+We describe the reflection lookup first without its learned parts, where it is ordinary environment mapping: a directional fetch and a weighted blend.
+
+\paragraph{Fetching}
+Treat the environment as a classical equirectangular map. At a surface point with normal $\mathbf{n}$ seen from view direction $\mathbf{v}$, the mirror-reflected direction is
+\begin{equation}
+\boldsymbol{\omega}_r = 2(\mathbf{n}\cdot\mathbf{v})\,\mathbf{n} - \mathbf{v},
+\label{eq:reflectdir}
+\end{equation}
+We then start a longitude--elevation coordinate and bilinearly sample according to the direction.
+
+\paragraph{Which map: near-convex parts.}
+A single global map assumes all light arrives from infinitely far away, so it cannot reproduce the light an object casts on itself. We resolve this geometrically. A convex part can neither occlude nor reflect itself, so for a convex region a single environment map is \emph{exact}. We therefore split the object into near-convex parts with a convex decomposition~\citep{coacd} and give each part its own map. Therefore, a part's self-reflection then reduces to an ordinary far-field lookup in that part's map.
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figs/qualitative.pdf}
+    \caption{\textbf{Qualitative comparison on Shiny-Blender.} From left to right: the mesh-constrained baseline 2DGS$^{*}$, DNR, the state-of-the-art RefGS, our method, and ground truth (GT). Our renders reproduce the sharp, high-frequency environment reflections on the metallic surfaces most faithfully; 2DGS$^{*}$ and DNR blur or smear them, RefGS recovers them less crisply.}
+    \label{fig:qualitative}
+\end{figure}
+\paragraph{Growing the maps by error.}
+We do not fix the number of maps in advance. Training begins with one map shared by the whole object. Periodically we attribute the current reconstruction error to parts and split off the highest-error \emph{connected} region into a new child map, warm-started by copying its parent. Repeated up to a small budget (five maps in our experiments), this spends capacity where reflection error is largest, isolating the concave pockets a single map cannot explain.
+
+\paragraph{Blending across borders.}
+Hard per-face routing would leave visible seams at part boundaries. Instead, each face holds a soft membership over the maps,
+\begin{equation}
+\beta_p(f) = \frac{\exp\!\big(-d_p(f)/\tau\big)}{\sum_{q}\exp\!\big(-d_q(f)/\tau\big)},
+\label{eq:softmember}
+\end{equation}
+where $d_p(f)$ is the distance from face $f$ to the nearest face assigned to map $p$, and $\tau$ sets the blend width. This is $\approx$ one-hot inside a region and blends smoothly within $\sim\tau$ of a border. A fragment then reads \emph{every} map at $\boldsymbol{\omega}_r$ and combines them,
+\begin{equation}
+E(\boldsymbol{\omega}_r, f) = \sum_{p} \beta_p(f)\, E_p(\boldsymbol{\omega}_r),
+\label{eq:envblend}
+\end{equation}
+a weighted blend of texture fetches that removes the seam.
+
+In our model each $E_p$ stores a learned multi-channel feature rather than RGB; the fetched, part-blended feature is decoded into the reflected color by the following network.
+
+\subsection{The FastKAN Reflection Decoder}
+\label{sec:kan}
+In a physically based renderer the reflected color at a point follows from an analytical shading integral. The rendering is executed by tracing rays against the environment and the surface BRDF. We replace that analytical execution with a small network: given a surface point and its viewing geometry, it \emph{interpolates} the BRDF from the sparse views seen in training and predicts the same angle-dependent reflection with no ray tracing at run time. Because reflectance is a smooth function of material and angle, we build the network from spline-like units, which interpolate such a function far more faithfully than the piecewise-linear response of an MLP. A Kolmogorov--Arnold Network~\citep{KAN} places a learnable activation on every \emph{edge}. Those activation is classically a spline, rather than a fixed nonlinearity on every node. FastKAN~\citep{FastKAN} implements these edge activations with Gaussian radial basis functions on a small fixed grid, which approximate the spline basis but reduce to dense matrix multiplies.
+
+\paragraph{Staged inputs.}
+The decoder is a deferred, staged shader~\citep{refnerf}: view-independent quantities are consumed before view-dependent ones, with two KAN layers per stage (six in total).
+\begin{itemize}
+\item \textbf{Stage 1 --- position.} The input is the Fourier positional encoding of the hit point $\mathbf{x}$ (bounding-box normalized, six frequencies), which localizes appearance on the surface.
+\item \textbf{Stage 2 --- normal.} We append the real spherical harmonics $\mathrm{SH}(\mathbf{n})$ of the surface normal (degree $4$).
+\item \textbf{Stage 3 --- view.} We append the integrated directional encoding $\mathrm{IDE}(\boldsymbol{\omega}_r)$ of the reflected direction (Eq.~\eqref{eq:reflectdir}) together with $\mathbf{n}\!\cdot\!\mathbf{v}$. The IDE is $\mathrm{SH}(\boldsymbol{\omega}_r)$ attenuated by a learned per-point roughness (a lobe width), so a rougher surface queries the environment over a wider cone---a prefiltered, glossy lookup rather than a perfect mirror. This stage emits a material feature $\mathbf{h}$.
+\end{itemize}
+
+\paragraph{Environment fusion and output.}
+The reflected direction indexes the part-blended environment map to give the feature $E(\boldsymbol{\omega}_r,f)$ of Eq.~\eqref{eq:envblend}, which a two-layer linear MLP fuses with $\mathbf{h}$. A linear head then reads the fused feature and emits the view-dependent reflection $r(\mathbf{x},\mathbf{v})$ of Eq.~\eqref{eq:appearance}, scaled by a learned specular tint in $[0,1]^3$. Only the staged trunk is KAN; the fusion MLP and the output heads are linear, and the color head is zero-initialized, so reflection starts at zero and is turned \emph{up} only where the training views demand it.

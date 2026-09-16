@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\caption{\textbf{Ablation on Shiny-Blender} along our development path (dataset means; \textbf{best} in bold). From a diffuse 2DGS$^{*}$ baseline we use pure diffuse 2D-GMM add a per-primitive spherical-Gaussian (SG) reflection with an MLP decoder, drop SG, then add our adaptive hierarchical environment maps (AdaMap), and finally replace the MLP with our KAN. }
+\label{tab:ablation}
+\begin{tabular}{lccc}
+\toprule
+Variant & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
+\midrule
+2DGS$^{*}$ (baseline) & 27.70 & 0.930 & 0.078 \\
+\quad 2D GMM          & 31.40 & 0.952 & 0.057 \\
+\quad + SG + MLP      & 34.24 & 0.961 & 0.051 \\
+\quad + MLP           & 34.37 & 0.963 & 0.049 \\
+\quad + MLP + AdaMap  & 35.60 & 0.971 & 0.038 \\
+\quad + KAN + AdaMap  & \textbf{36.99} & \textbf{0.978} & \textbf{0.033} \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,31 @@
+
+\input{tabs/main_table}
+\section{Experiments}
+We conduct our experiments on two datasets: NeRF-Synthetic~\citep{NeRFVanilla} and Shiny-Blender~\citep{refnerf}.
+We carefully select and design two baselines that strictly align with our setting: Deferred Neural Rendering (DNR)~\citep{DNR} and a mesh-constrained 2DGS, denoted 2DGS$^{*}$~\citep{2DGS}.
+As noted in the introduction, both 2DGS and 3DGS float freely in 3D space.
+We therefore constrain 2DGS to the mesh surface: we uniformly initialize four million 2D Gaussians on the surface and project all gradients onto the 2D manifold defined by the mesh faces.
+
+We further compare against two categories of state-of-the-art novel-view-synthesis methods to demonstrate the quality of our results.
+The first, including 3DGS~\citep{3DGS}, Ref-NeRF~\citep{refnerf}, 3DGS-DR~\citep{3dgsDR}, and so on, focuses solely on rendering quality, without any constraint on the underlying geometry.
+The second, including GaussianShader~\citep{gaussianShader} and Reflective Gaussian Splatting (RefGS)~\citep{refgs}, targets both mesh reconstruction and novel-view-synthesis quality, including on highly reflective surfaces.\textbf{ Additional experiments in supplementary}.
+
+\subsection{Comparison}
+Table~\ref{tab:main} and Figure~\ref{fig:qualitative} report the quantitative and qualitative comparisons.
+Among fixed-mesh methods, our approach attains the best PSNR and SSIM on both datasets and the best LPIPS on the reflective Shiny-Blender set; on Shiny-Blender it further surpasses the unconstrained and flexible-mesh state of the art.
+Qualitatively (Figure~\ref{fig:qualitative}), our renders reproduce the sharp, high-frequency environment reflections on metallic surfaces most faithfully, whereas 2DGS$^{*}$ and DNR blur them and RefGS recovers them less crisply.
+
+
+
+
+\subsection{Ablation}
+Table~\ref{tab:ablation} follows the path by which our appearance model was built.
+The diffuse 2DGS$^{*}$ baseline will have depth fighting issue, and 2D-GMM cannot represent view-dependent reflection and collapses on the reflective Shiny-Blender scenes ($27.70$~dB).
+Per-primitive view-dependent color, such as spherical harmonics in 3DGS and the more expressive anisotropic spherical Gaussians (ASG) of Spec-Gaussian~\citep{specGaussian}, is a strong representation for \emph{floating} splats, where overlapping, depth-ordered primitives compose the appearance.
+However, on our single opaque on-manifold surface that composition is unavailable, as each point takes one order-independent blend; adding a per-primitive spherical Gaussian (SG) with an MLP decoder therefore only overfits the sparse views ($34.24$~dB), and dropping it barely changes the result. We revisit this overfitting in Sec.~\ref{sec:conclusion}.
+The gains instead come from two design choices: replacing a single global environment map with our adaptive hierarchical maps adds $1.2$~dB, and an MLP cannot fit the smooth, high-frequency BRDF, so replacing it with our KAN adds a further $0.8$~dB, giving the best result on every metric.
+The 2DGS$^{*}$ row is the strict-mesh baseline; the remaining rows place the mixture on the manifold, so the first step also carries that geometry change.
+\input{tabs/ablation}
+\subsection{Efficiency}
+We evaluate memory efficiency and rendering FPS across two datasets using the test views. For rendering performance, we report the speeds achieved using \texttt{torch.compile}, as detailed in Tab.~\ref{tab:efficieny}. All experiments were conducted using CUDA 12.8 on a single NVIDIA H100 GPU.
+\input{tabs/efficiency}

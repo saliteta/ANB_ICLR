@@ -1,0 +1,51 @@
+\section{Introduction}
+
+Interactive applications such as games, virtual reality, and other online rendering, demand photorealistic imagery in real time (typically $\geq 60$~FPS).
+The standard baking-and-rasterization pipeline meets this by precomputing appearance offline into textures over the mesh, which a fragment shader then samples cheaply at run time~\citep{RealTimeRendering}.
+
+
+Automating this stage, however, remains hard for the shiny, view-dependent materials that matter most:
+the usual baked formats, for instance, lightmaps or low-order Spherical Harmonic (SH) probes, store only smooth, view-independent lighting and miss angle-dependent highlights~\citep{AllFrequency, curveSurfaces, nerfTexture}.
+Baking also presupposes a global UV atlas, whose automatic construction remains fragmented and largely manual~\citep{Levy2002LSCM, poranne2017autocuts, li2018optcuts, srinivasan2024nuvo}. Per-face texturing such as Ptex~\citep{ptex} removes the UV atlas, but as a static texture it still cannot capture high-frequency, view-dependent reflection.
+The seminal automatic neural baking method is Deferred Neural Rendering (DNR)~\citep{DNR}, which bakes learned neural textures onto a mesh and decodes them at render time.
+However, DNR shares the same weakness as classical baking and cannot reproduce view-dependent color.
+Our method is a direct, modern successor to it. Like DNR, it is a traditional baking method that produces a baked mesh asset. Unlike DNR, it also captures the sharp, view-dependent appearance that baking has always lacked.
+
+Such appearance has instead been the domain of neural and splat representations. Neural Radiance Fields (NeRFs)~\citep{NeRFVanilla} and 3D Gaussian Splatting (3DGS)~\citep{3DGS} have revolutionized novel view synthesis,
+reaching a level of photorealism that classical baking cannot match by treating the scene as a continuous optimization problem.
+Their power, however, rests on a mental model at odds with the one the traditional pipeline assumes.
+Mathematically, the baking pipeline treats an object as a \emph{surface}: a closed two-dimensional manifold $\mathcal{M}\subset\mathbb{R}^3$ that bounds a solid and carries appearance as a field defined on $\mathcal{M}$ itself.
+NeRF and 3DGS are objects of a different kind. They represent density-and-color \emph{distribution} over the ambient space $\mathbb{R}^3$ (a continuous field for NeRF, a mixture of anisotropic kernels for 3DGS).
+Their domain is the 3-space, not a 2-manifold; nowhere is there a surface, only mass floating in $\mathbb{R}^3$.
+
+This gap is fundamental rather than incidental. Despite a sustained effort to convert splats back into meshes~\citep{sugar, gaussianSurfels},
+such methods only ever \emph{approximate} a surface, because a distribution over $\mathbb{R}^3$ is not a manifold:
+it has no intrinsic 2D domain and no connected boundary, and no post-processing can recover a structure that was never represented.
+2DGS~\citep{2DGS} appears to close the gap by flattening each ellipsoid into a disk---a Gaussian collapsed to a delta across its normal direction.
+But this shrinks only the \emph{thickness} of the distribution, not its \emph{category}:
+a sum of such primitives scattered through $\mathbb{R}^3$ is still a distribution over the ambient space, not a closed 2-manifold.
+Furthermore, forcefully binding such kernels to a fixed triangle face only makes matters worse. The splats become strictly co-planar.
+As a result, their depth keys collapse into ties, and the sort order turns ill-defined and unstable across views, producing inconsistent gradients that block convergence.
+It is this unfilled step, not any shortcoming of the methods, that keeps these powerful representations from fitting naturally into the traditional pipeline.
+
+Those challenges point to the representation we actually seek: one that keeps the explicit surface geometry of a mesh, so the object stays a true 2D manifold that a rasterizer can consume directly.
+It must also inherit the novel-view-synthesis quality of splat and neural representations, together with the differentiable optimization that produces it.
+We realize this representation through a novel baking pipeline in which explicit, known geometry provides the structural foundation.
+Our method takes three inputs: a triangle mesh, a set of camera poses, and the corresponding reference images.
+In our experiments the mesh is an artist-authored synthetic asset, the standard target of baking workflows, and the reference images come from an offline renderer.
+From these, we optimize a compact, rasterizer-native appearance representation:
+a 2D Gaussian Mixture Model (GMM) anchored to the mesh manifold that stores the diffuse color and reflectivity,
+a fast Kolmogorov--Arnold Network (KAN)~\citep{FastKAN,KAN} designed to approximate the reflection equation,
+and an adaptive, hierarchical neural environment map that partitions the object into near-convex parts to capture self-reflection and occlusion.
+At runtime, all three components are evaluated jointly inside a standard fragment shader.
+
+
+
+Within this pipeline, we adopt a simple mental model: the appearance at each surface point is a local diffuse color plus a single, gated reflection that covers both far-field and near-field (self-)reflection. These three modules are interchangeable---the pipeline is a \emph{framework} for automatic asset baking, and the realizations above are strong defaults that can be swapped without altering the rest.
+
+In summary, our main contributions are four-fold:
+\begin{itemize}
+    \item \textbf{Differentiable 2D Asset Baking Pipeline:} We propose a differentiable, sort-free pipeline that bakes appearance directly onto a known mesh by anchoring a strictly 2D appearance field to its faces in barycentric coordinates. The pipeline is a framework rather than a single representation: the surface kernel is interchangeable, and per-face texturing such as Ptex~\citep{ptex} or other 2D kernels could occupy the same slot. To the best of our knowledge, this is the first differentiable method to optimize an element-wise ``texture'' \emph{on} a 2D manifold rather than as a distribution in ambient $\mathbb{R}^3$; it replaces the global $\mathcal{O}(N \log N)$ depth sort, together with its co-planarity degeneracy on fixed geometry, with an $\mathcal{O}(K)$ per-fragment local gather that runs natively in a standard rasterizer at a game-ready 60~FPS. As our default kernel we choose a 2D Gaussian mixture for four properties: \emph{continuity}, a smooth field with stable gradients for optimization; \emph{anisotropy}, covariances that align to directional surface detail; \emph{mergeability}, components that prune and combine into a compact, resolution-free representation~\citep{nanogs}; and \emph{convertibility}, a mixture that rasterizes back into a standard texture map for the traditional pipeline.
+    \item \textbf{Diffuse via a 2D Gaussian Mixture:} We model the local, view-independent diffuse term with a 2D Gaussian Mixture Model (GMM) carrying per-disk albedo and reflectivity on the manifold. The mixture is interchangeable with other surface densities, such as a 2D Beta mixture.
+    \item \textbf{Far-Field Reflection via a KAN and Environment Map:} We capture high-frequency specular reflection with a fast Kolmogorov--Arnold Network (KAN) that evaluates the reflection equation against a neural environment map. The decoder is interchangeable, for example a transformer or a precomputed lookup table.
+    \item \textbf{Self-Reflection via Hierarchical Convex Environment Maps:} We decompose a non-convex object into near-convex parts, each with its own environment map through an adaptive process. This mechanism largely resolves self-reflection through local environment lookups.\end{itemize}
