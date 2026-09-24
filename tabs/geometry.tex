@@ -1,0 +1,22 @@
+\begin{table}[t]
+\centering
+\small
+\caption{\textbf{Mesh refinement.} Means over the six Shiny-Blender scenes, starting from Ref-GS
+marching-cubes extractions, without $\rightarrow$ with refinement. Normal angular error is measured
+against ground-truth normal maps over 200 held-out views per scene. PSNR is reported as a control,
+not a result: it confirms the geometry gains are not obtained by trading image quality. These runs
+use a single environment map, so absolute PSNR is below Table~\ref{tab:main}. Per-scene results in
+App.~\ref{app:refinement}.}
+\label{tab:refinement}
+\begin{tabular}{lccc}
+\toprule
+& w/o $\rightarrow$ w/ & $\Delta$ \\
+\midrule
+Vertex normal MAE ($^\circ$)$\downarrow$     & $6.31 \rightarrow 5.41$       & $-14.2\%$ \\
+Geometric normal MAE ($^\circ$)$\downarrow$  & $7.20 \rightarrow 5.88$       & $-18.3\%$ \\
+Chamfer distance $\downarrow$                & $16.200 \rightarrow 15.889$   & $-2.3\%$  \\
+\midrule
+PSNR $\uparrow$ \emph{(control)}             & $27.41 \rightarrow 27.86$     & $+0.45$   \\
+\bottomrule
+\end{tabular}
+\end{table}

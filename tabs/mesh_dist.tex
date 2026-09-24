@@ -1,0 +1,37 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\caption{\textbf{Effect of normal refinement on geometry.}
+Chamfer distance (CD-L1, $\times 10^{-3}$), accuracy, completeness and
+F-score at a $0.5\%$ threshold, reported without (w/o) and with (w/) normal
+refinement. Shaded cells indicate a regression. [TODO: confirm CD units.]}
+\label{tab:geometry_refinement}
+
+\begin{tabular}{l cccccc}
+\toprule
+& Helmet & Ball & Coffee & Toaster & Car & Teapot \\
+\midrule
+\multicolumn{7}{c}{CD-L1$\downarrow$} \\
+\midrule
+w/o refinement & 11.996 & 4.946 & 13.799 & 44.716 & 17.245 & 4.500 \\
+w/ refinement  & 11.411 & 4.705 & 13.288 & 44.140 & 17.249 & 4.544 \\
+$\Delta$ & $-4.9\%$ & $-4.9\%$ & $-3.7\%$ & $-1.3\%$ & \cellcolor{red!15} $+0.0\%$ & \cellcolor{red!15} $+1.0\%$ \\
+\midrule
+\multicolumn{7}{c}{Accuracy$\downarrow$} \\
+\midrule
+w/o refinement & 4.402 & 4.968 & 9.344 & 7.935 & 4.056 & 4.253 \\
+w/ refinement  & 3.564 & 4.722 & 8.718 & 7.602 & 4.016 & 4.300 \\
+$\Delta$ & $-19.0\%$ & $-5.0\%$ & $-6.7\%$ & $-4.2\%$ & $-1.0\%$ & \cellcolor{red!15} $+1.1\%$ \\
+\midrule
+\multicolumn{7}{c}{Completeness$\downarrow$} \\
+\midrule
+w/o refinement & 19.591 & 4.923 & 18.255 & 81.497 & 30.435 & 4.746 \\
+w/ refinement  & 19.258 & 4.688 & 17.857 & 80.678 & 30.482 & 4.788 \\
+$\Delta$ & $-1.7\%$ & $-4.8\%$ & $-2.2\%$ & $-1.0\%$ & \cellcolor{red!15} $+0.2\%$ & \cellcolor{red!15} $+0.9\%$ \\
+\midrule
+\multicolumn{7}{c}{F1@$0.5\%\uparrow$} \\
+\midrule
+w/o refinement & 85.71 & 99.99 & 77.94 & 66.68 & 83.60 & 96.63 \\
+w/ refinement  & 85.62 & 99.96 & 78.71 & 66.99 & 83.41 & 96.86 \\
+$\D

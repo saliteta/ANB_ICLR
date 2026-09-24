@@ -1,5 +1,21 @@
 \section{Conclusion and Discussion}
 \label{sec:conclusion}
-We present automatic neural baking, the first differentiable method to optimize view-dependent appearance as an element-wise ``texture'' on a 2D manifold representation. This enables real-time evaluation (over 60 FPS) directly within the fragment shader of traditional rendering pipelines. Our framework introduces three configurable modules: (1) a 2D kernel, specifically a 2D Gaussian Mixture, to model diffuse color; (2) an adaptive environment map to capture specular reflections; and (3) a neural shader that smoothly interpolates the sparse color representation. Furthermore, our approach surpasses current state-of-the-art methods on standard novel view synthesis benchmarks.
+We present automatic neural baking, which optimizes view-dependent appearance as an element-wise
+``texture'' whose domain is the mesh surface and whose blending is order-independent --- so the
+asset needs no UV atlas and no depth sort, and is evaluated per fragment at real-time rates. Three
+interchangeable modules realize it: a 2D Gaussian mixture anchored in barycentric coordinates for
+the view-independent fields, an adaptive hierarchical environment map for far-field and near-field
+reflection, and a FastKAN decoder for the view-dependent term. Given the same geometry, the result
+surpasses prior work on both benchmarks. Because the field is anchored to the faces, the same
+optimization also refines the mesh it is baked onto, and the trained mixture reduces to a compact
+asset without retraining.
 
-Anisotropic spherical Gaussians (ASG) are a strong per-primitive appearance model~\citep{specGaussian}. In our on-manifold setting, however, such a per-primitive term must be fit from images alone, so it overfits the sparse training views (Table~\ref{tab:ablation}). When the mesh already carries material properties, the ASG parameters can instead be read directly from the mesh rather than optimized from sparse views, which removes this overfitting. This direction is orthogonal to our on-manifold baking formulation, so we regard it as promising future work rather than a limitation.
+\paragraph{Limitations.} Our method requires a mesh, and is optimized per scene. We evaluate on
+synthetic single-object benchmarks; real captures, where the input mesh is noisier and the
+illumination less controlled, remain untested. Within a near-convex part, light arriving from the
+rest of the object is treated as distant and position-independent, so strongly concave objects are
+the hardest case --- \emph{toaster} is where our margin is smallest. Real-time evaluation is
+demonstrated in nvdiffrast rather than in a shipped fragment shader; the representation is
+shader-implementable by construction, but engine integration is left to future work. Mesh refinement
+adjusts an existing surface and cannot recover geometry that is absent, and is validated with a
+single environment map.

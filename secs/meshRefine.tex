@@ -1,21 +1,3 @@
-\section{Appendix}
-\subsection{Ablation Details}
-
-Here, we present detailed qualitative and quantitative results from our ablation study comparing our approach against closely related baselines. We first evaluated replacing the KAN with a standard MLP. Additionally, we experimented with incorporating material tokens or features, similar to scaffolded Gaussian Splats; however, the performance was inferior to that of a straightforward MLP. We also attempted to use spherical Gaussians for the view-dependent representation, but this approach yielded suboptimal results. These quantitative comparisons are summarized in Tab.~\ref{tab:ablation-means}.
-
-Furthermore, we provide qualitative visualizations that decompose the outputs of our method. Specifically, our rendering function consists of three components: multiple environment maps for self-reflection, a KAN for specular reflection, and a GMM for diffuse lighting. We visualize the distinct contributions of each of these lighting components. To isolate the effects of the 2D GMM, Fig.~\ref{fig:abl_qualitative} compares our method against a 2DGS baseline exhibiting depth-fighting (with spherical harmonics set to zero). Finally, Tab.~\ref{tab:shiny_perscene} details quantitative comparison against state-of-the-art methods on the Shiny-Blender dataset.
-
-\textbf{Analysis} expand on what this means.
-
-\input{tabs/tabs_mean}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{figs/ablation.pdf}
-    \caption{From left to right: 2DGS baseline, 2D GMM for diffuse light, KAN with one environment map, KAN with multiple environment maps, and ground truth. Especially notice that our multi-environment setting successfully approximate the self-reflection effects on concave objects. While for convex-objects, since there is nearly no self-reflection, the visual results seems highly aligned.}
-    \label{fig:abl_qualitative}
-\end{figure}
-
 \subsection{Mesh Refinement}
 Although our main experiments evaluate in a fixed-mesh setting, we are interested in ANB's ability to refine the coarse extracted mesh it is baked into. We propose a mesh refinement algorithm, which we refer to as \textbf{mesh fine-tuning}. Mesh fine-tuning reads, from ANB representation, the direction each disk \emph{would} move in the ambient Euclidian space to reduce photometric loss, and keeps only the normal-direction component that neighboring disks agree on. We then propagate this movement back onto the vertices as a per-vertex displacement and update the mesh. The core process is visualized in Figure \ref{fig:mesh_finetune}.
 
@@ -26,7 +8,7 @@ Overall, we find that our proposed mesh fine-tuning is able to refine a coarse e
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/fig_mesh_finetune.pdf}
-    \caption{\textbf{Mesh fine-tuning algorithm.} We show the core process on one disk and one mesh face. (a) We detach disk center $c$ temporarily and evaluate where it would go through photometric loss, yielding a gradient $G_C$. Note that since we're minimizing with photometric loss, the movement is negative (i.e. $-\mathbf{G_{C}}$) (b) We unproject the $G_C$ into vertex space and distribute the gradient as $G_v$. We translate $G_v$ into a \emph{per-vertex} displacement $\Delta$ in a regularized way. (c) The vertexes are updated and the center. Note that the disk never leaves the manifold and is simply used as a proxy to derive a vertex displacement. More details on this process in our implementation details.}
+    \caption{\textbf{Mesh fine-tuning algorithm.} We show the core process on one disk and one mesh face. (a) We detach disk center $c$ temporarily and evaluate where it would go through photometric loss, yielding a gradient $G_C$. Not that since we're minimizing with photmetric loss, the movement is negative (i.e. $-\mathbf{G_{C}}$ (b) We unproject the $G_C$ into vertex space and distribute the gradient as $G_v$. We translate $G_v$ into a \emph{per-vertex} displacement $\Delta$ in a regularized way. (c) The vertexes are updated and the the center. Note that the disk never leaves the manifold and is simply used as a proxy to derive a vertex displacement. More details on this process in our implementation details;}
     \label{fig:mesh_finetune}
 \end{figure}
 
@@ -80,7 +62,7 @@ vertex's influence on that disk:
 \end{equation}
 %
 with $\mathbf{G}_{\mathbf{V}} \in \mathbb{R}^{M \times 3}$.
-Note that we intentionally design the gradient flow from the disk field to vertices rather than directly to the vertices.
+Note that we intentionally design the gradient flow from the disk field to vertices rather than directly to the vertices 
 
 % Otherwise, the gradient that flows to the vertices becomes a mean. % TODO: huber los justification. sEmpirically, we find that the distribution is long-tailed, so we don't want to use the mean. HUBER loss doesn't really help.
 
@@ -101,7 +83,7 @@ We condition the raw displacement with three operators, applied right to left:
   \item \textbf{Band-limiting} ($\mathcal{H}_{\sigma}$). We smooth to the disk
     radius $\sigma$ by damped umbrella diffusion, since finer detail cannot be
     represented by the appearance field and therefore cannot be verified against
-    the images TODO: cite.
+    the images.
   \item \textbf{Displacement bound} ($\mathcal{C}_{\delta}$). We cap each
     vertex's displacement, so that no single cycle moves a vertex further than a
     later one can undo.
@@ -157,7 +139,7 @@ the disk poses they induce,
 % \end{align}
 
 
-We then hold fix the vertex positions on the mesh and optimize the disk field for appearance alone in an appearance step and repeat for $n$ cycles. We note that the disk \emph{never leaves the manifold}--its center is recomputed only after the vertex update commits the new mesh.
+We then hold fix the vertex positions on the mesh and optimize the disk field for appearance alone in an appearance step and repeat for $n$ cycles. We note that the disk \emph{never leaves the manifold}--it is recomputed only after the vertex update commits the new mesh.
 
 % We call this a geometry step. One cycle of the algorithm runs a geometry step, runs the standard appearance step to re-parameterizes the disk field, and then repeats.
 
@@ -165,14 +147,14 @@ We then hold fix the vertex positions on the mesh and optimize the disk field fo
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/mesh_qual.pdf}
-    \caption{\textbf{Mesh refinement results.} From left to right: the raw marching-cubes mesh from Ref-GS; the ANB input without mesh fine-tuning; ANB after mesh fine-tuning; the ground-truth Blender mesh; and the ground-truth normal map. TODO: we flat shade 1 - 3 and smooth shade 4 and 5 to better visualize the results. 4 - 5 is to reference original blender mesh. Read from Ref-GS to ANB input is the main training and ANB input \rightarrow ANB fine-tuning is the proposed step.}
+    \caption{\textbf{Mesh refinement results.} From left to right: the raw marching-cubes mesh from Ref-GS; the ANB input without mesh fine-tuning; ANB after mesh fine-tuning; the ground-truth Blender mesh; and the ground-truth normal map.}
     \label{fig:mesh_qual}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/mesh_ringing.pdf}
-    \caption{\textbf{Mesh Ringing} From left to right: the raw marching-cubes mesh from Ref-GS; the ANB input without mesh fine-tuning; ANB after mesh fine-tuning; the ground-truth Blender mesh; and the ground-truth normal map.}
+    \caption{\textbf{Mesh refinement results.} From left to right: the raw marching-cubes mesh from Ref-GS; the ANB input without mesh fine-tuning; ANB after mesh fine-tuning; the ground-truth Blender mesh; and the ground-truth normal map.}
     \label{fig:mesh_ringing}
 \end{figure}
 
@@ -195,7 +177,7 @@ We run mesh refinement for $n=300$ cycles on all six Shiny Blender scenes with $
 % Qualitatively, we see that our mesh refinement algorithm clearly improves the refined mesh in Column 2 of Figure \ref{fig:mesh_qual}, espescially in the local view-depedent areas that the coarse-GS struggled with. This is supported by the The mean falls X \% . In particular, the median falls \%..  
 
 \textbf{Analysis.}
-Qualitatively, mesh fine-tuning improves the refined surface in Column 3 of Figure~\ref{fig:mesh_qual}, particularly in the view-dependent regions where the coarse extraction struggles. We also highlight the our mesh fine-tuning algorithm's ability to handle a ringing artifact in \emph{teapot} in Figure \ref{fig:mesh_ringing} and \emph{helmet}. This is because ___ TODO:
+Qualitatively, mesh fine-tuning improves the refined surface in Column 3 of Figure~\ref{fig:mesh_qual}, particularly in the view-dependent regions where the coarse extraction struggles. We also highlight the our mesh fine-tuning algorithm's ability to handle a ringing artifact in \emph{teapot} in Figure \ref{fig:mesh_ringing}. This is because ___
 
 % $5.58^\circ$ to $1.19^\circ$.
 
@@ -211,5 +193,3 @@ six scenes for a mean of $0.45$\,dB (Table~\ref{tab:mesh_appearance}), so the
 refinement is correcting geometry rather than trading image quality for it.
 
 In our experiment, we conduct mesh refinement \emph{without} altering connectivity. Because barycentric anchoring fixes topology, our proposed mesh refinement method can \emph{adjust} existing surface but \emph{cannot recover} surface that is absent (i.e. large holes). We leave extensions such as coupling the vertex update to remeshing, topology-aware extraction stage, and more detailed comparisons against SOTA mesh refinement methods as future work.
-
-% accuracy improves markedly more than completeness across all six scenes, and on \textit{toaster} a completeness of 81.5 against an accuracy of 7.9 indicates regions of ground-truth surface with no nearby prediction at all. 

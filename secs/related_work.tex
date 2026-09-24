@@ -62,5 +62,7 @@ and Texture-GS learns a UV mapping so that a 2D texture colors the splats~\citep
 In every case, however, the mesh merely \emph{drives} the kernels:
 the rendered primitives remain three-dimensional, ambient-space objects composited by depth sorting,
 and the domain of the appearance field never becomes the surface itself.
-In contrast, we define a strictly 2D, sort-free Gaussian mixture expressed in the barycentric coordinates on  the faces.
+\cite{neumesh} is relevant in a sense that it binds learnable codes on the vertices, but never allow the code representation to float inside the 2D manifold. 
+While original EWA surface splatting\cite{EWA} is not differentiable.
+In contrast, we define a strictly 2D, sort-free Gaussian mixture expressed in the barycentric coordinates on  the faces that is differentiable and free inside the 2D manifold.
 In this way the mesh is not scaffolding but the domain, and it remains the authoritative solid geometry for collision, physics, and animation.
