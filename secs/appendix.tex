@@ -182,7 +182,7 @@ We then hold fix the vertex positions on the mesh and optimize the disk field fo
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/mesh_qual.pdf}
-    \caption{\textbf{Mesh refinement results.} From left to right: the raw marching-cubes mesh from Ref-GS; the ANB input without mesh fine-tuning; ANB after mesh fine-tuning; the ground-truth Blender mesh; and the ground-truth normal map. We flat shade 1 - 3 and smooth shade 4 and 5 to better visualize the results. 4 - 5 is to reference original blender mesh. Read from Ref-GS to ANB input is the main training and ANB input $\rightarrow$ ANB fine-tuning is the proposed step.}
+    \caption{\textbf{Mesh fine-tuning results.} Each row is one held-out test view, two each of \emph{teapot}, \emph{helmet} and \emph{toaster}. \emph{Columns 1--3} follow one mesh through our pipeline and are flat-shaded so that surface defects stay visible: (1) the mesh Ref-GS extracts by TSDF fusion and marching cubes; (2) that mesh after simplification and hole filling, which is the input to mesh fine-tuning; (3) the same mesh after mesh fine-tuning. Columns 1 and 2 differ only by simplification, so the change from column 2 to column 3 is due to mesh fine-tuning alone. \emph{Columns 4--5} are for reference only: the ground-truth mesh (smooth-shaded) and the ground-truth normal map for the same view.}
     \label{fig:mesh_qual}
 \end{figure}
 
