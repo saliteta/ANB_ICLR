@@ -20,7 +20,7 @@ We propose a mesh refinement algorithm, which we refer to as \textbf{mesh fine-t
 
 To assess mesh fine-tuning, we first warm-up our appearance model on the extracted mesh from Ref-GS for 625 optimizer steps and then \emph{freeze} the environment map and KAN shader. Thus, any remaining error can be solely attributed to geometric problems with the mesh. We then run mesh fine-tuning and compare the resulting mesh with and without our mesh fine-tuning in Figure \ref{fig:mesh_qual} against the ground truth Blender model.
 
-Overall, we find that our proposed mesh fine-tuning is able to refine the extracted mesh and reduce its normal angular error when compared to the ground truth normal across all 6 scenes in ShinyBlender. We report Mean Average Error (MAE) of per-vertex normals and mesh face normals in Table \ref{tab:mesh_geom_norm}. The algorithm also improves the Chamfer distance (CD) in 5/6 scenes as measured in  and \ref{tab:mesh_chamfer}. We also assess the effect of any appearance regression of our algorithm as measured by PSNR, SSIM, and LPIPs in Table \ref{tab:mesh_appearance}. 
+Overall, we find that our proposed mesh fine-tuning is able to refine the extracted mesh and reduce its normal angular error when compared to the ground truth normal across all 6 scenes in ShinyBlender. We report Mean Average Error (MAE) of per-vertex normals and mesh face normals in Table \ref{tab:mesh_normal}. The algorithm also improves the Chamfer distance (CD) in 5/6 scenes as measured in  and \ref{tab:mesh_chamfer}. We also assess the effect of any appearance regression of our algorithm as measured by PSNR, SSIM, and LPIPs in Table \ref{tab:mesh_appearance}. 
 
 % Further detailed analysis of results in the Analysis section.  
 %We show the core process on one disk and one mesh face. (a) We detach disk center $c$ temporarily and evaluate where it would go through photometric loss, yielding a gradient $G_C$. Note that since we're minimizing with photometric loss, the movement is negative (i.e. $-\mathbf{G_{C}}$) (b) We unproject the $G_C$ into vertex space and distribute the gradient as $G_v$. We translate $G_v$ into a \emph{per-vertex} displacement $\Delta$ in a regularized manner. (c) The vertices are updated and the disk centers are recalculated. Note that the disk never leaves the manifold and is simply used as a proxy to derive a vertex displacement. More details on this process in our implementation details.}%
@@ -83,15 +83,13 @@ $\mathrm{sg}[\cdot]$ is the stop-gradient operator. Thus $\hat{\mathbf{C}}$ carr
 is an unconstrained point set in $\mathbb{R}^{N \times 3}$, and the mesh is still fixed at this stage. $\mathbf{G}_{\mathbf{C}} \in \mathbb{R}^{N \times 3}$ is the off-surface
 descent direction we probe for. % and not just autograd %
 
-\textbf{Vertex Gather} We sum across __ disks
-
 \textbf{Vertex Gather}
 Next, we transfer the freed gradient back into the vertex space, distributing each
 disk's requested displacement onto the vertices that support it, weighted by each
 vertex's influence on that disk:
 %
 \begin{equation}
-  \label{eq:pullback}
+  \label{eq:pullback-app}
   \mathbf{G}_{\mathbf{V}}
   = \mathbf{D}^{-1}\mathbf{B}^{\top}\mathbf{G}_{\mathbf{C}},
   \qquad
@@ -184,7 +182,7 @@ We then hold fix the vertex positions on the mesh and optimize the disk field fo
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/mesh_qual.pdf}
-    \caption{\textbf{Mesh refinement results.} From left to right: the raw marching-cubes mesh from Ref-GS; the ANB input without mesh fine-tuning; ANB after mesh fine-tuning; the ground-truth Blender mesh; and the ground-truth normal map. We flat shade 1 - 3 and smooth shade 4 and 5 to better visualize the results. 4 - 5 is to reference original blender mesh. Read from Ref-GS to ANB input is the main training and ANB input \rightarrow ANB fine-tuning is the proposed step.}
+    \caption{\textbf{Mesh refinement results.} From left to right: the raw marching-cubes mesh from Ref-GS; the ANB input without mesh fine-tuning; ANB after mesh fine-tuning; the ground-truth Blender mesh; and the ground-truth normal map. We flat shade 1 - 3 and smooth shade 4 and 5 to better visualize the results. 4 - 5 is to reference original blender mesh. Read from Ref-GS to ANB input is the main training and ANB input $\rightarrow$ ANB fine-tuning is the proposed step.}
     \label{fig:mesh_qual}
 \end{figure}
 
@@ -214,7 +212,7 @@ We run mesh refinement for $n=300$ cycles on all six Shiny Blender scenes with $
 % Qualitatively, we see that our mesh refinement algorithm clearly improves the refined mesh in Column 2 of Figure \ref{fig:mesh_qual}, espescially in the local view-depedent areas that the coarse-GS struggled with. This is supported by the The mean falls X \% . In particular, the median falls \%..  
 
 \textbf{Analysis.}
-Qualitatively, mesh fine-tuning improves the refined surface in Column 3 of Figure~\ref{fig:mesh_qual}, particularly in the view-dependent regions where the coarse extraction struggles. We also highlight the our mesh fine-tuning algorithm's ability to handle a ringing artifact in \emph{teapot} in Figure \ref{fig:mesh_ringing} and \emph{helmet}. This is because ___ TODO:
+Qualitatively, mesh fine-tuning improves the refined surface in Column 3 of Figure~\ref{fig:mesh_qual}, particularly in the view-dependent regions where the coarse extraction struggles. We also highlight the our mesh fine-tuning algorithm's ability to handle a ringing artifact in \emph{teapot} in Figure \ref{fig:mesh_ringing} and \emph{helmet}. \todo{explain the mechanism behind the ringing-artifact fix}
 
 % $5.58^\circ$ to $1.19^\circ$.
 
