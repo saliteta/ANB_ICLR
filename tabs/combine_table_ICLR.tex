@@ -26,24 +26,35 @@ Variant & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
 \hfill
 \begin{minipage}[t]{0.48\textwidth}
 \centering
-\caption{\textbf{Mesh refinement.} Means over the six Shiny-Blender scenes, from Ref-GS
-marching-cubes extractions, without $\rightarrow$ with refinement. Normal error (VN: vertex, GN:
-geometric) is measured against ground-truth normal maps over the test views. PSNR is a control, not
+\caption{\textbf{Mesh refinement.} Geometric Metrics Means over the six Shiny-Blender scenes, from Ref-GS
+TSDF extractions, without $\rightarrow$ with refinement. MAE$_\text{face}$ refers to face normals of the optimized mesh while MAE$_\text{vert}$  refers to the per-vertex normals of the mesh. We compare against 200 test view normals in ShinyBlender in ray-splat space. Accuracy on a 3d per-point basis with the ground truth mesh is reported. PSNR is a control, not
 a result: it confirms the geometry gains are not obtained by trading image quality. These runs use a
 single environment map, so absolute PSNR is below Table~\ref{tab:main}. Per-scene results in
 App.~\ref{app:refinement}.}
 \label{tab:refinement}
+% \begin{tabular}{@{}lcc@{}}
+% \toprule
+% & w/o $\rightarrow$ w/ & $\Delta$ \\
+% \midrule
+% VN Normal MAE ($^\circ$)$\downarrow$    & $6.31 \rightarrow 5.41$     & $-14.2\%$ \\
+% FN MAE ($^\circ$)$\downarrow$    & $7.20 \rightarrow 5.88$     & $-18.3\%$ \\
+% CD $\downarrow$                  & $16.200 \rightarrow 15.889$ & $-2.3\%$  \\
+% \midrule
+% PSNR $\uparrow$ \emph{(control)} & $27.41 \rightarrow 27.86$   & $+0.45$ db   \\
+% \bottomrule
+% \end{tabular}
 \begin{tabular}{@{}lcc@{}}
 \toprule
-& w/o $\rightarrow$ w/ & $\Delta$ \\
+& w/o $\rightarrow$ w/ & Improvement \\
 \midrule
-VN MAE ($^\circ$)$\downarrow$    & $6.31 \rightarrow 5.41$     & $-14.2\%$ \\
-GN MAE ($^\circ$)$\downarrow$    & $7.20 \rightarrow 5.88$     & $-18.3\%$ \\
-CD $\downarrow$                  & $16.200 \rightarrow 15.889$ & $-2.3\%$  \\
+MAE$_\text{face}$ ($^\circ$)$\downarrow$ & $7.20 \rightarrow 5.88$ & $+18.3\%$ \\
+MAE$_\text{vert}$ ($^\circ$)$\downarrow$ & $6.31 \rightarrow 5.41$ & $+14.2\%$ \\
+Acc.\ ($\times10^{-3}$)$\downarrow$      & $5.80 \rightarrow 5.47$ & $+5.7\%$  \\
 \midrule
-PSNR $\uparrow$ \emph{(control)} & $27.41 \rightarrow 27.86$   & $+0.45$   \\
+PSNR (dB)$\uparrow$ \emph{(control)}     & $27.41 \rightarrow 27.86$ & $+0.45$ \\
 \bottomrule
 \end{tabular}
+
 \end{minipage}
 \vspace{-2mm}
 \end{table*}

@@ -1,14 +1,13 @@
 \section{Conclusion and Discussion}
 \label{sec:conclusion}
-We present automatic neural baking, which optimizes view-dependent appearance as an element-wise
+We present automatic neural baking, a novel representation which optimizes view-dependent appearance as an element-wise
 ``texture'' whose domain is the mesh surface and whose blending is order-independent --- so the
 asset needs no UV atlas and no depth sort, and is evaluated per fragment at real-time rates. Three
-interchangeable modules realize it: a 2D Gaussian mixture anchored in barycentric coordinates for
+modules realize it: a 2D Gaussian mixture anchored in barycentric coordinates for
 the view-independent fields, an adaptive hierarchical environment map for far-field and near-field
-reflection, and a FastKAN decoder for the view-dependent term. Given the same geometry, the result
+reflection, and a FastKAN decoder for the view-dependent term. Given the same input geometry, the result
 surpasses prior work on both benchmarks. Because the field is anchored to the faces, the same
-optimization also refines the mesh it is baked onto, and the trained mixture reduces to a compact
-asset without retraining.
+optimization can also refine the mesh it is baked onto.
 
 \paragraph{Limitations.} Our method requires a mesh, and is optimized per scene. We evaluate on
 synthetic single-object benchmarks; real captures, where the input mesh is noisier and the
@@ -19,3 +18,7 @@ demonstrated in nvdiffrast rather than in a shipped fragment shader; the represe
 shader-implementable by construction, but engine integration is left to future work. Mesh refinement
 adjusts an existing surface and cannot recover geometry that is absent, and is validated with a
 single environment map.
+
+% mandatory not included in page limit
+\section{AI Disclosure}
+DISCLOSURE GOES HERE NOT PART OF PAGE LIMIT

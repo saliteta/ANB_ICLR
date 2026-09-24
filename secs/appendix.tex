@@ -1,44 +1,59 @@
 \section{Appendix}
 \subsection{Ablation Details}
 
-Here, we present detailed qualitative and quantitative results from our ablation study comparing our approach against closely related baselines. We first evaluated replacing the KAN with a standard MLP. Additionally, we experimented with incorporating material tokens or features, similar to scaffolded Gaussian Splats; however, the performance was inferior to that of a straightforward MLP. We also attempted to use spherical Gaussians for the view-dependent representation, but this approach yielded suboptimal results. These quantitative comparisons are summarized in Tab.~\ref{tab:ablation-means}.
+Here, we present detailed qualitative and quantitative results from our ablation study comparing our approach against closely related baselines. We first evaluated replacing the KAN with a standard MLP. Additionally, we experimented with incorporating material tokens or features, similar to scaffolded Gaussian Splats; however, the performance was inferior to that of a straightforward MLP. We also attempted to use spherical Gaussians for the view-dependent representation, but this approach yielded suboptimal results. These quantitative comparisons are summarized in Tab.~\ref{tab:combined-ablation-baselines}.
 
 Furthermore, we provide qualitative visualizations that decompose the outputs of our method. Specifically, our rendering function consists of three components: multiple environment maps for self-reflection, a KAN for specular reflection, and a GMM for diffuse lighting. We visualize the distinct contributions of each of these lighting components. To isolate the effects of the 2D GMM, Fig.~\ref{fig:abl_qualitative} compares our method against a 2DGS baseline exhibiting depth-fighting (with spherical harmonics set to zero). Finally, Tab.~\ref{tab:shiny_perscene} details quantitative comparison against state-of-the-art methods on the Shiny-Blender dataset.
 
-\textbf{Analysis} expand on what this means.
-
-\input{tabs/tabs_mean}
+\input{tabs/tabs}
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/ablation.pdf}
-    \caption{From left to right: 2DGS baseline, 2D GMM for diffuse light, KAN with one environment map, KAN with multiple environment maps, and ground truth. Especially notice that our multi-environment setting successfully approximate the self-reflection effects on concave objects. While for convex-objects, since there is nearly no self-reflection, the visual results seems highly aligned.}
+    \caption{From left to right: 2DGS baseline, 2D GMM for diffuse light, KAN with one environment map, KAN with multiple environment maps, and ground truth. We highlight that our multi-environment setting successfully approximates the self-reflection effects on concave objects in toaster. For convex-objects, since there is nearly no self-reflection, the visual results seems highly aligned}
     \label{fig:abl_qualitative}
 \end{figure}
 
-\subsection{Mesh Refinement}
-Although our main experiments evaluate in a fixed-mesh setting, we are interested in ANB's ability to refine the coarse extracted mesh it is baked into. We propose a mesh refinement algorithm, which we refer to as \textbf{mesh fine-tuning}. Mesh fine-tuning reads, from ANB representation, the direction each disk \emph{would} move in the ambient Euclidian space to reduce photometric loss, and keeps only the normal-direction component that neighboring disks agree on. We then propagate this movement back onto the vertices as a per-vertex displacement and update the mesh. The core process is visualized in Figure \ref{fig:mesh_finetune}.
+\subsection{Mesh Refinement Algorithm}
+\label{app:refinement}
+We propose a mesh refinement algorithm, which we refer to as \textbf{mesh fine-tuning}. Mesh fine-tuning reads, from ANB representation, the direction each disk \emph{would} move in the ambient Euclidian space to reduce photometric loss, and keeps only the normal-direction component that neighboring disks agree on. We then propagate this movement back onto the vertices as a per-vertex displacement and update the mesh. The core process is visualized in Figure \ref{fig:mesh_finetune}.
 
 To assess mesh fine-tuning, we first warm-up our appearance model on the extracted mesh from Ref-GS for 625 optimizer steps and then \emph{freeze} the environment map and KAN shader. Thus, any remaining error can be solely attributed to geometric problems with the mesh. We then run mesh fine-tuning and compare the resulting mesh with and without our mesh fine-tuning in Figure \ref{fig:mesh_qual} against the ground truth Blender model.
 
-Overall, we find that our proposed mesh fine-tuning is able to refine a coarse extracted mesh and reduce its normal angular error when compared to the ground truth normal across all 6 scenes in ShinyBlender. We report Mean Average Error (MAE) of per-vertex normals and mesh face normals in Table \ref{tab:mesh_geom_norm}. The algorithm also improves the Chamfer distance (CD) in 5/6 scenes as measured in  and \ref{tab:mesh_chamfer}. We also assess the effect of any regression in PSNR, SSIM, and LPIPs in Table \ref{tab:mesh_appearance}. Further detailed analysis of results in the Analysis section.  
+Overall, we find that our proposed mesh fine-tuning is able to refine the extracted mesh and reduce its normal angular error when compared to the ground truth normal across all 6 scenes in ShinyBlender. We report Mean Average Error (MAE) of per-vertex normals and mesh face normals in Table \ref{tab:mesh_geom_norm}. The algorithm also improves the Chamfer distance (CD) in 5/6 scenes as measured in  and \ref{tab:mesh_chamfer}. We also assess the effect of any appearance regression of our algorithm as measured by PSNR, SSIM, and LPIPs in Table \ref{tab:mesh_appearance}. 
 
+% Further detailed analysis of results in the Analysis section.  
+%We show the core process on one disk and one mesh face. (a) We detach disk center $c$ temporarily and evaluate where it would go through photometric loss, yielding a gradient $G_C$. Note that since we're minimizing with photometric loss, the movement is negative (i.e. $-\mathbf{G_{C}}$) (b) We unproject the $G_C$ into vertex space and distribute the gradient as $G_v$. We translate $G_v$ into a \emph{per-vertex} displacement $\Delta$ in a regularized manner. (c) The vertices are updated and the disk centers are recalculated. Note that the disk never leaves the manifold and is simply used as a proxy to derive a vertex displacement. More details on this process in our implementation details.}%
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figs/fig_mesh_finetune.pdf}
-    \caption{\textbf{Mesh fine-tuning algorithm.} We show the core process on one disk and one mesh face. (a) We detach disk center $c$ temporarily and evaluate where it would go through photometric loss, yielding a gradient $G_C$. Note that since we're minimizing with photometric loss, the movement is negative (i.e. $-\mathbf{G_{C}}$) (b) We unproject the $G_C$ into vertex space and distribute the gradient as $G_v$. We translate $G_v$ into a \emph{per-vertex} displacement $\Delta$ in a regularized way. (c) The vertexes are updated and the center. Note that the disk never leaves the manifold and is simply used as a proxy to derive a vertex displacement. More details on this process in our implementation details.}
+    \includegraphics[width=\linewidth]{figs/mesh_refinement.png}
+    \caption{\textbf{Mesh fine-tuning algorithm.} We show the process on one
+    disk $k$ and one mesh face. (a) We detach disk $k$'s center and evaluate it
+    in ray-splat form, yielding an off-surface gradient
+    $\mathbf{G}_k = \partial \mathcal{L} / \partial \mathbf{C}_k$; since we
+    minimize photometric loss, the movement is negative (i.e.\
+    $-\mathbf{G}_k$). (b) We distribute $\mathbf{G}_k$ onto the face's three
+    vertices via the same barycentric weights that reconstruct the disk, giving
+    each vertex its share $\mathbf{G}_{v_i,k}$. (c) Each vertex sums and
+    normalizes the shares from every disk on any incident face --- not just the
+    one shown, but all disks anchored to any face that has this vertex as a
+    corner --- into $\mathbf{G}_{v_i}$. (d) We translate $\mathbf{G}_{v_i}$ into
+    a displacement $\Delta$ in a regularized way and update the vertices,
+    $\mathbf{v}_{i,\text{new}} \leftarrow \mathbf{v}_{i,\text{old}} + \Delta$,
+    recomputing the disk centers. The disk never leaves the manifold; it is
+    simply a proxy for deriving a vertex displacement.}
     \label{fig:mesh_finetune}
 \end{figure}
 
 \paragraph{Mesh Fine-tuning Algorithm.}
-We outline some details of our proposed mesh fine-tuning algorithm given our ANB representation here. Our algorithm alternates between a geometry step (the flow is illustrated in Figure \ref{fig:mesh_finetune} and an appearance step (standard 2DGS appearance optimization). We now detail aspects of the geometry step.
+We outline some details of our proposed mesh fine-tuning algorithm given our ANB representation here. Our algorithm alternates between a geometry step (the flow is illustrated in Figure \ref{fig:mesh_finetune} and an appearance step outlined in Eq. \ref{eq:appearance}. We now detail aspects of the geometry step.
 
 % Each cycle of the algorithm alternates a geometry stage with an appearance stage.  During the geometry stage, we have
 
 % \paragraph{setup} We have a map from disk space to vertex space (i.e. $B: V \rightarrow E$). 
 
-\textbf{Detach and Free.} We \emph{temporarily} release disk $i$ from the
-surface, treating its center $\mathbf{c}_i$ as a free variable in
+\textbf{Detach and Read Gradient.} We \emph{temporarily} release disk $i$ from the
+surface, treating its center $\mathbf{x}_i$ as a free variable in
 $\mathbb{R}^3$ rather than a point constrained to the mesh. This lets the
 disk respond to motion along the surface normal, and we read off the direction that
 would most reduce the photometric loss. It tells us where the disk would go
@@ -46,27 +61,31 @@ would most reduce the photometric loss. It tells us where the disk would go
 is pinned to the mesh and cannot move on its own. The freed center point is read
 for its gradient and then discarded.
 
-Concretely, we project disk centers $\mathbf{C}$ and detach the projected point from the computation graph for a single
-backward pass. Then, we run 1 forward optimization step, evaluating the disk in 2D-GS ray-splat space \cite{2DGS}, rather than in-place. Draw training images $I_{train}$ and running photometric loss $\mathcal{L}_{photo}$, we have
-%
+Concretely, we project disk centers $\mathbf{X}$ and detach the projected point from the computation graph for a single
+backward pass. Then, we run 1 forward optimization step, evaluating the disk in 2D-GS ray-splat space \cite{2DGS}, rather than in-place. Draw training images $I^{train}$ and running photometric loss $\mathcal{L}_{app}$, we have
+
 \begin{equation}
-  \mathbf{C} = \mathbf{B}\mathbf{V},
+  \mathbf{X} = \mathbf{B}\mathbf{V},
   \qquad
-  \hat{\mathbf{C}} \leftarrow \mathrm{sg}\!\left[\mathbf{C}\right],
+  \hat{\mathbf{X}} \leftarrow \mathrm{sg}\!\left[\mathbf{C}\right],
   \qquad
-  \mathbf{G}_{\mathbf{C}}
-  = \frac{\partial \mathcal{L}_{photo}\!\left(
-      raysplat(\hat{\mathbf{C}}),\, I_{train}
-    \right)}{\partial \hat{\mathbf{C}}},
+  \mathbf{G}_{\mathbf{X}}
+  = \frac{\partial \mathcal{L}_{app}\!\left(
+      raysplat(\hat{\mathbf{X}}),\, I^{train}
+    \right)}{\partial \hat{\mathbf{X}}},
 \end{equation}
-%
-where $\mathbf{B} \in \mathbb{R}^{N \times M}$ holds the barycentric weights,
-$\mathbf{V} \in \mathbb{R}^{M \times 3}$ the mesh vertex positions, and
+
+% where $\mathbf{B} \in \mathbb{R}^{N \times M}$ holds the barycentric weights,
+% $\mathbf{V} \in \mathbb{R}^{M \times 3}$ the mesh vertex positions, and
+
+where
 $\mathrm{sg}[\cdot]$ is the stop-gradient operator. Thus $\hat{\mathbf{C}}$ carries no dependence on $\mathbf{V}$ and
 is an unconstrained point set in $\mathbb{R}^{N \times 3}$, and the mesh is still fixed at this stage. $\mathbf{G}_{\mathbf{C}} \in \mathbb{R}^{N \times 3}$ is the off-surface
-descent direction we probe for. % and not just autograd
+descent direction we probe for. % and not just autograd %
 
-\textbf{Unproject back onto vertices.}
+\textbf{Vertex Gather} We sum across __ disks
+
+\textbf{Vertex Gather}
 Next, we transfer the freed gradient back into the vertex space, distributing each
 disk's requested displacement onto the vertices that support it, weighted by each
 vertex's influence on that disk:
@@ -107,7 +126,7 @@ We condition the raw displacement with three operators, applied right to left:
     later one can undo.
 \end{itemize}
 
-We do an ablation on these components in Table \ref{} (TODO: will add).
+% We do an ablation on these components in Table \ref{} (TODO: will add).
 
 Now, the vertex gradient combines the photometric term with the
 normal-consistency term, and $\mathcal{T}$ acts on the step the Adam optimizer
@@ -138,7 +157,7 @@ where $Adam$ is the Adam optimizer (cite) and $\lambda_{norm}$ is a hyper-parame
 \textbf{Commit and Move Mesh} Finally, we move the vertices by $\Delta$ and recompute
 the disk poses they induce, 
 \begin{equation}
-     \mathbf{V} _{new}\leftarrow \mathbf{V_{old}} + \Delta, C_{new} = BV .
+     \mathbf{V} _{new}\leftarrow \mathbf{V_{old}} + \Delta
 \end{equation}
 % \begin{align}
 % \tilde G_V &= G_V + \lambda\,G_{\mathrm{nrm}}
@@ -165,7 +184,7 @@ We then hold fix the vertex positions on the mesh and optimize the disk field fo
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/mesh_qual.pdf}
-    \caption{\textbf{Mesh refinement results.} From left to right: the raw marching-cubes mesh from Ref-GS; the ANB input without mesh fine-tuning; ANB after mesh fine-tuning; the ground-truth Blender mesh; and the ground-truth normal map. TODO: we flat shade 1 - 3 and smooth shade 4 and 5 to better visualize the results. 4 - 5 is to reference original blender mesh. Read from Ref-GS to ANB input is the main training and ANB input \rightarrow ANB fine-tuning is the proposed step.}
+    \caption{\textbf{Mesh refinement results.} From left to right: the raw marching-cubes mesh from Ref-GS; the ANB input without mesh fine-tuning; ANB after mesh fine-tuning; the ground-truth Blender mesh; and the ground-truth normal map. We flat shade 1 - 3 and smooth shade 4 and 5 to better visualize the results. 4 - 5 is to reference original blender mesh. Read from Ref-GS to ANB input is the main training and ANB input \rightarrow ANB fine-tuning is the proposed step.}
     \label{fig:mesh_qual}
 \end{figure}
 
@@ -200,8 +219,7 @@ Qualitatively, mesh fine-tuning improves the refined surface in Column 3 of Figu
 % $5.58^\circ$ to $1.19^\circ$.
 
 Normal error improves on all six scenes, with mean
-MAE falling, $8.04^\circ \rightarrow 6.72^\circ$ ($-16.4\%$) and per-scene gains
-ranging from $-5.6\%$ on \textit{car} to $-43.6\%$ on \textit{helmet}.
+MAE falling, $6.31^\circ \rightarrow 5.41^\circ$ and yielding ($+14.2\%$) improvement across scenes. 
 Chamfer accuracy corroborates this on five of six scenes
 (Table~\ref{tab:mesh_chamfer}), the exception being \textit{teapot}, whose input
 mesh is already the second most accurate in the set and therefore has little
@@ -210,6 +228,6 @@ Crucially, these gains are not paid for in appearance: PSNR improves on five of
 six scenes for a mean of $0.45$\,dB (Table~\ref{tab:mesh_appearance}), so the
 refinement is correcting geometry rather than trading image quality for it.
 
-In our experiment, we conduct mesh refinement \emph{without} altering connectivity. Because barycentric anchoring fixes topology, our proposed mesh refinement method can \emph{adjust} existing surface but \emph{cannot recover} surface that is absent (i.e. large holes). We leave extensions such as coupling the vertex update to remeshing, topology-aware extraction stage, and more detailed comparisons against SOTA mesh refinement methods as future work.
+In our experiment, we highlight an extension of our representation to conduct mesh refinement \emph{without} altering connectivity. Because barycentric anchoring fixes topology, our proposed mesh refinement method can \emph{adjust} existing surface but \emph{cannot recover} surface that is absent (i.e. large holes). We leave extensions such as coupling the vertex update to remeshing, topology-aware extraction stage, and more detailed comparisons against SOTA mesh refinement methods as future work.
 
 % accuracy improves markedly more than completeness across all six scenes, and on \textit{toaster} a completeness of 81.5 against an accuracy of 7.9 indicates regions of ground-truth surface with no nearby prediction at all. 

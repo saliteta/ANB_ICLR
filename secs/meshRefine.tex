@@ -7,7 +7,7 @@ Overall, we find that our proposed mesh fine-tuning is able to refine a coarse e
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figs/fig_mesh_finetune.pdf}
+    \includegraphics[width=\linewidth]{figs/mesh_refinement.png}
     \caption{\textbf{Mesh fine-tuning algorithm.} We show the core process on one disk and one mesh face. (a) We detach disk center $c$ temporarily and evaluate where it would go through photometric loss, yielding a gradient $G_C$. Not that since we're minimizing with photmetric loss, the movement is negative (i.e. $-\mathbf{G_{C}}$ (b) We unproject the $G_C$ into vertex space and distribute the gradient as $G_v$. We translate $G_v$ into a \emph{per-vertex} displacement $\Delta$ in a regularized way. (c) The vertexes are updated and the the center. Note that the disk never leaves the manifold and is simply used as a proxy to derive a vertex displacement. More details on this process in our implementation details;}
     \label{fig:mesh_finetune}
 \end{figure}

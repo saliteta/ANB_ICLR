@@ -2,13 +2,14 @@
 \input{tabs/main_table}
 \section{Experiments}
 \label{sec:Exp}
-We evaluate on NeRF-Synthetic~\citep{NeRFVanilla} and Shiny-Blender~\citep{refnerf}. Two baselines
-share our fixed-mesh setting: DNR~\citep{DNR}, and a mesh-constrained 2DGS, denoted
-2DGS$^{*}$~\citep{2DGS}, in which four million 2D Gaussians are initialized uniformly on the surface
+\textbf{Novel View Synthesis} We conduct experiments on NeRF-Synthetic~\citep{NeRFVanilla} and Shiny-Blender~\citep{refnerf} in a \emph{fixed mesh setting}. We choose two fixed-mesh baselines:  DNR~\citep{DNR} and a mesh-constrained 2DGS, denoted
+2DGS$^{*}$~\citep{2DGS}. We initialize 2DGS* with four million 2D Gaussians uniformly on the surface
 and all gradients are projected onto the manifold defined by the mesh faces. We also report
-unconstrained methods (3DGS~\citep{3DGS}, Ref-NeRF~\citep{refnerf}, 3DGS-DR~\citep{3dgsDR}) and
-flexible-mesh methods (GaussianShader~\citep{gaussianShader}, RefGS~\citep{refgs}) as reference;
-these optimize geometry rather than taking it as given, so they are not directly comparable.
+unconstrained mesh methods (3DGS~\citep{3DGS}, Ref-NeRF~\citep{refnerf}, 3DGS-DR~\citep{3dgsDR}) and
+flexible-mesh methods (GaussianShader~\citep{gaussianShader}, RefGS~\citep{refgs}) as reference. Note that
+these methods optimize geometry rather than taking it as given, so they are not directly comparable.
+
+\textbf{Mesh Refinement} Although we assume a fixed-mesh setting (i.e. an artist-designed asset), we are also interested in our representation's ability to \emph{refine} the extracted mesh it is baked into \emph{while preserving our mapping}. We explore this capability by temporarily relaxing our fixed mesh setting and refining a 2D-GS extracted mesh and evaluating on ShinyBlender. We propose a \textbf{mesh-finetuning} algorithm which leverages ANB's bary-centric representation for refinine the coarse extracted mesh. We report mean normal error improvement and Chamfer distance in Table \ref{tab:refinement}; further details and discussion are in Appendix \ref{app:refinement}.
 
 
 \subsection{Comparison}
@@ -38,12 +39,12 @@ MLP).
 
 
 
-\subsection{Efficiency and Downstream Tasks}
+\subsection{Efficiency}
 The full asset ($10^6$ disks, five environment maps, shader) occupies $48.3$ MB on disk and renders
 the test views at $91.7$ FPS on NeRF-Synthetic and $68.6$ FPS on Shiny-Blender, measured with
 \texttt{torch.compile} on a single NVIDIA H100 (CUDA 12.8). Table~\ref{tab:refinement} reports mesh
 refinement: averaged over the six Shiny-Blender scenes, starting from Ref-GS marching-cubes
-extractions, normal angular error falls by $14.2\%$ (vertex) and $18.3\%$ (geometric) and Chamfer
+extractions, normal angular error falls by $14.2\%$ (vertex normal) and $18.3\%$ (face normal) and Chamfer
 distance by $2.3\%$, while held-out PSNR improves by $0.45$~dB and LPIPS is unchanged. Per-scene
-results, the algorithm, and implementation details are in App.~\ref{app:refinement}.
+results and further analysis of our architectural choices are in App.~\ref{app:refinement}.
 \input{tabs/combine_table_ICLR}
