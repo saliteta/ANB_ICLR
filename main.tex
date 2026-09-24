@@ -53,7 +53,21 @@
 
 
 \begin{abstract}
-Interactive applications demand photorealistic, real-time rendering, but traditional baking pipelines struggle to capture highly reflective, view-dependent materials. Simultaneously, modern neural and splat representations achieve exceptional novel-view synthesis but rely on ambient 3D space distributions that do not cleanly integrate with standard mesh-based rasterization pipelines. To bridge this gap, we introduce Automatic Neural Baking, a novel, differentiable pipeline that bakes view-dependent appearance directly onto an explicit 3D mesh as a strictly 2D manifold representation. Our method models appearance using three rasterizer-native modules: a 2D Gaussian Mixture Model anchored to the mesh via barycentric coordinates for diffuse color and reflectivity; an adaptive, hierarchical environment map that decomposes the object into near-convex parts to capture self-reflection; and a lightweight Kolmogorov-Arnold Network (FastKAN) that evaluates the reflection equation for high-frequency specularities. By restricting primitives to the 2D surface, our representation avoids depth-sorting and co-planar degeneracies entirely. The resulting assets can be evaluated locally within a standard fragment shader, achieving real-time rendering speeds (over 60 FPS) while surpassing current state-of-the-art methods on standard novel view synthesis benchmarks.
+Baking precomputes an object's appearance into a texture on a mesh, but baked formats cannot
+represent sharp view-dependent reflection. Neural and splat representations can, yet they place
+appearance in the space \emph{around} the object rather than on its surface, so there is nothing to
+bake; binding splats to mesh faces does not help, because coplanar primitives have tied depth keys
+and no ordering of them is both view-stable and geometrically meaningful. We introduce Automatic
+Neural Baking, which defines appearance as an \emph{on-manifold kernel field}: 2D Gaussian kernels
+anchored to faces in barycentric coordinates, blended at each fragment by a partition of unity over
+the $K$ nearest. A convex blend is invariant to the order of its terms, so the field needs no UV
+atlas and no depth sort, and an $\mathcal{O}(K)$ local gather replaces the global
+$\mathcal{O}(N\log N)$ one. Two modules supply the view-dependent term: an adaptive environment map
+split over near-convex parts, and a compact FastKAN decoder. Given the mesh, we reach $36.99$ dB
+PSNR on Shiny-Blender, above the best reported results, and render at $76.8$ FPS on a consumer RTX
+4090 with a $1.74$ GB footprint. Because the anchoring is linear in the vertices, appearance
+gradients also reach the mesh: we derive how, and show they reduce the normal error of a coarse
+extracted mesh on every scene.
 \end{abstract}
 
 \input{secs/intro}
