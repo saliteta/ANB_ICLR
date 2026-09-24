@@ -200,7 +200,7 @@ We then hold fix the vertex positions on the mesh and optimize the disk field fo
 \input{tabs/mesh_appearance}
 \paragraph{Implementation Details}
 % We run our mesh refinement algorithm with $\lambda_{norm} = 0.5$ for $n=300$ cycles for all 6 scenes across Shiny-Blender. We set $\sigma = $, other hyper-params as a function of disk radius...TODO: table of ablation hyper-params
-We run mesh refinement for $n=300$ cycles on all six Shiny Blender scenes with $\lambda_{\mathrm{nrm}}=0.5$. Each cycle consists of one geometry stage and one appearance stage. The KAN shader and environment maps are frozen throughout mesh fine-tuning. Displacements (i.e $\Delta$) are scaled relative to disk radius $\sigma$. 
+We run mesh refinement for $n=300$ cycles on all six Shiny Blender scenes with $\lambda_{\mathrm{nrm}}=0.5$. Each cycle consists of one geometry stage and one appearance stage. The KAN shader and environment maps are frozen throughout mesh fine-tuning. Displacements (i.e $\Delta$) are scaled relative to disk radius $\sigma$. % TODO: quick metrics explanation and citations (i.e. why do we care about median and chamfer, Ref-Neus and other citations)
 
 %The vertex learning rate is cosine-annealed to $2\%$ of its initial value.
 
