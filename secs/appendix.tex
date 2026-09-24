@@ -20,7 +20,7 @@ We propose a mesh refinement algorithm, which we refer to as \textbf{mesh fine-t
 
 To assess mesh fine-tuning, we first warm-up our appearance model on the extracted mesh from Ref-GS for 625 optimizer steps and then \emph{freeze} the environment map and KAN shader. Thus, any remaining error can be solely attributed to geometric problems with the mesh. We then run mesh fine-tuning and compare the resulting mesh with and without our mesh fine-tuning in Figure \ref{fig:mesh_qual} against the ground truth Blender model.
 
-Overall, we find that our proposed mesh fine-tuning is able to refine the extracted mesh and reduce its normal angular error when compared to the ground truth normal across all 6 scenes in ShinyBlender. We report Mean Average Error (MAE) of per-vertex normals and mesh face normals in Table \ref{tab:mesh_normal}. The algorithm also improves the Chamfer distance (CD) in 5/6 scenes as measured in  and \ref{tab:mesh_chamfer}. We also assess the effect of any appearance regression of our algorithm as measured by PSNR, SSIM, and LPIPs in Table \ref{tab:mesh_appearance}. 
+Overall, we find that our proposed mesh fine-tuning is able to refine the extracted mesh and reduce its normal angular error when compared to the ground truth normal across all 6 scenes in ShinyBlender. We report Mean Average Error (MAE) of per-vertex normals and mesh face normals in Table \ref{tab:mesh_normal}. The algorithm also improves accuracy on 5/6 scenes and Chamfer distance (CD) on 4/6, with \emph{car} unchanged (Table~\ref{tab:refinement_chamfer}). We also assess the effect of any appearance regression of our algorithm as measured by PSNR, SSIM, and LPIPs in Table \ref{tab:mesh_appearance}. 
 
 % Further detailed analysis of results in the Analysis section.  
 %We show the core process on one disk and one mesh face. (a) We detach disk center $c$ temporarily and evaluate where it would go through photometric loss, yielding a gradient $G_C$. Note that since we're minimizing with photometric loss, the movement is negative (i.e. $-\mathbf{G_{C}}$) (b) We unproject the $G_C$ into vertex space and distribute the gradient as $G_v$. We translate $G_v$ into a \emph{per-vertex} displacement $\Delta$ in a regularized manner. (c) The vertices are updated and the disk centers are recalculated. Note that the disk never leaves the manifold and is simply used as a proxy to derive a vertex displacement. More details on this process in our implementation details.}%
@@ -212,14 +212,14 @@ We run mesh refinement for $n=300$ cycles on all six Shiny Blender scenes with $
 % Qualitatively, we see that our mesh refinement algorithm clearly improves the refined mesh in Column 2 of Figure \ref{fig:mesh_qual}, espescially in the local view-depedent areas that the coarse-GS struggled with. This is supported by the The mean falls X \% . In particular, the median falls \%..  
 
 \textbf{Analysis.}
-Qualitatively, mesh fine-tuning improves the refined surface in Column 3 of Figure~\ref{fig:mesh_qual}, particularly in the view-dependent regions where the coarse extraction struggles. We also highlight the our mesh fine-tuning algorithm's ability to handle a ringing artifact in \emph{teapot} in Figure \ref{fig:mesh_ringing} and \emph{helmet}. \todo{explain the mechanism behind the ringing-artifact fix}
+Qualitatively, mesh fine-tuning improves the refined surface in Column 3 of Figure~\ref{fig:mesh_qual}, particularly in the view-dependent regions where the coarse extraction struggles. We also highlight the ability of mesh fine-tuning to remove a ringing artifact on \emph{teapot} and \emph{helmet} in Figure~\ref{fig:mesh_ringing}. The rings are marching-cubes terraces at the TSDF voxel spacing that survive simplification; they barely move the surface but tilt its face normals. Mesh fine-tuning targets exactly this: its updates are restricted to the normal direction, and the normal-consistency term pulls each face toward the smooth, cross-view shading normal. Consistent with this, median face-normal error falls by $61.8\%$ on \emph{helmet} and $53.4\%$ on \emph{teapot} (Table~\ref{tab:mesh_normal}) while CD changes by under $5\%$ (Table~\ref{tab:refinement_chamfer}).
 
 % $5.58^\circ$ to $1.19^\circ$.
 
 Normal error improves on all six scenes, with mean
 MAE falling, $6.31^\circ \rightarrow 5.41^\circ$ and yielding ($+14.2\%$) improvement across scenes. 
 Chamfer accuracy corroborates this on five of six scenes
-(Table~\ref{tab:mesh_chamfer}), the exception being \textit{teapot}, whose input
+(Table~\ref{tab:refinement_chamfer}), the exception being \textit{teapot}, whose input
 mesh is already the second most accurate in the set and therefore has little
 geometric slack remaining.
 Crucially, these gains are not paid for in appearance: PSNR improves on five of
