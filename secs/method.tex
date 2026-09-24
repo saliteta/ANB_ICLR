@@ -85,7 +85,7 @@ ties cannot arise and the $\mathcal{O}(K)$ gather needs no sort.
 We describe the reflection lookup first without its learned parts, where it is ordinary environment mapping: a directional fetch and a weighted blend.
 
 \paragraph{Fetching}
-Treat the environment as a classical equirectangular map. At a surface point with normal $\mathbf{n}$ seen from view direction $\mathbf{v}$, the mirror-reflected direction is $\boldsymbol{\omega}_r = 2(\mathbf{n}\cdot\mathbf{v})\,\mathbf{n} - \mathbf{v}$. We then start a longitude--elevation coordinate and bilinearly sample according to the direction.
+Treat the environment as a classical equirectangular map. At a surface point with normal $\mathbf{n}$ seen from view direction $\mathbf{v}$, the mirror-reflected direction is $\boldsymbol{\omega}_r = 2(\mathbf{n}\cdot\mathbf{v})\,\mathbf{n} - \mathbf{v}$. We then convert to a longitude--elevation coordinate and bilinearly sample according to the direction.
 
 \paragraph{Which map: near-convex parts.}
 A single global map assumes all light arrives from infinitely far away, so it cannot reproduce the
@@ -150,15 +150,15 @@ material feature $\mathbf{h}$.
 
 \paragraph{Environment fusion and output.}
 A two-layer linear MLP fuses $\mathbf{h}$ with the part-blended environment feature
-$E(\boldsymbol{\omega}_r,f)$ of Eq.~\eqref{eq:envblend}, and A linear head then reads the fused feature to produce a raw specular output, which is scaled by a learned specular tint in $[0,1]^3$ (predicted from an earlier stage of the network separately) to give the view-dependent reflection $r(\mathbf{x},\mathbf{v})$ of Eq.~\eqref{eq:appearance}. Only the staged trunk is KAN. The color head is zero-initialized, so reflection starts at
+$E(\boldsymbol{\omega}_r,f)$ of Eq.~\eqref{eq:envblend}, and a linear head then reads the fused feature to produce a raw specular output, which is scaled by a learned specular tint in $[0,1]^3$ (predicted from an earlier stage of the network separately) to give the view-dependent reflection $r(\mathbf{x},\mathbf{v})$ of Eq.~\eqref{eq:appearance}. Only the staged trunk is KAN. The color head is zero-initialized, so reflection starts at
 zero and is turned \emph{up} only where the training views demand it.
 
 
 
 \subsection{Differentiable Mesh}
 \label{sec:refinement}
-We analyze the differentiable nature of our representation. A mesh $M$ is charactereized by its vertices $\mathbf{V} \in \mathbb{R}^{M \times 3}$ and faces $\mathbf{F} \in \mathbb{R}^{M \times 3}$. Each of these have a normal and $n_v$ and $n_f$. The anchoring of Eq.~\eqref{eq:center} is linear in the vertices $\mathbf{V}$, $\mathbf{X} = \mathbf{B}\mathbf{V}$
-with $\mathbf{B}$ the barycentric weights, so appearance gradients have an exact path to the mesh. However, we note that the path is degenerate in one direction: the blend weights of Eq.~\eqref{eq:pou} see only in-plane
+We analyze the differentiable nature of our representation. A mesh $M$ is charactereized by its vertices $\mathbf{V} \in \mathbb{R}^{M \times 3}$ and faces $\mathbf{F} \in \mathbb{R}^{M \times 3}$. Each of these have a normal and $n_v$ and $n_f$. The anchoring of Eq.~\eqref{eq:center} is linear in the vertices $\mathbf{V}$ (i.e.\ $\mathbf{X} = \mathbf{B}\mathbf{V}$
+with $\mathbf{B}$ the barycentric weights), so appearance gradients have an exact path to the mesh. However, we note that the path is degenerate in one direction: the blend weights of Eq.~\eqref{eq:pou} see only in-plane
 offsets, so $\langle \partial w_i / \partial \mathbf{x}_i,\ \mathbf{n}_i \rangle \equiv 0$ and a
 disk can ask the mesh to slide but never to move in or out.
 
@@ -166,12 +166,12 @@ Detaching the centers and evaluating the kernel at the ray--disk intersection ra
 in-plane projection~\citep{2DGS} recovers the missing direction: a normal displacement $\varepsilon$
 becomes a tangential slide of $\varepsilon\tan\vartheta$, with $\vartheta$ the angle between ray and
 disk normal, which the weights do see. The resulting gradient
-$\mathbf{G}_{\mathbf{C}}$ lives in the ambient space the anchoring excludes, and is read rather than
+$\mathbf{G}_{\mathbf{X}}$ lives in the ambient space the anchoring excludes, and is read rather than
 stepped: integrating it would carry the disks off the surface. It pulls back through the adjoint of
 the anchoring,
 %
 \begin{equation}
-\mathbf{G}_{\mathbf{V}} = \mathbf{D}^{-1}\mathbf{B}^{\top}\mathbf{G}_{\mathbf{C}},
+\mathbf{G}_{\mathbf{V}} = \mathbf{D}^{-1}\mathbf{B}^{\top}\mathbf{G}_{\mathbf{X}},
 \qquad \mathbf{D} = \mathrm{diag}(\mathbf{B}^{\top}\mathbf{1}),
 \label{eq:pullback}
 \end{equation}

@@ -30,7 +30,7 @@ Overall, we find that our proposed mesh fine-tuning is able to refine the extrac
     \caption{\textbf{Mesh fine-tuning algorithm.} We show the process on one
     disk $k$ and one mesh face. (a) We detach disk $k$'s center and evaluate it
     in ray-splat form, yielding an off-surface gradient
-    $\mathbf{G}_k = \partial \mathcal{L} / \partial \mathbf{C}_k$; since we
+    $\mathbf{G}_k = \partial \mathcal{L} / \partial \mathbf{X}_k$; since we
     minimize photometric loss, the movement is negative (i.e.\
     $-\mathbf{G}_k$). (b) We distribute $\mathbf{G}_k$ onto the face's three
     vertices via the same barycentric weights that reconstruct the disk, giving
@@ -67,7 +67,7 @@ backward pass. Then, we run 1 forward optimization step, evaluating the disk in 
 \begin{equation}
   \mathbf{X} = \mathbf{B}\mathbf{V},
   \qquad
-  \hat{\mathbf{X}} \leftarrow \mathrm{sg}\!\left[\mathbf{C}\right],
+  \hat{\mathbf{X}} \leftarrow \mathrm{sg}\!\left[\mathbf{X}\right],
   \qquad
   \mathbf{G}_{\mathbf{X}}
   = \frac{\partial \mathcal{L}_{app}\!\left(
@@ -79,8 +79,8 @@ backward pass. Then, we run 1 forward optimization step, evaluating the disk in 
 % $\mathbf{V} \in \mathbb{R}^{M \times 3}$ the mesh vertex positions, and
 
 where
-$\mathrm{sg}[\cdot]$ is the stop-gradient operator. Thus $\hat{\mathbf{C}}$ carries no dependence on $\mathbf{V}$ and
-is an unconstrained point set in $\mathbb{R}^{N \times 3}$, and the mesh is still fixed at this stage. $\mathbf{G}_{\mathbf{C}} \in \mathbb{R}^{N \times 3}$ is the off-surface
+$\mathrm{sg}[\cdot]$ is the stop-gradient operator. Thus $\hat{\mathbf{X}}$ carries no dependence on $\mathbf{V}$ and
+is an unconstrained point set in $\mathbb{R}^{N \times 3}$, and the mesh is still fixed at this stage. $\mathbf{G}_{\mathbf{X}} \in \mathbb{R}^{N \times 3}$ is the off-surface
 descent direction we probe for. % and not just autograd %
 
 \textbf{Vertex Gather}
@@ -91,7 +91,7 @@ vertex's influence on that disk:
 \begin{equation}
   \label{eq:pullback-app}
   \mathbf{G}_{\mathbf{V}}
-  = \mathbf{D}^{-1}\mathbf{B}^{\top}\mathbf{G}_{\mathbf{C}},
+  = \mathbf{D}^{-1}\mathbf{B}^{\top}\mathbf{G}_{\mathbf{X}},
   \qquad
   \mathbf{D} = \mathrm{diag}\!\left(\mathbf{B}^{\top}\mathbf{1}\right),
 \end{equation}

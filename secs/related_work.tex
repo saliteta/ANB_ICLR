@@ -9,9 +9,9 @@ as well as differentiable inverse rendering recovers meshes, materials, and ligh
 and neural textures can be synthesized over curved surfaces~\citep{nerfTexture}.
 These methods deliver genuine assets, but their view-dependent capacity is an afterthought:
 low-order SH lobes or small per-pixel decoders biased toward diffuse content.
-Our pipeline retains the deferred, texture-like structure of this line,
-at the same time devotes explicit model capacity to sharp specularity.
-In addition, methods above presupposes a global UV atlas,
+Our pipeline retains the deferred, texture-like structure of this line
+while devoting explicit model capacity to sharp specularity.
+In addition, methods above presuppose a global UV atlas,
 whose seam-cutting and packing remain tedious to author and non-differentiable to optimize;
 by anchoring appearance in per-face barycentric coordinates, our formulation sidesteps this requirement entirely. Per-face texturing such as Ptex~\citep{ptex} likewise removes the atlas, but its static per-face textures cannot represent the high-frequency, view-dependent reflection that continuous splat representations later captured.
 
@@ -62,8 +62,8 @@ and Texture-GS learns a UV mapping so that a 2D texture colors the splats~\citep
 In every case, however, the mesh merely \emph{drives} the kernels:
 the rendered primitives remain three-dimensional, ambient-space objects composited by depth sorting,
 and the domain of the appearance field never becomes the surface itself.
-\citep{neumesh} is relevant in a sense that it binds learnable codes on the vertices, but never allow the code representation to float inside the 2D manifold. 
-While original EWA surface splatting \cite{EWA} is not differentiable.
+\citet{neumesh} bind learnable codes on the vertices, but never allow the code representation to float inside the 2D manifold.
+The original EWA surface splatting~\citep{EWA} is, moreover, not differentiable.
 In contrast, we define a strictly 2D, sort-free Gaussian mixture expressed in the barycentric coordinates on  the faces that is differentiable and free inside the 2D manifold.
 In this way the mesh is not scaffolding but the domain, and it remains the authoritative solid geometry for collision, physics, and animation.
 
