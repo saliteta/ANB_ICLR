@@ -154,7 +154,7 @@ We then hold fix the vertex positions on the mesh and optimize the disk field fo
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/mesh_ringing.pdf}
-    \caption{\textbf{Mesh refinement results.} From left to right: the raw marching-cubes mesh from Ref-GS; the ANB input without mesh fine-tuning; ANB after mesh fine-tuning; the ground-truth Blender mesh; and the ground-truth normal map.}
+    \caption{\textbf{Mesh refinement results.} Rows: \emph{teapot} and \emph{helmet}. Left two columns: the mesh before and after mesh fine-tuning, with the region of interest boxed in red. Right two columns: the boxed region magnified. The concentric ringing left by marching-cubes extraction survives into the mesh before fine-tuning and is removed after it.}
     \label{fig:mesh_ringing}
 \end{figure}
 
