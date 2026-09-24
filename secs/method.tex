@@ -2,9 +2,8 @@
 \subsection{Overview}
 
 Given a triangle mesh $M$ characterized by vertices (v) and faces (f), along with a set of posed reference images (I), we bake the object's appearance into a field that a rasterizer can evaluate per fragment in real time. 
-
-% The mesh is fixed; only the appearance on it is optimized. Sec.~\ref{sec:downstream} then describes two downstream tasks the baked asset supports, neither of
-% which alters the pipeline above.
+The mesh is fixed; only the appearance on it is optimized. Sec.~\ref{sec:refinement} then describes one downstream task the baked asset supports, which does
+not alter the pipeline above.
 
 We bake appearance with three modules and composite their outputs at each fragment.
 An on-manifold 2D Gaussian mixture (Sec.~\ref{sec:gmm}) carries the view-independent fields; an
