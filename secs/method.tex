@@ -1,7 +1,5 @@
 
-\vspace{-1mm}
 \section{Method}
-\vspace{-1mm}
 \subsection{Overview}
 
 Given a triangle mesh $M$ characterized by vertices (v) and faces (f), along with a set of posed reference images (I), we bake the object's appearance into a field that a rasterizer can evaluate per fragment in real time. 
@@ -106,7 +104,6 @@ Sec.~\ref{sec:ablation} measures what it recovers.
     \includegraphics[width=0.95\linewidth]{figs/qualitative.pdf}
     \caption{\textbf{Qualitative comparison on Shiny-Blender.} From left to right: the mesh-constrained baseline 2DGS$^{*}$, DNR, the state-of-the-art RefGS, our method, and ground truth (GT). Our renders reproduce the sharp, high-frequency environment reflections on the metallic surfaces most faithfully; 2DGS$^{*}$ and DNR blur or smear them, RefGS recovers them less crisply.}
     \label{fig:qualitative}
-    \vspace{-2mm}
 \end{figure}
 \paragraph{Growing the maps by error.}
 We do not fix the number of maps in advance. Training begins with one map shared by the whole object. Periodically we attribute the current reconstruction error to parts and split off the highest-error \emph{connected} region into a new child map, warm-started by copying its parent. Repeated up to a small budget (five maps in our experiments), this spends capacity where reflection error is largest, isolating the concave pockets a single map cannot explain.
