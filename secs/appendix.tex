@@ -31,7 +31,7 @@ capped at $0.5\sigma$ per cycle, $\sigma$ the disk radius) and an appearance ste
 disks, mesh fixed). The optional prior is an area-weighted normal-consistency term pulling each face
 normal toward the input's shading normals, weighted at half the photometric gradient's norm.
 Geometry is scored against the ground-truth Blender
-models: angular error against the ground-truth normal maps of the 200 test views, and accuracy as
+models: mean angular error against the ground-truth normal maps of the 200 test views, and accuracy as
 the mean point-to-surface distance to the camera-visible ground-truth surface, following
 Ref-NeuS~\citep{ref-neus}.
 
