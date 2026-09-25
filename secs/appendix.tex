@@ -29,21 +29,20 @@ and freeze the KAN shader and environment maps. We then alternate 300 cycles of 
 (8 training views, one vertex update restricted to the vertex normal, smoothed to $2.5\sigma$ and
 capped at $0.5\sigma$ per cycle, $\sigma$ the disk radius) and an appearance step (40 steps on the
 disks, mesh fixed). The optional prior is an area-weighted normal-consistency term pulling each face
-normal toward the input's shading normals, weighted at half the photometric gradient's norm. We also
-report a \emph{lifted} variant that evaluates detached disk centers at the ray--disk intersection
-before pulling the gradient back to the vertices. Geometry is scored against the ground-truth Blender
+normal toward the input's shading normals, weighted at half the photometric gradient's norm.
+Geometry is scored against the ground-truth Blender
 models: angular error against the ground-truth normal maps of the 200 test views, and accuracy as
 the mean point-to-surface distance to the camera-visible ground-truth surface, following
 Ref-NeuS~\citep{ref-neus}.
 
 \paragraph{Results.} Table~\ref{tab:refine_decomp} separates the two signals.
-% TODO(after night0925): revisit once the two "image only" rows are filled in.
 The prior alone reorients faces toward the smooth shading normals, giving the lowest face-normal
 error, but it does not use the images and moves the surface away from the ground truth (accuracy
-worsens from $5.83$ to $6.18$). Adding the photometric gradient improves where the surface is:
-accuracy falls to $4.21$ and vertex-normal error to $5.19^\circ$, the best of all arms. The lifted
-variant is comparable on normals and weaker on accuracy. Figure~\ref{fig:mesh_ringing} shows the
-marching-cubes ringing removed on \emph{teapot} and \emph{helmet}.
+worsens from $5.83$ to $6.18$). The photometric gradient alone is not enough either: without the
+prior, face normals degrade ($7.20^\circ \rightarrow 18.58^\circ$). Together they give the best
+vertex-normal error ($6.31^\circ \rightarrow 5.41^\circ$) and accuracy ($5.83 \rightarrow 5.49$).
+Figure~\ref{fig:mesh_ringing} shows the marching-cubes ringing removed on \emph{teapot} and
+\emph{helmet}.
 
 \paragraph{Limitations.} The refinement adjusts an existing surface and cannot recover absent
 geometry, starts from a short warm-up rather than a fully trained model, and is not compared
@@ -57,7 +56,7 @@ reconstruct geometry from scratch.
     \centering
     \includegraphics[width=\linewidth]{figs/mesh_ringing.pdf}
     \caption{\textbf{Marching-cubes ringing.} Rows: \emph{teapot} and \emph{helmet}. Left two
-    columns: the mesh before and after refinement (lifted variant with the prior), region of
+    columns: the mesh before and after refinement (with the prior), region of
     interest boxed in red; right two columns: the boxed region magnified.}
     \label{fig:mesh_ringing}
 \end{figure}
