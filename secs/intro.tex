@@ -7,9 +7,9 @@
 \centering
 \includegraphics[width=\linewidth]{figs/teaser.pdf}
 \caption{%
-\textbf{Automatic Neural Baking bakes highly reflective, view-dependent appearance directly onto a mesh, rendering it in real time ($\geq$ 60 FPS) with fidelity that surpasses state-of-the-art flexible-mesh methods.}
+\textbf{Automatic Neural Baking bakes highly reflective, view-dependent appearance directly onto a mesh, rendering it in real time ($\geq$ 60 FPS) given the same input mesh that flexible-mesh methods must instead reconstruct.}
 \emph{Comparison}: on Shiny-Blender, our method reproduces sharp, high-frequency specular reflections that 2DGS~\citep{2DGS} and DNR~\citep{DNR} smear and that RefGS~\citep{refgs} recovers less crisply, while running natively in an nvdiffrast rasterizer rather than requiring depth-sorted splat rendering.
-\emph{Pipeline}: from posed reference images ~\badgeimg{} and the corresponding triangle mesh~\badgemesh, we optimize three interchangeable, rasterizer-native modules - an on-manifold 2D Gaussian mixture storing diffuse albedo and reflectivity~\badgegmm, an adaptive, hierarchical environment map capturing self-reflection ~\badgeenv; and a lightweight KAN that evaluates the reflection equation for far-field specular~\badgekan - all evaluated per-fragment in a standard fragment shader
+\emph{Pipeline}: from posed reference images ~\badgeimg{} and the corresponding triangle mesh~\badgemesh, we optimize three interchangeable, rasterizer-native modules - an on-manifold 2D Gaussian mixture storing diffuse albedo and reflectivity~\badgegmm, an adaptive, hierarchical environment map capturing self-reflection ~\badgeenv; and a lightweight KAN that evaluates the reflection equation for far-field specular~\badgekan - all evaluated per-fragment in a form a standard fragment shader can execute
 \badgemesh\,\badgegmm\,\badgeenv\,\badgekan.%
 }
 \label{fig:teaser}
@@ -118,7 +118,8 @@ hierarchical environment map captures high-frequency specularity, and near-conve
 reduces self-reflection to a local lookup rather than a secondary ray. On Shiny-Blender we reach
 $38.04$\,dB PSNR, the best reported result given the same geometry.
 
-\item \textbf{Serves as a texture.} By construction, our field serves as a texture that the
-traditional pipeline reads directly. We realize it in nvdiffrast and render both datasets at over
+\item \textbf{Serves as a texture.} By construction, our field is read like a texture: a local,
+per-fragment lookup with no UV atlas and no depth sort, though the lookup itself runs a small
+decoder rather than a single sample. We realize it in nvdiffrast and render both datasets at over
 $60$ FPS, while reaching the novel-view-synthesis quality of splat representations.
 \end{itemize}

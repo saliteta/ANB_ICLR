@@ -16,8 +16,9 @@ PSNR and SSIM on both datasets and the best LPIPS on Shiny-Blender; the unconstr
 flexible-mesh rows are shown for context, since those methods reconstruct their own geometry
 rather than being given ours. Qualitatively (Figure~\ref{fig:qualitative}), our renders reproduce
 sharp, high-frequency environment reflections on metallic surfaces most faithfully; 2DGS$^{*}$ and
-DNR blur them and RefGS recovers them less crisply. On the strongly concave \emph{toaster} scene a
-flexible-mesh method edges ahead of us on PSNR (Table~\ref{tab:shiny_perscene}).
+DNR blur them and RefGS recovers them less crisply. Against the best context method per scene, our
+margin is smallest on \emph{teapot} ($+0.45$~dB) and \emph{coffee} ($+0.72$~dB)
+(Table~\ref{tab:shiny_perscene}).
 
 
 
@@ -34,7 +35,7 @@ depth-ordered primitives compose the appearance. On a single opaque surface that
 unavailable: each point takes one order-independent blend, so a per-primitive spherical Gaussian
 with an MLP decoder only overfits the sparse views ($34.24$~dB), and dropping it barely changes the
 result (Table~\ref{tab:ablation}). The gains come instead from the adaptive hierarchical maps
-($+1.2$~dB over a single global map) and from the KAN decoder ($+1.39$~dB over a parameter-matched
+($+1.2$~dB over a single global map) and from the KAN decoder ($+2.44$~dB over a parameter-matched
 MLP).
 
 
