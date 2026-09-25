@@ -62,10 +62,11 @@ Neural Baking, which defines appearance as an \emph{on-manifold kernel field}: 2
 anchored to faces in barycentric coordinates, blended at each fragment by a partition of unity over
 the $K$ nearest. A convex blend is invariant to the order of its terms, so the field needs no UV
 atlas and no depth sort, and an $\mathcal{O}(K)$ local gather replaces the global
-$\mathcal{O}(N\log N)$ one. Two modules supply the view-dependent term: an adaptive environment map
-split over near-convex parts, and a compact FastKAN decoder. Given the mesh, we reach $36.99$ dB
-PSNR on Shiny-Blender, above the best reported results, and render at $76.8$ FPS on a consumer RTX
-4090 with a $1.74$ GB footprint. Because the anchoring is linear in the vertices, appearance
+$\mathcal{O}(N\log N)$ one. On top of this representation, we introduce an adaptive environment map, split over near-convex
+parts, and a compact FastKAN decoder to model sharp view-dependent appearance; the resulting
+quality gains come from these two modules, not from the representation itself, which only removes
+the sort-order failure above. Given the mesh, we reach $36.99$ dB PSNR on Shiny-Blender, above the
+best reported results, and render at $76.8$ FPS on a consumer RTX 4090 with a $1.74$ GB footprint. Because the anchoring is linear in the vertices, appearance
 gradients also reach the mesh: we derive how, and show they reduce the normal error of a coarse
 extracted mesh on every scene.
 \end{abstract}
