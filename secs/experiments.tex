@@ -33,7 +33,7 @@ Spec-Gaussian~\citep{specGaussian} --- is strong for \emph{floating} splats, whe
 depth-ordered primitives compose the appearance. On a single opaque surface that composition is
 unavailable: each point takes one order-independent blend, so a per-primitive spherical Gaussian
 with an MLP decoder only overfits the sparse views ($34.24$~dB), and dropping it barely changes the
-result (Sec.~\ref{sec:conclusion}). The gains come instead from the adaptive hierarchical maps
+result (Table~\ref{tab:ablation}). The gains come instead from the adaptive hierarchical maps
 ($+1.2$~dB over a single global map) and from the KAN decoder ($+1.39$~dB over a parameter-matched
 MLP).
 

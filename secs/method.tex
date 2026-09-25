@@ -131,8 +131,8 @@ The fields of Secs.~\ref{sec:gmm} and~\ref{sec:env} are tied together by a learn
 consumes a surface point, its viewing geometry, and the part-blended environment feature, and emits
 the view-dependent reflection $r(\mathbf{x},\mathbf{v})$ of Eq.~\eqref{eq:appearance}. The decoder
 is interchangeable. We use a Fast Kolmogorov--Arnold Network, which places a learnable activation on
-every \emph{edge} rather than a fixed nonlinearity on every node \cite{kan}, realized with Gaussian
-radial basis functions on a small fixed grid \cite{fastkan}; on our task it outperforms a
+every \emph{edge} rather than a fixed nonlinearity on every node~\citep{kan}, realized with Gaussian
+radial basis functions on a small fixed grid~\citep{fastkan}; on our task it outperforms a
 parameter-matched MLP by $1.39$ dB (Sec.~\ref{sec:ablation}). Where inference cost matters more than
 fidelity, an MLP or a precomputed lookup table can occupy the same slot.
 
