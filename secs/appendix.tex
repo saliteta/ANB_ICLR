@@ -104,8 +104,8 @@ To assess mesh fine-tuning, we start from the Ref-GS mesh, extracted by TSDF fus
 We run mesh fine-tuning for $n=300$ cycles on all six Shiny Blender scenes with $\lambda_{\mathrm{nrm}}=0.5$. In $\mathcal{T}$, band-limiting is damped umbrella (uniform-Laplacian) diffusion~\citep{umbrella-diffusion}, and the per-vertex bound caps $\lVert\Delta_j\rVert$ each cycle. Displacements are scaled relative to the disk radius $\sigma$: the vertex learning rate is
 $0.1\sigma$, the smoothing width is $2.5\sigma$, and the per-cycle bound is $\delta=0.5\sigma$.
 Each geometry step accumulates $\mathbf{G}_{\mathbf{X}}$ over 8 training views, and each appearance
-step takes 40 optimizer steps. In practice, we also condition before the optimizer, Huber-reweighting the pullback~\citep{TODO-huber}
-and band-limiting the photometric gradient.
+% step takes 40 optimizer steps. In practice, we also condition before the optimizer, Huber-reweighting the pullback~\citep{TODO-huber}
+% and band-limiting the photometric gradient.
 
 \textbf{Evaluation.} Normal error is measured against the ground-truth Blender normal maps of the 200 Shiny Blender test views per scene. Surface accuracy is measured against the ground-truth Blender models, as the mean point-to-triangle distance from the refined mesh to the camera-visible ground-truth surface, following Ref-NeuS~\citep{ref-neus}. % TODO: quick metrics explanation (why median normal error)
 
