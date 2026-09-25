@@ -16,169 +16,70 @@ Furthermore, we provide qualitative visualizations that decompose the outputs of
 
 \subsection{Mesh Refinement Algorithm}
 \label{app:refinement}
-We propose a mesh refinement algorithm, which we refer to as \textbf{mesh fine-tuning}. Mesh fine-tuning reads, from ANB representation, the direction each disk \emph{would} move in the ambient Euclidian space to reduce photometric loss, and keeps only the normal-direction component that neighboring disks agree on. We then propagate this movement back onto the vertices as a per-vertex displacement and update the mesh. The core process is visualized in Figure \ref{fig:mesh_finetune}.
+Sec.~\ref{sec:refinement} shows that appearance gradients reach the mesh through the linear anchoring $\mathbf{X}=\mathbf{B}\mathbf{V}$. Here we turn that observation into a simple procedure, which we call \textbf{mesh fine-tuning}. We intend it as a demonstration of this property of the representation rather than as a competitive mesh-refinement method. Figure~\ref{fig:mesh_finetune} illustrates one geometry step.
 
-To assess mesh fine-tuning, we first warm-up our appearance model on the extracted mesh from Ref-GS for 625 optimizer steps and then \emph{freeze} the environment map and KAN shader. Thus, any remaining error can be solely attributed to geometric problems with the mesh. We then run mesh fine-tuning and compare the resulting mesh with and without our mesh fine-tuning in Figure \ref{fig:mesh_qual} against the ground truth Blender model.
-
-Overall, we find that our proposed mesh fine-tuning is able to refine the extracted mesh and reduce its normal angular error when compared to the ground truth normal across all 6 scenes in ShinyBlender. We report Mean Average Error (MAE) of per-vertex normals and mesh face normals in Table \ref{tab:mesh_normal}. The algorithm also improves accuracy on 5/6 scenes and Chamfer distance (CD) on 4/6, with \emph{car} unchanged (Table~\ref{tab:refinement_chamfer}). We also assess the effect of any appearance regression of our algorithm as measured by PSNR, SSIM, and LPIPs in Table \ref{tab:mesh_appearance}. 
-
-% Further detailed analysis of results in the Analysis section.  
-%We show the core process on one disk and one mesh face. (a) We detach disk center $c$ temporarily and evaluate where it would go through photometric loss, yielding a gradient $G_C$. Note that since we're minimizing with photometric loss, the movement is negative (i.e. $-\mathbf{G_{C}}$) (b) We unproject the $G_C$ into vertex space and distribute the gradient as $G_v$. We translate $G_v$ into a \emph{per-vertex} displacement $\Delta$ in a regularized manner. (c) The vertices are updated and the disk centers are recalculated. Note that the disk never leaves the manifold and is simply used as a proxy to derive a vertex displacement. More details on this process in our implementation details.}%
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/mesh_refinement.png}
-    \caption{\textbf{Mesh fine-tuning algorithm.} We show the process on one
-    disk $k$ and one mesh face. (a) We detach disk $k$'s center and evaluate it
-    in ray-splat form, yielding an off-surface gradient
-    $\mathbf{G}_k = \partial \mathcal{L} / \partial \mathbf{X}_k$; since we
-    minimize photometric loss, the movement is negative (i.e.\
-    $-\mathbf{G}_k$). (b) We distribute $\mathbf{G}_k$ onto the face's three
-    vertices via the same barycentric weights that reconstruct the disk, giving
-    each vertex its share $\mathbf{G}_{v_i,k}$. (c) Each vertex sums and
-    normalizes the shares from every disk on any incident face --- not just the
-    one shown, but all disks anchored to any face that has this vertex as a
-    corner --- into $\mathbf{G}_{v_i}$. (d) We translate $\mathbf{G}_{v_i}$ into
-    a displacement $\Delta$ in a regularized way and update the vertices,
-    $\mathbf{v}_{i,\text{new}} \leftarrow \mathbf{v}_{i,\text{old}} + \Delta$,
-    recomputing the disk centers. The disk never leaves the manifold; it is
-    simply a proxy for deriving a vertex displacement.}
+    \caption{\textbf{Mesh fine-tuning, one geometry step} (Eq.~\ref{eq:cycle}), shown for one
+    disk $i$ on face $f_i$ with corners $\mathbf{v}_0,\mathbf{v}_1,\mathbf{v}_2$.
+    (a) The disk center is detached into a free copy $\hat{\mathbf{x}}_i$. This copy is evaluated in
+    ray-splat form (Sec.~\ref{sec:refinement}) over a small batch of training views, and we read its
+    off-surface gradient $\mathbf{g}_i=\partial\mathcal{L}_{\text{app}}/\partial\hat{\mathbf{x}}_i$.
+    (b) The gradient is split over the face's corners by the barycentric weights that reconstruct
+    the disk, $\mathbf{g}_{j\leftarrow i}=B_{ij}\,\mathbf{g}_i$.
+    (c) Each vertex averages the shares it receives from every disk on its incident faces,
+    $\mathbf{g}_{\mathbf{v}_j}=d_j^{-1}\sum_i\mathbf{g}_{j\leftarrow i}$ with $d_j=\sum_i B_{ij}$.
+    (d) The result is conditioned into a displacement $\Delta_j$ and committed,
+    $\mathbf{v}_j\leftarrow\mathbf{v}_j+\Delta_j$, and the disk centers are re-anchored. The disk
+    itself never leaves the surface; it only serves as a probe.}
     \label{fig:mesh_finetune}
 \end{figure}
 
 \paragraph{Mesh Fine-tuning Algorithm.}
-We outline some details of our proposed mesh fine-tuning algorithm given our ANB representation here. Our algorithm alternates between a geometry step (the flow is illustrated in Figure \ref{fig:mesh_finetune} and an appearance step outlined in Eq. \ref{eq:appearance}. We now detail aspects of the geometry step.
-
-% Each cycle of the algorithm alternates a geometry stage with an appearance stage.  During the geometry stage, we have
-
-% \paragraph{setup} We have a map from disk space to vertex space (i.e. $B: V \rightarrow E$). 
-
-\textbf{Detach and Read Gradient.} We \emph{temporarily} release disk $i$ from the
-surface, treating its center $\mathbf{x}_i$ as a free variable in
-$\mathbb{R}^3$ rather than a point constrained to the mesh. This lets the
-disk respond to motion along the surface normal, and we read off the direction that
-would most reduce the photometric loss. It tells us where the disk would go
-\emph{if} it could leave the surface---ignoring, for a moment, that the disk
-is pinned to the mesh and cannot move on its own. The freed center point is read
-for its gradient and then discarded.
-
-Concretely, we project disk centers $\mathbf{X}$ and detach the projected point from the computation graph for a single
-backward pass. Then, we run 1 forward optimization step, evaluating the disk in 2D-GS ray-splat space \cite{2DGS}, rather than in-place. Draw training images $I^{train}$ and running photometric loss $\mathcal{L}_{app}$, we have
-
-\begin{equation}
-  \mathbf{X} = \mathbf{B}\mathbf{V},
-  \qquad
-  \hat{\mathbf{X}} \leftarrow \mathrm{sg}\!\left[\mathbf{X}\right],
-  \qquad
-  \mathbf{G}_{\mathbf{X}}
-  = \frac{\partial \mathcal{L}_{app}\!\left(
-      raysplat(\hat{\mathbf{X}}),\, I^{train}
-    \right)}{\partial \hat{\mathbf{X}}},
-\end{equation}
-
-% where $\mathbf{B} \in \mathbb{R}^{N \times M}$ holds the barycentric weights,
-% $\mathbf{V} \in \mathbb{R}^{M \times 3}$ the mesh vertex positions, and
-
-where
-$\mathrm{sg}[\cdot]$ is the stop-gradient operator. Thus $\hat{\mathbf{X}}$ carries no dependence on $\mathbf{V}$ and
-is an unconstrained point set in $\mathbb{R}^{N \times 3}$, and the mesh is still fixed at this stage. $\mathbf{G}_{\mathbf{X}} \in \mathbb{R}^{N \times 3}$ is the off-surface
-descent direction we probe for. % and not just autograd %
-
-\textbf{Vertex Gather}
-Next, we transfer the freed gradient back into the vertex space, distributing each
-disk's requested displacement onto the vertices that support it, weighted by each
-vertex's influence on that disk:
+Each cycle is a geometry step (Figure~\ref{fig:mesh_finetune}) followed by an appearance step. The
+geometry step reads the disk gradient, pulls it back to the vertices (Eq.~\eqref{eq:pullback}), and
+turns it into a vertex step:
 %
 \begin{equation}
-  \label{eq:pullback-app}
-  \mathbf{G}_{\mathbf{V}}
-  = \mathbf{D}^{-1}\mathbf{B}^{\top}\mathbf{G}_{\mathbf{X}},
-  \qquad
-  \mathbf{D} = \mathrm{diag}\!\left(\mathbf{B}^{\top}\mathbf{1}\right),
+\begin{gathered}
+\mathbf{G}_{\mathbf{X}} = \frac{\partial\mathcal{L}_{\text{app}}}{\partial\hat{\mathbf{X}}}\bigg|_{\hat{\mathbf{X}}=\mathbf{B}\mathbf{V}},
+\qquad
+\mathbf{G}_{\mathbf{V}} = \mathbf{D}^{-1}\mathbf{B}^{\top}\mathbf{G}_{\mathbf{X}},
+\\
+\Delta^{\text{Adam}} = \mathrm{Adam}_{\mathbf{V}}\big(\mathbf{V},\,
+  \mathbf{G}_{\mathbf{V}} + \lambda_{\text{nrm}}\nabla_{\mathbf{V}}R_{\text{nrm}}\big) - \mathbf{V},
+\qquad
+\mathbf{V} \leftarrow \mathbf{V} + \mathcal{T}\big(\Delta^{\text{Adam}}\big).
+\end{gathered}
+\label{eq:cycle}
 \end{equation}
 %
-with $\mathbf{G}_{\mathbf{V}} \in \mathbb{R}^{M \times 3}$.
-Note that we intentionally design the gradient flow from the disk field to vertices rather than directly to the vertices.
+Here $\mathrm{Adam}_{\mathbf{V}}(\mathbf{V},\mathbf{G})$ is the position that one step of
+Adam~\citep{adam} would reach from $\mathbf{V}$ given gradient $\mathbf{G}$, so
+$\Delta^{\text{Adam}}$ is the step Adam would actually take. $R_{\text{nrm}}=\sum_f a_f\,\big(1-\cos(\mathbf{n}_f,\bar{\mathbf{n}}_f)\big)\big/\sum_f a_f$
+is an area-weighted ($a_f$) normal-consistency term between each face's geometric normal
+$\mathbf{n}_f$ and its shading normal $\bar{\mathbf{n}}_f$, the normalized mean of the face's three
+vertex shading normals, which are baked from the input and held fixed. $\lambda_{\text{nrm}}$ is a
+relative weight: $\nabla_{\mathbf{V}}R_{\text{nrm}}$ is rescaled once, on the first cycle, to
+$\lambda_{\text{nrm}}$ times the norm of $\mathbf{G}_{\mathbf{V}}$.
+$\mathcal{T}$ conditions the step: it restricts it to the vertex-normal direction, band-limits it to
+the disk radius $\sigma$~\citep{TODO-umbrella-smoothing}, and bounds its per-vertex magnitude. In
+the appearance step, $\mathbf{V}$ is fixed and the disk attributes are optimized on
+$\mathcal{L}_{\text{app}}$ (Eq.~\eqref{eq:loss}). We repeat the cycle $n$ times.
 
-% Otherwise, the gradient that flows to the vertices becomes a mean. % TODO: huber los justification. sEmpirically, we find that the distribution is long-tailed, so we don't want to use the mean. HUBER loss doesn't really help.
+\textbf{The optimizer step as the unit.} What we control is how the vertices move, and that is
+decided by $\Delta^{\text{Adam}}$, not by the gradient. Adam rescales each world axis by its own
+running statistics. Everything upstream of it, from the disk probe through the pullback, therefore
+fixes only a direction and the relative weight of the photometric and normal-consistency terms. It
+does not fix the size of the motion. This is also why we average rather than sum in the pullback:
+$\mathbf{B}^{\top}\mathbf{G}_{\mathbf{X}}$ grows with local disk count, and $\mathbf{D}^{-1}$ keeps
+the photometric term's weight against $\lambda_{\text{nrm}}$ the same everywhere on the mesh. By the
+same argument, any constraint on how the mesh may move must be imposed on the step itself. A
+gradient projected onto $\mathbf{n}_{v_j}$ generally does not produce a step along
+$\mathbf{n}_{v_j}$, and a capped gradient does not bound the resulting displacement. $\mathcal{T}$
+is therefore applied to $\Delta^{\text{Adam}}$.
 
-\textbf{Translating disk movement to vertex displacement}
-To turn $\mathbf{G_V}$ into a vertex displacement $\Delta$, we keep only the part of the update the photometric proxy can be trusted to have determined. 
-
-We condition the raw displacement with three operators, applied right to left:
-%
-\begin{equation}
-\label{eq:conditioning}
-  \mathcal{T} \;=\; \mathcal{C}_{\delta}\,\mathcal{H}_{\sigma}\,\mathcal{P}_{\mathbf{n}},
-\end{equation}
-%
-\begin{itemize}
-  \item \textbf{Normal restriction} ($\mathcal{P}_{\mathbf{n}}$). We keep only the
-    component along the vertex normal $\mathbf{{n}_{V}}$ since tangential motion reparameterizes
-    the surface without changing its shape.
-  \item \textbf{Band-limiting} ($\mathcal{H}_{\sigma}$). We smooth to the disk
-    radius $\sigma$ by damped umbrella diffusion, since finer detail cannot be
-    represented by the appearance field and therefore cannot be verified against
-    the images TODO: cite.
-  \item \textbf{Displacement bound} ($\mathcal{C}_{\delta}$). We cap each
-    vertex's displacement, so that no single cycle moves a vertex further than a
-    later one can undo.
-\end{itemize}
-
-% We do an ablation on these components in Table \ref{} (TODO: will add).
-
-Now, the vertex gradient combines the photometric term with the
-normal-consistency term, and $\mathcal{T}$ acts on the step the Adam optimizer
-realizes rather than on the gradient itself:
-
-\begin{equation}
-\label{eq:step}
-  \Delta \;=\; \mathcal{T}\Big(
-    \mathrm{Adam}_{\mathbf{V}}\big(\mathbf{V},\;
-      \mathbf{G}_{\mathbf{V}} + \lambda_{\mathrm{nrm}}\mathbf{G}_{\mathrm{nrm}}
-    \big) - \mathbf{V}
-  \Big),
-\end{equation}
-where $Adam$ is the Adam optimizer (cite) and $\lambda_{norm}$ is a hyper-parameter for how much to weigh the normal component of the disk movement.
-%
-
-% TODO: cite).
-% \begin{align}
-% \mathcal{P}_n\Delta_j &= (\Delta_j\!\cdot\! n_j)\,n_j
-%   && \text{normal component only} \\
-% \mathcal{H}_\sigma &: \text{damped umbrella diffusion to } \sigma
-%   && \text{band-limit to the disk radius} \\
-% \mathcal{C}_\delta\Delta_j &= \Delta_j \min\!\big(1,\ \delta/\lVert\Delta_j\rVert\big)
-%   && \text{per-vertex magnitude bound}
-% \end{align}
-
-
-\textbf{Commit and Move Mesh} Finally, we move the vertices by $\Delta$ and recompute
-the disk poses they induce, 
-\begin{equation}
-     \mathbf{V} _{new}\leftarrow \mathbf{V_{old}} + \Delta
-\end{equation}
-% \begin{align}
-% \tilde G_V &= G_V + \lambda\,G_{\mathrm{nrm}}
-%   && \text{proxy {+} normal consistency} \\
-% \Delta_0 &= \mathcal{A}\big[\tilde G_V\big]
-%   && \text{magnitude} \\
-% \Delta_1 &= \mathcal{P}_n \Delta_0,
-%   \quad \mathcal{P}_n\Delta_j=(\Delta_j\!\cdot\! n_j)\,n_j
-%   && \text{remove tangential motion} \\
-% \Delta_2 &= \mathcal{H}_\sigma \Delta_1
-%   && \text{remove unverifiable detail} \\
-% \Delta &= \Delta_2 \cdot \min\!\big(1,\ \delta/\lVert\Delta_2\rVert\big)
-%   && \text{trust region} \\
-% V &\leftarrow V + \Delta, \qquad C = BV
-%   && \text{commit and re-anchor}
-% \end{align}
-
-
-We then hold fix the vertex positions on the mesh and optimize the disk field for appearance alone in an appearance step and repeat for $n$ cycles. We note that the disk \emph{never leaves the manifold}--its center is recomputed only after the vertex update commits the new mesh.
-
-% We call this a geometry step. One cycle of the algorithm runs a geometry step, runs the standard appearance step to re-parameterizes the disk field, and then repeats.
-
-% TODO: remove view labels and maybe normal shading on the mesh or?
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/mesh_qual.pdf}
@@ -195,12 +96,18 @@ We then hold fix the vertex positions on the mesh and optimize the disk field fo
 
 \input{tabs/mesh_geom_norm}
 
-\input{tabs/mesh_chamfer}
-
 \input{tabs/mesh_appearance}
 \paragraph{Implementation Details}
 % We run our mesh refinement algorithm with $\lambda_{norm} = 0.5$ for $n=300$ cycles for all 6 scenes across Shiny-Blender. We set $\sigma = $, other hyper-params as a function of disk radius...TODO: table of ablation hyper-params
-We run mesh refinement for $n=300$ cycles on all six Shiny Blender scenes with $\lambda_{\mathrm{nrm}}=0.5$. Each cycle consists of one geometry stage and one appearance stage. The KAN shader and environment maps are frozen throughout mesh fine-tuning. Displacements (i.e $\Delta$) are scaled relative to disk radius $\sigma$. % TODO: quick metrics explanation and citations (i.e. why do we care about median and chamfer, Ref-Neus and other citations)
+To assess mesh fine-tuning, we start from the Ref-GS mesh, extracted by TSDF fusion and marching cubes and then simplified and hole-filled (Figure~\ref{fig:mesh_qual}, columns 1--2). We first warm up our appearance model on this mesh for 625 optimizer steps and then \emph{freeze} the environment map and KAN shader. Thus, any remaining error can be solely attributed to geometric problems with the mesh. We then run mesh fine-tuning and compare the resulting mesh with and without our mesh fine-tuning in Figure \ref{fig:mesh_qual} against the ground truth Blender model.
+
+We run mesh fine-tuning for $n=300$ cycles on all six Shiny Blender scenes with $\lambda_{\mathrm{nrm}}=0.5$. In $\mathcal{T}$, band-limiting is damped umbrella (uniform-Laplacian) diffusion~\citep{TODO-umbrella-smoothing}, and the per-vertex bound caps $\lVert\Delta_j\rVert$ each cycle. Displacements are scaled relative to the disk radius $\sigma$: the vertex learning rate is
+$0.1\sigma$, the smoothing width is $2.5\sigma$, and the per-cycle bound is $\delta=0.5\sigma$.
+Each geometry step accumulates $\mathbf{G}_{\mathbf{X}}$ over 8 training views, and each appearance
+step takes 40 optimizer steps. In practice, we also condition before the optimizer, Huber-reweighting the pullback~\citep{TODO-huber}
+and band-limiting the photometric gradient.
+
+\textbf{Evaluation.} Normal error is measured against the ground-truth Blender normal maps of the 200 Shiny Blender test views per scene. Surface accuracy is measured against the ground-truth Blender models, as the mean point-to-triangle distance from the refined mesh to the camera-visible ground-truth surface, following Ref-NeuS~\citep{refneus}. % TODO: quick metrics explanation (why median normal error)
 
 %The vertex learning rate is cosine-annealed to $2\%$ of its initial value.
 
@@ -212,14 +119,16 @@ We run mesh refinement for $n=300$ cycles on all six Shiny Blender scenes with $
 % Qualitatively, we see that our mesh refinement algorithm clearly improves the refined mesh in Column 2 of Figure \ref{fig:mesh_qual}, espescially in the local view-depedent areas that the coarse-GS struggled with. This is supported by the The mean falls X \% . In particular, the median falls \%..  
 
 \textbf{Analysis.}
-Qualitatively, mesh fine-tuning improves the refined surface in Column 3 of Figure~\ref{fig:mesh_qual}, particularly in the view-dependent regions where the coarse extraction struggles. We also highlight the ability of mesh fine-tuning to remove a ringing artifact on \emph{teapot} and \emph{helmet} in Figure~\ref{fig:mesh_ringing}. The rings are marching-cubes terraces at the TSDF voxel spacing that survive simplification; they barely move the surface but tilt its face normals. Mesh fine-tuning targets exactly this: its updates are restricted to the normal direction, and the normal-consistency term pulls each face toward the smooth, cross-view shading normal. Consistent with this, median face-normal error falls by $61.8\%$ on \emph{helmet} and $53.4\%$ on \emph{teapot} (Table~\ref{tab:mesh_normal}) while CD changes by under $5\%$ (Table~\ref{tab:refinement_chamfer}).
+Quantitatively, mesh fine-tuning is able to refine the extracted mesh and reduce its normal angular error when compared to the ground truth normal across all 6 scenes in ShinyBlender. We report Mean Average Error (MAE) of per-vertex normals and mesh face normals in Table \ref{tab:mesh_normal}. The algorithm also improves surface accuracy on 5/6 scenes (Table~\ref{tab:mesh_normal}). We also assess the effect of any appearance regression of our algorithm as measured by PSNR, SSIM, and LPIPs in Table \ref{tab:mesh_appearance}.
+
+Overall, mesh fine-tuning improves the refined surface (Column 3 of Figure~\ref{fig:mesh_qual}), and it removes the concentric ringing left by marching-cubes extraction on \emph{teapot} and \emph{helmet} (Figure~\ref{fig:mesh_ringing}). Mesh fine-tuning targets subtle orientation errors like these, which barely move the surface but tilt its face normals: its updates are restricted to the normal direction, and the normal-consistency term pulls each face toward the smooth, cross-view shading normal. Consistent with this, median face-normal error falls by $61.8\%$ on \emph{helmet} and $53.4\%$ on \emph{teapot} (Table~\ref{tab:mesh_normal}).
 
 % $5.58^\circ$ to $1.19^\circ$.
 
 Normal error improves on all six scenes, with mean
 MAE falling, $6.31^\circ \rightarrow 5.41^\circ$ and yielding ($+14.2\%$) improvement across scenes. 
-Chamfer accuracy corroborates this on five of six scenes
-(Table~\ref{tab:refinement_chamfer}), the exception being \textit{teapot}, whose input
+Accuracy corroborates this on five of six scenes
+(Table~\ref{tab:mesh_normal}), the exception being \textit{teapot}, whose input
 mesh is already the second most accurate in the set and therefore has little
 geometric slack remaining.
 Crucially, these gains are not paid for in appearance: PSNR improves on five of

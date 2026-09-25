@@ -65,7 +65,7 @@
 with (w/) refinement. Accuracy (prediction$\rightarrow$GT), completeness
 (GT$\rightarrow$prediction) and their mean (CD), as exact point-to-triangle
 distances against the camera-visible ground-truth surface. Improvement is the
-reduction in distance, so positive is better; shaded cells indicate a
+relative reduction in distance, so positive is better; shaded cells indicate a
 regression. The Avg.\ column averages the per-scene values.}
 \label{tab:refinement_chamfer}
 \begin{tabular}{@{}lccccccc@{}}
@@ -77,21 +77,21 @@ regression. The Avg.\ column averages the per-scene values.}
 w/o refinement & 4.06 & 4.97 & 4.40 & 4.25 & 7.94 & 9.34 & 5.83 \\
 w/ refinement  & 4.02 & 4.72 & 3.56 & 4.30 & 7.60 & 8.72 & 5.49 \\
 \cmidrule(lr){1-8}
-Improvement & $+0.04$ & $+0.25$ & $+0.84$ & \cellcolor{red!15} $-0.05$ & $+0.34$ & $+0.62$ & $+0.34$ \\
+Improvement & $+1.0\%$ & $+5.0\%$ & $+19.0\%$ & \cellcolor{red!15} $-1.1\%$ & $+4.2\%$ & $+6.7\%$ & $+5.8\%$ \\
 \midrule
 \multicolumn{8}{c}{Completeness $\downarrow$} \\
 \midrule
 w/o refinement & 30.44 & 4.92 & 19.59 & 4.75 & 81.50 & 18.26 & 26.58 \\
 w/ refinement  & 30.48 & 4.69 & 19.26 & 4.79 & 80.68 & 17.86 & 26.29 \\
 \cmidrule(lr){1-8}
-Improvement & \cellcolor{red!15} $-0.04$ & $+0.23$ & $+0.33$ & \cellcolor{red!15} $-0.04$ & $+0.82$ & $+0.40$ & $+0.28$ \\
+Improvement & \cellcolor{red!15} $-0.2\%$ & $+4.8\%$ & $+1.7\%$ & \cellcolor{red!15} $-0.9\%$ & $+1.0\%$ & $+2.2\%$ & $+1.1\%$ \\
 \midrule
 \multicolumn{8}{c}{CD $\downarrow$} \\
 \midrule
 w/o refinement & 17.25 & 4.95 & 12.00 & 4.50 & 44.72 & 13.80 & 16.20 \\
 w/ refinement  & 17.25 & 4.71 & 11.41 & 4.54 & 44.14 & 13.29 & 15.89 \\
 \cmidrule(lr){1-8}
-Improvement & $0.00$ & $+0.24$ & $+0.59$ & \cellcolor{red!15} $-0.04$ & $+0.58$ & $+0.51$ & $+0.31$ \\
+Improvement & $0.0\%$ & $+4.9\%$ & $+4.9\%$ & \cellcolor{red!15} $-1.0\%$ & $+1.3\%$ & $+3.7\%$ & $+1.9\%$ \\
 \bottomrule
 \end{tabular}
 \end{table}

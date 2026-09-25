@@ -42,11 +42,11 @@ never changes during training: there is no densification, pruning, or opacity cu
 
 \paragraph{On-manifold anchoring.}
 Each disk $i$ is assigned to a single triangle $f_i$ and a barycentric coordinate
-$\mathbf{b}_i=(b_{i,0},b_{i,1},b_{i,2})$ with $b_{i,k}\ge 0$ and $\sum_k b_{i,k}=1$.
-Its center is \emph{reconstructed} from the live vertices of that triangle,
+$\mathbf{b}_i=(b_{i,j})_{j\in f_i}$ over its three vertices, with $b_{i,j}\ge 0$ and $\sum_{j\in f_i} b_{i,j}=1$.
+Its center is \emph{reconstructed} from the live vertices $\mathbf{v}_j$ of that triangle,
 %
 \begin{equation}
-\mathbf{x}_i = b_{i,0}\,\mathbf{p}_0(f_i) + b_{i,1}\,\mathbf{p}_1(f_i) + b_{i,2}\,\mathbf{p}_2(f_i),
+\mathbf{x}_i = \sum_{j\in f_i} b_{i,j}\,\mathbf{v}_j,
 \label{eq:center}
 \end{equation}
 %
@@ -157,9 +157,12 @@ zero and is turned \emph{up} only where the training views demand it.
 
 \subsection{Differentiable Mesh}
 \label{sec:refinement}
-We analyze the differentiable nature of our representation. A mesh $M$ is charactereized by its vertices $\mathbf{V} \in \mathbb{R}^{M \times 3}$ and faces $\mathbf{F} \in \mathbb{R}^{M \times 3}$. Each of these have a normal and $n_v$ and $n_f$. The anchoring of Eq.~\eqref{eq:center} is linear in the vertices $\mathbf{V}$ (i.e.\ $\mathbf{X} = \mathbf{B}\mathbf{V}$
-with $\mathbf{B}$ the barycentric weights), so appearance gradients have an exact path to the mesh. However, we note that the path is degenerate in one direction: the blend weights of Eq.~\eqref{eq:pou} see only in-plane
-offsets, so $\langle \partial w_i / \partial \mathbf{x}_i,\ \mathbf{n}_i \rangle \equiv 0$ and a
+We analyze the differentiable nature of our representation. Let the mesh have $N_v$ vertices
+$\mathbf{V} \in \mathbb{R}^{N_v \times 3}$ with vertex normals $\mathbf{n}_{v_j}$, and faces $f$ with
+face normals $\mathbf{n}_f$. Stacking Eq.~\eqref{eq:center} over all $N$ disks, the anchoring is
+linear in the vertices, $\mathbf{X} = \mathbf{B}\mathbf{V}$, where $\mathbf{B}\in\mathbb{R}^{N\times N_v}$
+holds the barycentric weights ($B_{ij}=b_{i,j}$ if $j\in f_i$ and $0$ otherwise), so appearance gradients have an exact path to the mesh. However, we note that the path is degenerate in one direction: the blend weights of Eq.~\eqref{eq:pou} see only in-plane
+offsets, so $\langle \partial w_i / \partial \mathbf{x}_i,\ \mathbf{n}_{f_i} \rangle \equiv 0$ and a
 disk can ask the mesh to slide but never to move in or out.
 
 Detaching the centers and evaluating the kernel at the ray--disk intersection rather than the
@@ -181,7 +184,7 @@ reconstructed it, with $\mathbf{D}^{-1}$ normalizing for local disk density. The
 displacement keeps only the vertex-normal component, band-limited and capped per cycle; disks are
 re-anchored once the update commits. 
 
-Due to differentiability of our representation, we can potentially refine the underlying mesh that is given.More details of this aspect of our representation our in Appendix \ref{app:refinement}.
+This differentiability means the representation can, in principle, also refine the mesh it is given. App.~\ref{app:refinement} turns it into a simple procedure and analyzes each of its components.
 
 % With the decoder and environment maps frozen, the geometry step minimizes
 % $\mathcal{L}_{\text{app}} + \lambda_{\text{nrm}} R_{norm}(\mathbf{V})$, where $R_{norm}$ is a normal-consistency term on

@@ -9,7 +9,7 @@ unconstrained mesh methods (3DGS~\citep{3DGS}, Ref-NeRF~\citep{refnerf}, 3DGS-DR
 flexible-mesh methods (GaussianShader~\citep{gaussianShader}, RefGS~\citep{refgs}) as reference. Note that
 these methods optimize geometry rather than taking it as given, so they are not directly comparable.
 
-\textbf{Mesh Refinement} Although we assume a fixed-mesh setting (i.e. an artist-designed asset), we are also interested in our representation's ability to \emph{refine} the extracted mesh it is baked into \emph{while preserving our mapping}. We explore this capability by temporarily relaxing our fixed mesh setting and refining a 2D-GS extracted mesh and evaluating on ShinyBlender. We propose a \textbf{mesh-finetuning} algorithm which leverages ANB's bary-centric representation for refinine the coarse extracted mesh. We report mean normal error improvement and Chamfer distance in Table \ref{tab:refinement}; further details and discussion are in Appendix \ref{app:refinement}.
+\textbf{Mesh Refinement} Although we assume a fixed-mesh setting (i.e. an artist-designed asset), we are also interested in our representation's ability to \emph{refine} the extracted mesh it is baked into \emph{while preserving our mapping}. We explore this capability by temporarily relaxing our fixed mesh setting, refining a Ref-GS extracted mesh and evaluating on ShinyBlender with a simple \textbf{mesh fine-tuning} procedure that follows from the barycentric anchoring (Sec.~\ref{sec:refinement}). We report mean normal error and surface accuracy in Table \ref{tab:refinement}; further details and discussion are in Appendix \ref{app:refinement}.
 
 
 \subsection{Comparison}
@@ -47,7 +47,7 @@ Shiny-Blender on an NVIDIA H100 (CUDA 12.8), and at $76.8$ FPS on Shiny-Blender 
 \texttt{torch.compile}; the H100 figures are from a shared datacenter node. Table~\ref{tab:refinement}
 reports mesh refinement: averaged over the six Shiny-Blender scenes, starting from Ref-GS
 marching-cubes extractions, normal angular error falls by $14.2\%$ (vertex normal) and $18.3\%$
-(face normal) and Chamfer distance by $2.3\%$, while held-out PSNR improves by $0.45$~dB and LPIPS
+(face normal) and accuracy by $5.8\%$, while held-out PSNR improves by $0.45$~dB and LPIPS
 is unchanged. Per-scene results and further analysis of our architectural choices are in
 App.~\ref{app:refinement}.
 \input{tabs/combine_table_ICLR}
