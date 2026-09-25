@@ -18,10 +18,11 @@ Furthermore, we provide qualitative visualizations that decompose the outputs of
 \label{app:refinement}
 Because each disk center is a barycentric combination of its face's vertices
 (Eq.~\eqref{eq:center}), the anchoring is linear in the mesh, $\mathbf{X}=\mathbf{B}\mathbf{V}$, and
-photometric gradients reach the vertices. We use this to refine an imperfect input mesh, as a
-demonstration of the property rather than as a new refinement method: the vertex gradient is the
-direct one through the anchoring, as in SuGaR~\citep{sugar} and OMeGa~\citep{omega}, and
-connectivity is fixed.
+photometric gradients reach the vertices. We use this to refine an imperfect input mesh (here, one
+extracted from Ref-GS's unconstrained Gaussians), as a demonstration of the property rather than as
+a new refinement method: the photometric gradient is taken at the disk centers, evaluated at the
+ray--disk intersection, and pulled back to the vertices through the anchoring, similar in spirit to
+the mesh-anchored refinement of SuGaR~\citep{sugar} and OMeGa~\citep{omega}; connectivity is fixed.
 
 \paragraph{Setup.} We start from the Ref-GS~\citep{refgs} mesh (TSDF fusion and marching cubes,
 then simplification and hole filling), warm up the appearance model on it for 625 optimizer steps,
@@ -30,10 +31,12 @@ and freeze the KAN shader and environment maps. We then alternate 300 cycles of 
 capped at $0.5\sigma$ per cycle, $\sigma$ the disk radius) and an appearance step (40 steps on the
 disks, mesh fixed). The optional prior is an area-weighted normal-consistency term pulling each face
 normal toward the input's shading normals, weighted at half the photometric gradient's norm.
-Geometry is scored against the ground-truth Blender
-models: mean angular error against the ground-truth normal maps of the 200 test views, and accuracy as
-the mean point-to-surface distance to the camera-visible ground-truth surface, following
-Ref-NeuS~\citep{ref-neus}.
+Geometry is scored against the ground-truth Blender models. Normals are scored by mean angular
+error against the ground-truth normal maps of the 200 test views. For position, we use the standard
+DTU metrics~\citep{dtu}, but report only accuracy (Acc.), the mean distance from points on the
+refined mesh to the nearest ground-truth surface visible from the test cameras (lower is better).
+Following Ref-NeuS~\citep{ref-neus}, we omit completeness, which is dominated by regions missing
+from the input mesh that a fixed-connectivity refinement cannot fill.
 
 \paragraph{Results.} Table~\ref{tab:refine_decomp} separates the two signals.
 The prior alone reorients faces toward the smooth shading normals, giving the lowest face-normal
