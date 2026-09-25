@@ -1,24 +1,22 @@
+\vspace{-2mm}
 \section{Conclusion and Discussion}
+\vspace{-2mm}
 \label{sec:conclusion}
-We present automatic neural baking, a representation that lets appearance compose directly with
-the traditional rendering pipeline: an element-wise ``texture'' whose domain is the mesh surface
-and whose blending is order-independent, so the asset needs no UV atlas and no depth sort, and is
-evaluated per fragment at real-time rates. Three modules realize it: a 2D Gaussian mixture anchored
-in barycentric coordinates for the view-independent fields, an adaptive hierarchical environment
-map for far-field and near-field reflection, and a FastKAN decoder for the view-dependent term.
-Because the field is anchored to the faces, the same optimization can also refine the mesh it is
-baked onto. With this bridge in place, the next steps are engine integration, evaluation on real
-captures, and element-level operations such as merging or editing disks directly.
+We present automatic neural baking, a representation that composes directly with the traditional
+rendering pipeline: an element-wise ``texture'' whose domain is the mesh surface and whose blending
+is order-independent, so the asset needs no UV atlas and no depth sort and is evaluated per fragment
+at real-time rates. A 2D Gaussian mixture anchored in barycentric coordinates carries the
+view-independent fields, an adaptive hierarchical environment map the incident light, and a FastKAN
+decoder the view-dependent term. Because the field is anchored to the faces, the same optimization
+also refines the mesh it is baked onto. With this bridge in place, the next steps are engine
+integration, real captures, and element-level operations such as merging or editing disks directly.
 
-\paragraph{Limitations.} Our method requires a mesh, and is optimized per scene. We evaluate on
-synthetic single-object benchmarks; real captures, where the input mesh is noisier and the
-illumination less controlled, remain untested. Within a near-convex part, light arriving from the
-rest of the object is treated as distant and position-independent, so strongly concave objects are
-the hardest case: \emph{toaster} is where our margin is smallest. Real-time evaluation is
-demonstrated in nvdiffrast rather than in a shipped fragment shader; the representation is
-shader-implementable by construction, but engine integration is left to future work. Mesh refinement
-adjusts an existing surface and cannot recover geometry that is absent, and is validated with a
-single environment map.
+\paragraph{Scope.} Our method takes the mesh as input and is optimized per scene, and we evaluate on
+synthetic single-object benchmarks. Within a near-convex part, light arriving from the rest of the
+object is treated as distant and position-independent, so strongly concave objects are the hardest
+case: \emph{toaster} is where our margin is smallest. Real-time evaluation is demonstrated in
+nvdiffrast rather than a shipped shader. Mesh refinement adjusts an existing surface rather than
+recovering absent geometry, and is validated with a single environment map.
 
 % mandatory not included in page limit
 \section{AI Disclosure}
