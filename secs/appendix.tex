@@ -38,14 +38,16 @@ refined mesh to the nearest ground-truth surface visible from the test cameras (
 Following Ref-NeuS~\citep{ref-neus}, we omit completeness, which is dominated by regions missing
 from the input mesh that a fixed-connectivity refinement cannot fill.
 
-\paragraph{Results.} Table~\ref{tab:refine_decomp} separates the two signals.
+\paragraph{Results.} Table~\ref{tab:refine_improve} summarizes the effect of refinement on the
+input mesh, and Table~\ref{tab:refine_decomp} separates the two signals.
 The prior alone reorients faces toward the smooth shading normals, giving the lowest face-normal
 error, but it does not use the images and moves the surface away from the ground truth (accuracy
 worsens from $5.83$ to $6.18$). The photometric gradient alone is not enough either: without the
 prior, face normals degrade ($7.20^\circ \rightarrow 18.58^\circ$). Together they give the best
 vertex-normal error ($6.31^\circ \rightarrow 5.41^\circ$) and accuracy ($5.83 \rightarrow 5.49$).
-Figure~\ref{fig:mesh_ringing} shows the marching-cubes ringing removed on \emph{teapot} and
-\emph{helmet}.
+Figure~\ref{fig:mesh_ringing} shows the effect of refinement on high-frequency surface artifacts
+left by the extraction: the fine noise on \emph{teapot} and the concentric marching-cubes ringing
+on \emph{helmet} are both smoothed away.
 
 \paragraph{Limitations.} The refinement adjusts an existing surface and cannot recover absent
 geometry, starts from a short warm-up rather than a fully trained model, and is not compared
@@ -58,16 +60,18 @@ reconstruct geometry from scratch.
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/mesh_ringing.pdf}
-    \caption{\textbf{Marching-cubes ringing.} Rows: \emph{teapot} and \emph{helmet}. Left two
-    columns: the mesh before (input mesh) and after refinement (mesh fine-tuning), region of
-    interest boxed in red; right two columns: the boxed region magnified.}
+    \caption{\textbf{Effect of refinement on high-frequency surface artifacts.} Rows: \emph{teapot}
+    and \emph{helmet}. Left two columns: the mesh before (input mesh) and after refinement, region of
+    interest boxed in red; right two columns: the boxed region magnified. Refinement removes the
+    fine noise on \emph{teapot} and the concentric ringing left by marching-cubes extraction on
+    \emph{helmet}.}
     \label{fig:mesh_ringing}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/mesh_qual.pdf}
-    \caption{\textbf{Mesh fine-tuning results.} Each row is one held-out test view, two each of \emph{teapot}, \emph{helmet} and \emph{toaster}. \emph{Columns 1--3} follow one mesh through our pipeline and are flat-shaded so that surface defects stay visible: (1) the mesh Ref-GS extracts by TSDF fusion and marching cubes; (2) that mesh after simplification and hole filling, which is the input to mesh fine-tuning; (3) the same mesh after mesh fine-tuning. Columns 1 and 2 differ only by simplification, so the change from column 2 to column 3 is due to mesh fine-tuning alone. \emph{Columns 4--5} are for reference only: the ground-truth mesh (smooth-shaded) and the ground-truth normal map for the same view.}
+    \caption{\textbf{Mesh refinement results.} Each row is one held-out test view, two each of \emph{teapot}, \emph{helmet} and \emph{toaster}. \emph{Columns 1--3} follow one mesh through our pipeline and are flat-shaded so that surface defects stay visible: (1) the mesh Ref-GS extracts by TSDF fusion and marching cubes; (2) that mesh after simplification and hole filling, which is the input to refinement; (3) the same mesh after refinement. Columns 1 and 2 differ only by simplification, so the change from column 2 to column 3 is due to refinement alone. \emph{Columns 4--5} are for reference only: the ground-truth mesh (smooth-shaded) and the ground-truth normal map for the same view.}
     \label{fig:mesh_qual}
 \end{figure}
 
