@@ -1,0 +1,35 @@
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\caption{\textbf{Per-scene compaction results} on Shiny-Blender, same setting as
+Table~\ref{tab:compaction}. Kept is the fraction of disks retained by NanoGS~\citep{nanogs}.
+Avg.\ averages the per-scene values. Best value per column in \textbf{bold}.}
+\label{tab:compaction_perscene}
+\begin{tabular}{@{}lccccccc@{}}
+\toprule
+Kept & Helmet & Teapot & Toaster & Coffee & Car & Ball & Avg. \\
+\midrule
+\multicolumn{8}{c}{PSNR$\uparrow$} \\
+\midrule
+100\% & \textbf{37.94} & \textbf{47.45} & \textbf{28.76} & \textbf{35.33} & \textbf{33.75} & \textbf{45.01} & \textbf{38.04} \\
+50\%  & 37.31 & \textbf{47.45} & 28.39 & 34.83 & 33.13 & 44.93 & 37.67 \\
+25\%  & 36.25 & 47.26 & 27.86 & 34.11 & 32.23 & 44.94 & 37.11 \\
+10\%  & 34.33 & 46.59 & 27.07 & 32.20 & 31.07 & 44.94 & 36.03 \\
+\midrule
+\multicolumn{8}{c}{SSIM$\uparrow$} \\
+\midrule
+100\% & \textbf{0.9902} & \textbf{0.9983} & \textbf{0.9607} & \textbf{0.9777} & \textbf{0.9763} & \textbf{0.9945} & \textbf{0.9830} \\
+50\%  & 0.9891 & \textbf{0.9983} & 0.9500 & 0.9743 & 0.9733 & 0.9942 & 0.9799 \\
+25\%  & 0.9870 & 0.9982 & 0.9388 & 0.9709 & 0.9694 & 0.9944 & 0.9764 \\
+10\%  & 0.9758 & 0.9981 & 0.9262 & 0.9617 & 0.9635 & \textbf{0.9945} & 0.9700 \\
+\midrule
+\multicolumn{8}{c}{LPIPS$\downarrow$} \\
+\midrule
+100\% & \textbf{0.0130} & 0.0039 & \textbf{0.0455} & \textbf{0.0427} & \textbf{0.0154} & \textbf{0.0224} & \textbf{0.0238} \\
+50\%  & 0.0172 & \textbf{0.0037} & 0.0557 & 0.0465 & 0.0186 & 0.0232 & 0.0275 \\
+25\%  & 0.0220 & 0.0038 & 0.0660 & 0.0545 & 0.0231 & 0.0250 & 0.0324 \\
+10\%  & 0.0565 & 0.0039 & 0.0781 & 0.0722 & 0.0289 & 0.0261 & 0.0443 \\
+\bottomrule
+\end{tabular}
+\end{table}

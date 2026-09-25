@@ -67,3 +67,20 @@ reconstruct geometry from scratch.
     \caption{\textbf{Mesh fine-tuning results.} Each row is one held-out test view, two each of \emph{teapot}, \emph{helmet} and \emph{toaster}. \emph{Columns 1--3} follow one mesh through our pipeline and are flat-shaded so that surface defects stay visible: (1) the mesh Ref-GS extracts by TSDF fusion and marching cubes; (2) that mesh after simplification and hole filling, which is the input to mesh fine-tuning; (3) the same mesh after mesh fine-tuning. Columns 1 and 2 differ only by simplification, so the change from column 2 to column 3 is due to mesh fine-tuning alone. \emph{Columns 4--5} are for reference only: the ground-truth mesh (smooth-shaded) and the ground-truth normal map for the same view.}
     \label{fig:mesh_qual}
 \end{figure}
+
+\subsection{Element-wise Compaction}
+\label{app:compaction}
+Because each disk is anchored independently in barycentric coordinates and carries its own albedo
+and reflectivity (Sec.~\ref{sec:gmm}), it is an ordinary Gaussian splat rather than a representation-specific
+primitive. This lets us apply NanoGS~\citep{nanogs}, a training-free splat simplifier developed for
+free-floating 3D Gaussian Splatting, directly to our on-manifold disks with no modification: we run
+it once on the trained asset to merge and prune disks down to a target fraction, with no further
+optimization. Table~\ref{tab:compaction_perscene} details the per-scene results summarized in
+Table~\ref{tab:compaction}. Degradation is graceful and uneven across scenes: \emph{teapot} and
+\emph{ball} are essentially unaffected down to $10\%$ of the disks, while \emph{helmet}, the most
+geometrically detailed scene, loses the most on every metric. This is the behavior we would expect
+from an asset built out of individually addressable, mergeable elements, and it is the property a
+baking pipeline needs for automatic level-of-detail generation, the splat analogue of a mipmap
+chain, without a bespoke LOD method.
+
+\input{tabs/compaction_perscene}

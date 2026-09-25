@@ -19,44 +19,29 @@ Variant & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
 \quad + SG + MLP      & 34.24 & 0.961 & 0.051 \\
 \quad + MLP           & 34.37 & 0.963 & 0.049 \\
 \quad + MLP + AdaMap  & 35.60 & 0.971 & 0.038 \\
-\quad + KAN + AdaMap  & \textbf{36.99} & \textbf{0.978} & \textbf{0.033} \\
+\quad + KAN + AdaMap  & \textbf{38.04} & \textbf{0.9830} & \textbf{0.0238} \\
 \bottomrule
 \end{tabular}
 \end{minipage}
 \hfill
 \begin{minipage}[t]{0.48\textwidth}
 \centering
-\caption{\textbf{Mesh refinement.} Geometric Metrics Means over the six Shiny-Blender scenes, from Ref-GS
-TSDF extractions, without $\rightarrow$ with refinement. MAE$_\text{face}$ refers to face normals of the optimized mesh while MAE$_\text{vert}$  refers to the per-vertex normals of the mesh. We compare against 200 test view normals in ShinyBlender in ray-splat space. Accuracy on a 3d per-point basis with the ground truth mesh is reported. PSNR is a control, not
-a result: it confirms the geometry gains are not obtained by trading image quality. These runs use a
-single environment map, so absolute PSNR is below Table~\ref{tab:main}. Per-scene results in
-App.~\ref{app:refinement}.}
-\label{tab:refinement}
-% \begin{tabular}{@{}lcc@{}}
-% \toprule
-% & w/o $\rightarrow$ w/ & $\Delta$ \\
-% \midrule
-% VN Normal MAE ($^\circ$)$\downarrow$    & $6.31 \rightarrow 5.41$     & $-14.2\%$ \\
-% FN MAE ($^\circ$)$\downarrow$    & $7.20 \rightarrow 5.88$     & $-18.3\%$ \\
-% CD $\downarrow$                  & $16.200 \rightarrow 15.889$ & $-2.3\%$  \\
-% \midrule
-% PSNR $\uparrow$ \emph{(control)} & $27.41 \rightarrow 27.86$   & $+0.45$ db   \\
-% \bottomrule
-% \end{tabular}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{@{}lcc@{}}
+\caption{\textbf{Element-wise compaction.} Mean PSNR/SSIM/LPIPS on Shiny-Blender after compacting
+the disk field with NanoGS~\citep{nanogs}, a training-free Gaussian-splat simplifier, at the
+fraction of disks kept. Because each disk is an ordinary, individually addressable splat,
+off-the-shelf splat-compaction tools apply directly; quality degrades gracefully even at
+$10\times$ compaction. Per-scene results in Table~\ref{tab:compaction_perscene}, App.~\ref{app:compaction}.}
+\label{tab:compaction}
+\begin{tabular}{@{}lccc@{}}
 \toprule
-& w/o $\rightarrow$ w/ & Improvement \\
+Kept & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
 \midrule
-MAE$_\text{face}$ ($^\circ$)$\downarrow$ & $7.20 \rightarrow 5.88$ & $+18.3\%$ \\
-MAE$_\text{vert}$ ($^\circ$)$\downarrow$ & $6.31 \rightarrow 5.41$ & $+14.2\%$ \\
-Acc.\ ($\times10^{-3}$)$\downarrow$      & $5.83 \rightarrow 5.49$ & $+5.8\%$  \\
-\midrule
-PSNR (dB)$\uparrow$ \emph{(control)}     & $27.41 \rightarrow 27.86$ & $+0.45$ \\
+100\% & \textbf{38.04} & \textbf{0.9830} & \textbf{0.0238} \\
+50\%  & 37.67 & 0.9799 & 0.0275 \\
+25\%  & 37.11 & 0.9764 & 0.0324 \\
+10\%  & 36.03 & 0.9700 & 0.0443 \\
 \bottomrule
-\end{tabular}%
-}
-
+\end{tabular}
 \end{minipage}
-\vspace{-6mm}
+\vspace{-2mm}
 \end{table}

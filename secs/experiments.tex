@@ -47,4 +47,17 @@ $800{\times}800$ we render the test views at $91.7$ FPS on NeRF-Synthetic and $6
 Shiny-Blender on an NVIDIA H100 (CUDA 12.8), and at $76.8$ FPS on Shiny-Blender on a consumer RTX
 4090 (WSL2, Ubuntu 22.04), with a mean CUDA memory footprint of $1.74$ GB peak at $2.75$ GB peak. All measurements use
 \texttt{torch.compile}; the H100 figures are from a shared datacenter node.
-\input{tabs/ablation}
+
+\subsection{Compaction}
+\label{sec:compaction}
+Because each disk is an ordinary splat rather than a bespoke primitive, we can compact the baked
+asset with NanoGS~\citep{nanogs}, a training-free Gaussian-splat simplifier, with no change to our
+representation or pipeline. Table~\ref{tab:compaction} reports mean PSNR/SSIM/LPIPS on
+Shiny-Blender as we keep 100\%, 50\%, 25\%, and 10\% of the disks: at $10\times$ compaction, mean
+PSNR falls by only $2.0$~dB ($38.04\to36.03$), with SSIM and LPIPS degrading similarly gracefully.
+Per-scene results (Table~\ref{tab:compaction_perscene}, App.~\ref{app:compaction}) show simple
+scenes such as \emph{teapot} and \emph{ball} are essentially unaffected even at $10\times$, while
+detailed scenes such as \emph{helmet} lose the most. Because compaction reuses tooling built for
+the Gaussian-splatting community rather than a bespoke method, our representation is compatible
+with that ecosystem by construction.
+\input{tabs/combine_table_ICLR}

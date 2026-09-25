@@ -107,8 +107,12 @@ fragment by a smooth partition of unity over its $K$ nearest neighbours. Because
 placed in barycentric coordinates, the field needs no global UV atlas; because a convex blend is
 invariant to the order of its terms, the coplanar degeneracy cannot arise.
 To our knowledge this is the first splat representation developed as an element-wise texture:
-a field whose elements are individually addressable and differentiable and whose domain is the
-surface itself, rather than a distribution in ambient $\mathbb{R}^3$.
+a field whose elements are individually addressable, differentiable, and mergeable, and whose
+domain is the surface itself, rather than a distribution in ambient $\mathbb{R}^3$. Mergeability
+matters specifically for baking: baked assets have long relied on precomputed levels of detail,
+such as mipmaps, to trade quality for size, and because our elements are ordinary splats, tools
+built for the Gaussian-splatting community compact them directly, giving an automatic analogue of
+mipmap generation (Sec.~\ref{sec:compaction}).
 
 \item \textbf{Sharp view-dependent appearance, baked.} A FastKAN decoder over an adaptive
 hierarchical environment map captures high-frequency specularity, and near-convex decomposition
