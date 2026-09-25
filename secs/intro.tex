@@ -117,11 +117,4 @@ $36.99$\,dB PSNR, the best reported result given the same geometry.
 \item \textbf{Serves as a texture.} By construction, our field serves as a texture that the
 traditional pipeline reads directly. We realize it in nvdiffrast and render both datasets at over
 $60$ FPS, while reaching the novel-view-synthesis quality of splat representations.
-% $\partial\mathbf{x}/\partial \mathbf{V} = B$,%
-\item \textbf{Differentiable in the mesh.} The anchoring is linear in the vertices, so appearance
-gradients have an exact path to the mesh,  a path no primitive
-floating in $\mathbb{R}^3$ possesses. We show this path is degenerate along the surface normal,
-derive how the missing direction is recovered without leaving the surface, and verify the
-derivation empirically: appearance gradients alone reduce the normal error of a coarse extracted
-mesh on all six Shiny-Blender scenes (Sec.~\ref{sec:refinement}).
 \end{itemize}

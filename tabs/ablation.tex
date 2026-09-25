@@ -1,6 +1,10 @@
 \begin{table}[t]
 \centering
-\caption{\textbf{Ablation on Shiny-Blender} along our development path (dataset means; \textbf{best} in bold). From a diffuse 2DGS$^{*}$ baseline we use pure diffuse 2D-GMM add a per-primitive spherical-Gaussian (SG) reflection with an MLP decoder, drop SG, then add our adaptive hierarchical environment maps (AdaMap), and finally replace the MLP with our KAN. }
+\caption{\textbf{Ablation on Shiny-Blender} along our development path (dataset means;
+\textbf{best} in bold). From the 2DGS$^{*}$ baseline we place the mixture on the manifold (2D GMM),
+add a per-primitive spherical-Gaussian (SG) reflection with an MLP decoder, drop SG, add our
+adaptive hierarchical environment maps (AdaMap), and finally replace the MLP with our KAN. The MLP
+and KAN decoders are matched in parameter count.}
 \label{tab:ablation}
 \begin{tabular}{lccc}
 \toprule

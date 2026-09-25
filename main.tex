@@ -67,9 +67,7 @@ parts, and a compact FastKAN decoder to model sharp view-dependent appearance; t
 quality gains come from these two modules, not from the representation itself, which only removes
 the sort-order failure above. Given the mesh, appearance now composes directly with the traditional
 pipeline: we reach $36.99$ dB PSNR on Shiny-Blender and render at $76.8$ FPS on a consumer RTX 4090
-with a $1.74$ GB footprint. Because the anchoring is linear in the vertices, appearance
-gradients also reach the mesh: we derive how, and show they reduce the normal error of a coarse
-extracted mesh on every scene.
+with a $1.74$ GB footprint.
 \end{abstract}
 
 \input{secs/intro}

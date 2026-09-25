@@ -6,8 +6,7 @@ and whose blending is order-independent, so the asset needs no UV atlas and no d
 evaluated per fragment at real-time rates. Three modules realize it: a 2D Gaussian mixture anchored
 in barycentric coordinates for the view-independent fields, an adaptive hierarchical environment
 map for far-field and near-field reflection, and a FastKAN decoder for the view-dependent term.
-Because the field is anchored to the faces, the same optimization can also refine the mesh it is
-baked onto. With this bridge in place, the next steps are engine integration, evaluation on real
+With this bridge in place, the next steps are engine integration, evaluation on real
 captures, and element-level operations such as merging or editing disks directly.
 
 \paragraph{Limitations.} Our method requires a mesh, and is optimized per scene. We evaluate on
@@ -16,9 +15,10 @@ illumination less controlled, remain untested. Within a near-convex part, light 
 rest of the object is treated as distant and position-independent, so strongly concave objects are
 the hardest case: \emph{toaster} is where our margin is smallest. Real-time evaluation is
 demonstrated in nvdiffrast rather than in a shipped fragment shader; the representation is
-shader-implementable by construction, but engine integration is left to future work. Mesh refinement
-adjusts an existing surface and cannot recover geometry that is absent, and is validated with a
-single environment map.
+shader-implementable by construction, but engine integration is left to future work. We evaluate
+with the provided meshes; behaviour on reconstructed meshes is not studied here. Because the
+anchoring is linear in the vertices, appearance gradients also reach the mesh, which suggests
+refining imperfect input geometry; we leave this to future work.
 
 % mandatory not included in page limit
 \section{AI Disclosure}
