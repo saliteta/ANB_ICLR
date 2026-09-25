@@ -45,7 +45,7 @@ MLP).
 The full asset ($10^6$ disks, five environment maps, shader) occupies $48.3$ MB on disk. At
 $800{\times}800$ we render the test views at $91.7$ FPS on NeRF-Synthetic and $68.6$ FPS on
 Shiny-Blender on an NVIDIA H100 (CUDA 12.8), and at $76.8$ FPS on Shiny-Blender on a consumer RTX
-4090 (WSL2, Ubuntu 22.04), with a mean CUDA memory footprint of $1.74$ GB peak at $2.75$ GB peak. All measurements use
+4090 (WSL2, Ubuntu 22.04), with a mean CUDA memory footprint of $1.74$ GB peak at $2.75$ GB. All measurements use
 \texttt{torch.compile}; the H100 figures are from a shared datacenter node.
 
 \subsection{Compaction}
