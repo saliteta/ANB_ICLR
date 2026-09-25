@@ -13,11 +13,13 @@ these methods optimize geometry rather than taking it as given, so they are not 
 
 
 \subsection{Comparison}
-Among fixed-mesh methods (Table~\ref{tab:main}) we attain the best PSNR and SSIM on both datasets
-and the best LPIPS on Shiny-Blender, where we also exceed the unconstrained and flexible-mesh
-results. Qualitatively (Figure~\ref{fig:qualitative}), our renders reproduce sharp, high-frequency
-environment reflections on metallic surfaces most faithfully; 2DGS$^{*}$ and DNR blur them and RefGS
-recovers them less crisply.
+Among fixed-mesh methods (Table~\ref{tab:main}), which share our input mesh, we attain the best
+PSNR and SSIM on both datasets and the best LPIPS on Shiny-Blender; the unconstrained and
+flexible-mesh rows are shown for context, since those methods reconstruct their own geometry
+rather than being given ours. Qualitatively (Figure~\ref{fig:qualitative}), our renders reproduce
+sharp, high-frequency environment reflections on metallic surfaces most faithfully; 2DGS$^{*}$ and
+DNR blur them and RefGS recovers them less crisply. On the strongly concave \emph{toaster} scene a
+flexible-mesh method edges ahead of us on PSNR (Table~\ref{tab:shiny_perscene}).
 
 
 

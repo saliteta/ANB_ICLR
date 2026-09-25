@@ -25,7 +25,7 @@ the usual baked formats, for instance, lightmaps or low-order Spherical Harmonic
 Baking also presupposes a global UV atlas, whose automatic construction remains fragmented and largely manual~\citep{Levy2002LSCM, poranne2017autocuts, li2018optcuts, srinivasan2024nuvo}. Per-face texturing such as Ptex~\citep{ptex} removes the UV atlas, but as a static texture it still cannot capture high-frequency, view-dependent reflection.
 The seminal automatic neural baking method is Deferred Neural Rendering (DNR)~\citep{DNR}, which bakes learned neural textures onto a mesh and decodes them at render time.
 However, DNR shares the same weakness as classical baking and cannot reproduce high frequency view-dependent color.
-Our method is a direct, modern successor to it: The mesh is an input, not an output; in our setting it is an artist-authored asset, the standard target of baking workflows. Like DNR, it is a traditional baking method that produces a baked mesh asset. Unlike DNR, it also captures the sharp, view-dependent appearance that baking has always lacked. 
+Our method is a direct, modern successor to it: the mesh is an input, an artist-authored asset as in standard baking workflows, and unlike DNR we also capture the sharp, view-dependent appearance that baking has always lacked.
 
 Such appearance has instead been the domain of neural and splat representations. Neural Radiance
 Fields (NeRFs)~\citep{NeRFVanilla} and 3D Gaussian Splatting (3DGS)~\citep{3DGS} have
@@ -35,7 +35,10 @@ But they place appearance in the \emph{ambient space}: a continuous field over $
 NeRF, a mixture of anisotropic kernels for 3DGS.
 The baking pipeline instead treats an object as a \emph{surface}, a two-dimensional manifold
 $\mathcal{M}\subset\mathbb{R}^3$ carrying appearance as a field on $\mathcal{M}$ itself.
-Because the ambient field for NeRF and 3DGS has no 2D domain, there is nothing to bake.
+Because the ambient field for NeRF and 3DGS has no 2D domain, there is nothing to bake. In
+practice this means splat methods produce renderers, not assets: their quality cannot enter a
+pipeline that assumes a surface. This paper supplies that missing step, not a replacement for the
+pipeline downstream of it.
 
 Attempts to close this gap do not change the domain. Extraction methods recover a mesh after the
 fact~\citep{sugar, gaussianSurfels} but only approximate a surface the representation never carried,
@@ -102,9 +105,9 @@ field built from kernels sited on the surface, each element carrying its own val
 fragment by a smooth partition of unity over its $K$ nearest neighbours. Because the kernels are
 placed in barycentric coordinates, the field needs no global UV atlas; because a convex blend is
 invariant to the order of its terms, the coplanar degeneracy cannot arise.
-To our knowledge this is the first splat representation developed as an element-wise
-texture that is differentiable and defined directly on the manifold, rather than as a
-distribution in ambient $\mathbb{R}^3$.
+To our knowledge this is the first splat representation developed as an element-wise texture:
+a field whose elements are individually addressable and differentiable and whose domain is the
+surface itself, rather than a distribution in ambient $\mathbb{R}^3$.
 
 \item \textbf{Sharp view-dependent appearance, baked.} A FastKAN decoder over an adaptive
 hierarchical environment map captures high-frequency specularity, and near-convex decomposition
