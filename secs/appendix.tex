@@ -18,41 +18,50 @@ Furthermore, we provide qualitative visualizations that decompose the outputs of
 \label{app:refinement}
 Because each disk center is a barycentric combination of its face's vertices
 (Eq.~\eqref{eq:center}), the anchoring is linear in the mesh, $\mathbf{X}=\mathbf{B}\mathbf{V}$, and
-photometric gradients reach the vertices. We use this to refine an imperfect input mesh (here, one
-extracted from Ref-GS's unconstrained Gaussians), as a demonstration of the property rather than as
-a new refinement method: the photometric gradient is taken at the disk centers, evaluated at the
+photometric gradients reach the vertices. We use this to refine an imperfect input mesh, as a
+demonstration of the property rather than as a new refinement method: the photometric gradient is taken at the disk centers, evaluated at the
 ray--disk intersection, and pulled back to the vertices through the anchoring, similar in spirit to
 the mesh-anchored refinement of SuGaR~\citep{sugar} and OMeGa~\citep{omega}; connectivity is fixed.
 
-\paragraph{Setup.} We start from the Ref-GS~\citep{refgs} mesh (TSDF fusion and marching cubes,
-then simplification and hole filling), warm up the appearance model on it for 625 optimizer steps,
-and freeze the KAN shader and environment maps. We then alternate 300 cycles of a geometry step
-(8 training views, one vertex update restricted to the vertex normal, smoothed to $2.5\sigma$ and
-capped at $0.5\sigma$ per cycle, $\sigma$ the disk radius) and an appearance step (40 steps on the
-disks, mesh fixed). The optional prior is an area-weighted normal-consistency term pulling each face
-normal toward the input's shading normals, weighted at half the photometric gradient's norm.
-Geometry is scored against the ground-truth Blender models. Normals are scored by mean angular
-error against the ground-truth normal maps of the 200 test views. For position, we use the standard
-DTU metrics~\citep{dtu}, but report only accuracy (Acc.), the mean distance from points on the
-refined mesh to the nearest ground-truth surface visible from the test cameras (lower is better).
-Following Ref-NeuS~\citep{ref-neus}, we omit completeness, which is dominated by regions missing
-from the input mesh that a fixed-connectivity refinement cannot fill.
+\paragraph{Setup.} We evaluate on the six Shiny-Blender scenes. For our input mesh, we use the mesh
+Ref-GS~\citep{refgs} extracts from its unconstrained Gaussians (TSDF fusion~\citep{tsdf} and
+marching cubes~\citep{marchingcubes}, then simplification and hole filling). We warm up the
+appearance model on it for 625 optimizer steps and freeze the KAN shader and environment maps. The
+vertices $\mathbf{V}$ are then refined against
+\begin{equation}
+\mathcal{L}(\mathbf{V}) = \mathcal{L}_{\text{app}} + \lambda_{\text{nrm}}\,\mathcal{L}_{\text{nrm}},
+\qquad
+\mathcal{L}_{\text{nrm}} = \frac{\sum_f A_f\,\big(1 - \mathbf{n}_f(\mathbf{V})^{\top}\bar{\mathbf{n}}_f\big)}{\sum_f A_f},
+\label{eq:refine_loss}
+\end{equation}
+where $\mathcal{L}_{\text{app}}$ is the photometric loss of Eq.~\eqref{eq:loss} and
+$\mathcal{L}_{\text{nrm}}$ is a normal-consistency prior between each face's geometric normal
+$\mathbf{n}_f(\mathbf{V})$ and $\bar{\mathbf{n}}_f$, the normalized mean of the input mesh's vertex
+normals $\mathbf{n}_v$ at that face (held fixed); $A_f$ is the face area (treated as a constant).
+We empirically set $\lambda_{\text{nrm}} = 0.5$, relative to the norm of the photometric gradient.
+We alternate 300 cycles of a geometry step, which moves each vertex along its normal by a smoothed,
+capped update whose size is set relative to the initial disk scale $s_0$ from which the per-disk
+scales $s_{i,j}$ are initialized, and an appearance step on the disks with the mesh fixed.
+Table~\ref{tab:refine_decomp} shows that this consistency term is necessary: the photometric
+gradient alone degrades face normals ($7.20^\circ \rightarrow 18.58^\circ$), while the prior alone
+does not use the images and moves the surface away from the ground truth; only the two together
+improve on the input mesh.
 
-\paragraph{Results.} Table~\ref{tab:refine_improve} summarizes the effect of refinement on the
-input mesh, and Table~\ref{tab:refine_decomp} separates the two signals.
-The prior alone reorients faces toward the smooth shading normals, giving the lowest face-normal
-error, but it does not use the images and moves the surface away from the ground truth (accuracy
-worsens from $5.83$ to $6.18$). The photometric gradient alone is not enough either: without the
-prior, face normals degrade ($7.20^\circ \rightarrow 18.58^\circ$). Together they give the best
-vertex-normal error ($6.31^\circ \rightarrow 5.41^\circ$) and accuracy ($5.83 \rightarrow 5.49$).
-Figure~\ref{fig:mesh_ringing} shows the effect of refinement on high-frequency surface artifacts
-left by the extraction: the fine noise on \emph{teapot} and the concentric marching-cubes ringing
-on \emph{helmet} are both smoothed away.
+\paragraph{Metrics.} Geometry is scored against the ground-truth Blender models. Normals are
+scored by mean angular error against the ground-truth normal maps of the 200 test views. To assess
+the surface itself, we use the accuracy term of the Chamfer distance~\citep{dtu} (Acc.): the mean
+distance from points on the refined mesh to the nearest ground-truth surface visible from the test
+cameras (lower is better). Following Ref-NeuS~\citep{ref-neus}, we report accuracy rather than
+completeness, which is dominated by regions missing from the input mesh that a fixed-connectivity
+refinement cannot fill.
 
-\paragraph{Limitations.} The refinement adjusts an existing surface and cannot recover absent
-geometry, starts from a short warm-up rather than a fully trained model, and is not compared
-against full reconstruction pipelines such as OMeGa or Ref-NeuS, which also change topology or
-reconstruct geometry from scratch.
+\paragraph{Results.} Overall, the anchoring lets ANB refine the mesh it is given, reducing normal
+error and improving accuracy. Refinement lowers face- and vertex-normal error by $18.3\%$ and
+$14.2\%$ and improves accuracy by $5.8\%$ (Table~\ref{tab:refine_improve}); normal error falls on
+all six scenes and accuracy on five of six (Table~\ref{tab:refine_perscene}).
+Figure~\ref{fig:mesh_qual} shows the refined meshes, and Figure~\ref{fig:mesh_ringing} the effect
+of refinement on high-frequency surface artifacts left by the extraction: the fine noise on
+\emph{teapot} and the concentric marching-cubes ringing on \emph{helmet} are both smoothed away.
 
 \input{tabs/refine_decomp}
 \input{tabs/refine_perscene}
