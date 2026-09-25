@@ -13,3 +13,51 @@ Furthermore, we provide qualitative visualizations that decompose the outputs of
     \caption{From left to right: 2DGS baseline, 2D GMM for diffuse light, KAN with one environment map, KAN with multiple environment maps, and ground truth. We highlight that our multi-environment setting successfully approximates the self-reflection effects on concave objects in toaster. For convex-objects, since there is nearly no self-reflection, the visual results seems highly aligned}
     \label{fig:abl_qualitative}
 \end{figure}
+
+\subsection{Mesh Refinement Through the Anchoring}
+\label{app:refinement}
+Because each disk center is a barycentric combination of its face's vertices
+(Eq.~\eqref{eq:center}), the anchoring is linear in the mesh, $\mathbf{X}=\mathbf{B}\mathbf{V}$, and
+photometric gradients reach the vertices. We use this to refine an imperfect input mesh, as a
+demonstration of the property rather than as a new refinement method: the vertex gradient is the
+direct one through the anchoring, as in SuGaR~\citep{sugar} and OMeGa~\citep{omega}, and
+connectivity is fixed.
+
+\paragraph{Setup.} We start from the Ref-GS~\citep{refgs} mesh (TSDF fusion and marching cubes,
+then simplification and hole filling), warm up the appearance model on it for 625 optimizer steps,
+and freeze the KAN shader and environment maps. We then alternate 300 cycles of a geometry step
+(8 training views, one vertex update restricted to the vertex normal, smoothed to $2.5\sigma$ and
+capped at $0.5\sigma$ per cycle, $\sigma$ the disk radius) and an appearance step (40 steps on the
+disks, mesh fixed). The optional prior is an area-weighted normal-consistency term pulling each face
+normal toward the input's shading normals, weighted at half the photometric gradient's norm. We also
+report a \emph{lifted} variant that evaluates detached disk centers at the ray--disk intersection
+before pulling the gradient back to the vertices. Geometry is scored against the ground-truth Blender
+models: angular error against the ground-truth normal maps of the 200 test views, and accuracy as
+the mean point-to-surface distance to the camera-visible ground-truth surface, following
+Ref-NeuS~\citep{ref-neus}.
+
+\paragraph{Results.} Table~\ref{tab:refine_decomp} separates the two signals.
+% TODO(after night0925): revisit once the two "image only" rows are filled in.
+The prior alone reorients faces toward the smooth shading normals, giving the lowest face-normal
+error, but it does not use the images and moves the surface away from the ground truth (accuracy
+worsens from $5.83$ to $6.18$). Adding the photometric gradient improves where the surface is:
+accuracy falls to $4.21$ and vertex-normal error to $5.19^\circ$, the best of all arms. The lifted
+variant is comparable on normals and weaker on accuracy. Figure~\ref{fig:mesh_ringing} shows the
+marching-cubes ringing removed on \emph{teapot} and \emph{helmet}.
+
+\paragraph{Limitations.} The refinement adjusts an existing surface and cannot recover absent
+geometry, starts from a short warm-up rather than a fully trained model, and is not compared
+against full reconstruction pipelines such as OMeGa or Ref-NeuS, which also change topology or
+reconstruct geometry from scratch.
+
+\input{tabs/refine_decomp}
+\input{tabs/refine_perscene}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figs/mesh_ringing.pdf}
+    \caption{\textbf{Marching-cubes ringing.} Rows: \emph{teapot} and \emph{helmet}. Left two
+    columns: the mesh before and after refinement (lifted variant with the prior), region of
+    interest boxed in red; right two columns: the boxed region magnified.}
+    \label{fig:mesh_ringing}
+\end{figure}

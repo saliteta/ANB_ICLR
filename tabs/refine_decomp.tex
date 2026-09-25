@@ -1,0 +1,26 @@
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\caption{\textbf{Where the refinement gain comes from} (means over the six Shiny-Blender scenes,
+lower is better). Angular errors in degrees against the ground-truth normal maps of the 200 test
+views; Acc.\ is the mean point-to-surface distance ($\times10^{-3}$) to the camera-visible
+ground-truth surface. \emph{Prior} is the normal-consistency term; \emph{image} is the
+photometric gradient, propagated either \emph{directly} through the barycentric anchoring or via
+the \emph{lifted} ray--splat probe. Per-scene values in Table~\ref{tab:refine_perscene}.}
+\label{tab:refine_decomp}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+& MedAE$_{\mathbf{n}_f}$$\downarrow$ & MAE$_{\mathbf{n}_f}$$\downarrow$ & MAE$_{\mathbf{n}_v}$$\downarrow$ & Acc.$\downarrow$ \\
+\midrule
+Input mesh & 4.26 & 7.20 & 6.31 & 5.83 \\
+Prior only & 2.12 & 5.55 & 5.88 & 6.18 \\
+\midrule
+Direct: image only & -- & -- & -- & -- \\
+Direct: image + prior & \textbf{3.00} & \textbf{5.86} & \textbf{5.19} & \textbf{4.21} \\
+\midrule
+Lifted: image only & -- & -- & -- & -- \\
+Lifted: image + prior & 2.73 & 5.88 & 5.41 & 5.49 \\
+\bottomrule
+\end{tabular}
+\end{table}
