@@ -61,3 +61,10 @@ reconstruct geometry from scratch.
     interest boxed in red; right two columns: the boxed region magnified.}
     \label{fig:mesh_ringing}
 \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figs/mesh_qual.pdf}
+    \caption{\textbf{Mesh fine-tuning results.} Each row is one held-out test view, two each of \emph{teapot}, \emph{helmet} and \emph{toaster}. \emph{Columns 1--3} follow one mesh through our pipeline and are flat-shaded so that surface defects stay visible: (1) the mesh Ref-GS extracts by TSDF fusion and marching cubes; (2) that mesh after simplification and hole filling, which is the input to mesh fine-tuning; (3) the same mesh after mesh fine-tuning. Columns 1 and 2 differ only by simplification, so the change from column 2 to column 3 is due to mesh fine-tuning alone. \emph{Columns 4--5} are for reference only: the ground-truth mesh (smooth-shaded) and the ground-truth normal map for the same view.}
+    \label{fig:mesh_qual}
+\end{figure}

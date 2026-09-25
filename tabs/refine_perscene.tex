@@ -3,38 +3,32 @@
 \footnotesize
 \setlength{\tabcolsep}{3pt}
 \caption{\textbf{Per-scene refinement results}, same arms and metrics as
-Table~\ref{tab:refine_decomp}. Avg.\ averages the per-scene values.}
+Table~\ref{tab:refine_decomp}. Avg.\ averages the per-scene values. \colorbox{green!25}{\textbf{1st}}, \colorbox{orange!25}{2nd}, and \colorbox{yellow!25}{3rd} best per column are highlighted.}
 \label{tab:refine_perscene}
 \begin{tabular}{@{}lccccccc@{}}
 \toprule
 & Helmet & Teapot & Toaster & Coffee & Car & Ball & Avg. \\
 \midrule
-\multicolumn{8}{c}{MedAE$_{\mathbf{n}_f}$ ($^\circ$)$\downarrow$} \\
-\midrule
-Input mesh & 3.17 & 4.90 & 4.44 & 5.50 & 4.81 & 2.74 & 4.26 \\
-Prior only & 0.78 & 1.86 & 2.61 & 4.43 & 2.53 & 0.49 & 2.12 \\
-Direct: image only & 11.47 & 14.08 & 11.41 & 13.18 & 12.28 & 3.79 & 11.03 \\
-Direct: image + prior & 2.04 & 3.08 & 3.02 & 4.39 & 4.36 & 1.11 & 3.00 \\
-Lifted: image only & 17.36 & 10.61 & 15.10 & 12.13 & 13.16 & 17.42 & 14.30 \\
-Lifted: image + prior & 1.21 & 2.28 & 2.65 & 4.16 & 3.82 & 2.28 & 2.73 \\
-\midrule
 \multicolumn{8}{c}{MAE$_{\mathbf{n}_f}$ ($^\circ$)$\downarrow$} \\
 \midrule
-Input mesh & 4.48 & 7.25 & 9.40 & 9.02 & 9.81 & 3.21 & 7.20 \\
-Prior only & 1.98 & 4.99 & 8.45 & 8.85 & 8.41 & 0.62 & 5.55 \\
-Direct: image only & 14.89 & 17.42 & 16.84 & 17.19 & 16.73 & 5.38 & 14.74 \\
-Direct: image + prior & 3.19 & 5.44 & 7.74 & 8.19 & 9.24 & 1.38 & 5.86 \\
-Lifted: image only & 21.42 & 13.16 & 21.51 & 16.31 & 17.53 & 21.54 & 18.58 \\
-Lifted: image + prior & 2.41 & 4.71 & 7.85 & 8.21 & 9.09 & 3.01 & 5.88 \\
+Input mesh & \cellcolor{yellow!25} 4.48 & \cellcolor{yellow!25} 7.25 & \cellcolor{yellow!25} 9.40 & \cellcolor{yellow!25} 9.02 & \cellcolor{yellow!25} 9.81 & \cellcolor{yellow!25} 3.21 & \cellcolor{yellow!25} 7.20 \\
+Prior only & \cellcolor{green!25} \textbf{1.98} & \cellcolor{orange!25} 4.99 & \cellcolor{orange!25} 8.45 & \cellcolor{orange!25} 8.85 & \cellcolor{green!25} \textbf{8.41} & \cellcolor{green!25} \textbf{0.62} & \cellcolor{green!25} \textbf{5.55} \\
+Ours (image only) & 21.42 & 13.16 & 21.51 & 16.31 & 17.53 & 21.54 & 18.58 \\
+Ours (image + prior) & \cellcolor{orange!25} 2.41 & \cellcolor{green!25} \textbf{4.71} & \cellcolor{green!25} \textbf{7.85} & \cellcolor{green!25} \textbf{8.21} & \cellcolor{orange!25} 9.09 & \cellcolor{orange!25} 3.01 & \cellcolor{orange!25} 5.88 \\
+\midrule
+\multicolumn{8}{c}{MAE$_{\mathbf{n}_v}$ ($^\circ$)$\downarrow$} \\
+\midrule
+Input mesh & 2.77 & 6.69 & \cellcolor{orange!25} 9.02 & \cellcolor{yellow!25} 10.02 & \cellcolor{yellow!25} 8.69 & \cellcolor{yellow!25} 0.64 & \cellcolor{yellow!25} 6.31 \\
+Prior only & \cellcolor{orange!25} 2.61 & \cellcolor{orange!25} 5.52 & \cellcolor{yellow!25} 9.08 & \cellcolor{orange!25} 9.08 & \cellcolor{orange!25} 8.40 & \cellcolor{orange!25} 0.58 & \cellcolor{orange!25} 5.88 \\
+Ours (image only) & \cellcolor{yellow!25} 2.69 & \cellcolor{yellow!25} 6.44 & 9.69 & 10.35 & 9.34 & 0.67 & 6.53 \\
+Ours (image + prior) & \cellcolor{green!25} \textbf{2.48} & \cellcolor{green!25} \textbf{4.89} & \cellcolor{green!25} \textbf{8.23} & \cellcolor{green!25} \textbf{8.32} & \cellcolor{green!25} \textbf{7.96} & \cellcolor{green!25} \textbf{0.57} & \cellcolor{green!25} \textbf{5.41} \\
 \midrule
 \multicolumn{8}{c}{Acc.\ ($\times10^{-3}$)$\downarrow$} \\
 \midrule
-Input mesh & 4.40 & 4.25 & 7.93 & 9.34 & 4.06 & 4.97 & 5.83 \\
-Prior only & 4.74 & 4.58 & 8.13 & 9.75 & 4.61 & 5.28 & 6.18 \\
-Direct: image only & 2.47 & 3.51 & 7.33 & 8.28 & 3.47 & 0.85 & 4.32 \\
-Direct: image + prior & 2.11 & 3.89 & 6.36 & 8.48 & 3.56 & 0.84 & 4.21 \\
-Lifted: image only & 4.63 & 4.23 & 9.09 & 8.80 & 3.99 & 5.93 & 6.11 \\
-Lifted: image + prior & 3.56 & 4.30 & 7.60 & 8.72 & 4.02 & 4.72 & 5.49 \\
+Input mesh & \cellcolor{orange!25} 4.40 & \cellcolor{orange!25} 4.25 & \cellcolor{orange!25} 7.93 & \cellcolor{yellow!25} 9.34 & \cellcolor{yellow!25} 4.06 & \cellcolor{orange!25} 4.97 & \cellcolor{orange!25} 5.83 \\
+Prior only & 4.74 & 4.58 & \cellcolor{yellow!25} 8.13 & 9.75 & 4.61 & \cellcolor{yellow!25} 5.28 & 6.18 \\
+Ours (image only) & \cellcolor{yellow!25} 4.63 & \cellcolor{green!25} \textbf{4.23} & 9.09 & \cellcolor{orange!25} 8.80 & \cellcolor{green!25} \textbf{3.99} & 5.93 & \cellcolor{yellow!25} 6.11 \\
+Ours (image + prior) & \cellcolor{green!25} \textbf{3.56} & \cellcolor{yellow!25} 4.30 & \cellcolor{green!25} \textbf{7.60} & \cellcolor{green!25} \textbf{8.72} & \cellcolor{orange!25} 4.02 & \cellcolor{green!25} \textbf{4.72} & \cellcolor{green!25} \textbf{5.49} \\
 \bottomrule
 \end{tabular}
 \end{table}
