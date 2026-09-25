@@ -44,7 +44,7 @@ never changes during training: there is no densification, pruning, or opacity cu
 \paragraph{On-manifold anchoring.}
 Each disk $i$ is assigned to a single triangle $f_i$ and a barycentric coordinate
 $\mathbf{b}_i=(b_{i,0},b_{i,1},b_{i,2})$ with $b_{i,k}\ge 0$ and $\sum_k b_{i,k}=1$.
-Its center is \emph{reconstructed} from the live vertices of that triangle,
+Its center is \emph{reconstructed} from the live vertices $\mathbf{p}_0(f_i), \mathbf{p}_1(f_i), \mathbf{p}_2(f_i)$ of that triangle,
 %
 \begin{equation}
 \mathbf{x}_i = b_{i,0}\,\mathbf{p}_0(f_i) + b_{i,1}\,\mathbf{p}_1(f_i) + b_{i,2}\,\mathbf{p}_2(f_i),
