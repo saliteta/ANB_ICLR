@@ -64,7 +64,7 @@ vertex shading normals, which are baked from the input and held fixed. $\lambda_
 relative weight: $\nabla_{\mathbf{V}}R_{\text{nrm}}$ is rescaled once, on the first cycle, to
 $\lambda_{\text{nrm}}$ times the norm of $\mathbf{G}_{\mathbf{V}}$.
 $\mathcal{T}$ conditions the step: it restricts it to the vertex-normal direction, band-limits it to
-the disk radius $\sigma$~\citep{TODO-umbrella-smoothing}, and bounds its per-vertex magnitude. In
+the disk radius $\sigma$~\citep{smoothing}, and bounds its per-vertex magnitude. In
 the appearance step, $\mathbf{V}$ is fixed and the disk attributes are optimized on
 $\mathcal{L}_{\text{app}}$ (Eq.~\eqref{eq:loss}). We repeat the cycle $n$ times.
 
@@ -76,8 +76,8 @@ does not fix the size of the motion. This is also why we average rather than sum
 $\mathbf{B}^{\top}\mathbf{G}_{\mathbf{X}}$ grows with local disk count, and $\mathbf{D}^{-1}$ keeps
 the photometric term's weight against $\lambda_{\text{nrm}}$ the same everywhere on the mesh. By the
 same argument, any constraint on how the mesh may move must be imposed on the step itself. A
-gradient projected onto $\mathbf{n}_{v_j}$ generally does not produce a step along
-$\mathbf{n}_{v_j}$, and a capped gradient does not bound the resulting displacement. $\mathcal{T}$
+gradient projected onto $\mathbf{n}_v$ generally does not produce a step along
+$\mathbf{n}_v$, and a capped gradient does not bound the resulting displacement. $\mathcal{T}$
 is therefore applied to $\Delta^{\text{Adam}}$.
 
 \begin{figure}
@@ -101,13 +101,13 @@ is therefore applied to $\Delta^{\text{Adam}}$.
 % We run our mesh refinement algorithm with $\lambda_{norm} = 0.5$ for $n=300$ cycles for all 6 scenes across Shiny-Blender. We set $\sigma = $, other hyper-params as a function of disk radius...TODO: table of ablation hyper-params
 To assess mesh fine-tuning, we start from the Ref-GS mesh, extracted by TSDF fusion and marching cubes and then simplified and hole-filled (Figure~\ref{fig:mesh_qual}, columns 1--2). We first warm up our appearance model on this mesh for 625 optimizer steps and then \emph{freeze} the environment map and KAN shader. Thus, any remaining error can be solely attributed to geometric problems with the mesh. We then run mesh fine-tuning and compare the resulting mesh with and without our mesh fine-tuning in Figure \ref{fig:mesh_qual} against the ground truth Blender model.
 
-We run mesh fine-tuning for $n=300$ cycles on all six Shiny Blender scenes with $\lambda_{\mathrm{nrm}}=0.5$. In $\mathcal{T}$, band-limiting is damped umbrella (uniform-Laplacian) diffusion~\citep{TODO-umbrella-smoothing}, and the per-vertex bound caps $\lVert\Delta_j\rVert$ each cycle. Displacements are scaled relative to the disk radius $\sigma$: the vertex learning rate is
+We run mesh fine-tuning for $n=300$ cycles on all six Shiny Blender scenes with $\lambda_{\mathrm{nrm}}=0.5$. In $\mathcal{T}$, band-limiting is damped umbrella (uniform-Laplacian) diffusion~\citep{umbrella-diffusion}, and the per-vertex bound caps $\lVert\Delta_j\rVert$ each cycle. Displacements are scaled relative to the disk radius $\sigma$: the vertex learning rate is
 $0.1\sigma$, the smoothing width is $2.5\sigma$, and the per-cycle bound is $\delta=0.5\sigma$.
 Each geometry step accumulates $\mathbf{G}_{\mathbf{X}}$ over 8 training views, and each appearance
 step takes 40 optimizer steps. In practice, we also condition before the optimizer, Huber-reweighting the pullback~\citep{TODO-huber}
 and band-limiting the photometric gradient.
 
-\textbf{Evaluation.} Normal error is measured against the ground-truth Blender normal maps of the 200 Shiny Blender test views per scene. Surface accuracy is measured against the ground-truth Blender models, as the mean point-to-triangle distance from the refined mesh to the camera-visible ground-truth surface, following Ref-NeuS~\citep{refneus}. % TODO: quick metrics explanation (why median normal error)
+\textbf{Evaluation.} Normal error is measured against the ground-truth Blender normal maps of the 200 Shiny Blender test views per scene. Surface accuracy is measured against the ground-truth Blender models, as the mean point-to-triangle distance from the refined mesh to the camera-visible ground-truth surface, following Ref-NeuS~\citep{ref-neus}. % TODO: quick metrics explanation (why median normal error)
 
 %The vertex learning rate is cosine-annealed to $2\%$ of its initial value.
 

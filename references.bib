@@ -364,7 +364,24 @@
   bibsource    = {dblp computer science bibliography, https://dblp.org}
 }
 
-@inproceedings{refneus,
+@inproceedings{smoothing,
+author = {Taubin, Gabriel},
+title = {A signal processing approach to fair surface design},
+year = {1995},
+isbn = {0897917014},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/218380.218473},
+doi = {10.1145/218380.218473},
+abstract = {In this paper we describe a new tool for interactive free-form fair surface design. By generalizing classical discrete Fourier analysis to two-dimensional discrete surface signals - functions defined on polyhedral surfaces of arbitrary topology -, we reduce the problem of surface smoothing, or fairing, to low-pass filtering. We describe a very simple surface signal low-pass filter algorithm that applies to surfaces of arbitrary topology. As opposed to other existing optimization-based fairing methods, which are computationally more expensive, this is a linear time and space complexity algorithm. With this algorithm, fairing very large surfaces, such as those obtained from volumetric medical data, becomes affordable. By combining this algorithm with surface subdivision methods we obtain a very effective fair surface design technique. We then extend the analysis, and modify the algorithm accordingly, to accommodate different types of constraints. Some constraints can be imposed without any modification of the algorithm, while others require the solution of a small associated linear system of equations. In particular, vertex location constraints, vertex normal constraints, and surface normal discontinuities across curves embedded in the surface, can be imposed with this technique.},
+booktitle = {Proceedings of the 22nd Annual Conference on Computer Graphics and Interactive Techniques},
+pages = {351–358},
+numpages = {8},
+keywords = {graphics},
+series = {SIGGRAPH '95}
+}
+
+@inproceedings{ref-neus,
   author       = {Wenhang Ge and
                   Tao Hu and
                   Haoyu Zhao and
@@ -381,4 +398,13 @@
   doi          = {10.1109/ICCV51070.2023.00392},
   biburl       = {https://dblp.org/rec/conf/iccv/GeHZ0C23.bib},
   bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+
+@inproceedings{umbrella-diffusion,
+  title={Interactive multi-resolution modeling on arbitrary meshes},
+  author={Kobbelt, Leif and Campagna, Swen and Vorsatz, Jens and Seidel, Hans-Peter},
+  booktitle={Proceedings of the 25th annual conference on Computer graphics and interactive techniques},
+  pages={105--114},
+  year={1998}
 }
