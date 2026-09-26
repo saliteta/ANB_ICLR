@@ -1,6 +1,6 @@
 \begin{table}[t]
 \centering
-\caption{Appearance quantitative on NeRF Synthetic and Shiny-Blender datasets. Ranking
+\caption{Appearance quantitative on NeRF-Synthetic and Shiny-Blender datasets. Ranking
 (\colorbox{green!25}{\textbf{1st}}, \colorbox{orange!25}{2nd}, \colorbox{yellow!25}{3rd}) is
 computed within the Fixed-Mesh block only, since these methods share our input mesh; the No-Mesh
 and Flexible-Mesh blocks reconstruct their own geometry and are shown as context, not ranked
@@ -10,7 +10,7 @@ measured by us.}
 \resizebox{\linewidth}{!}{
 \begin{tabular}{llcccccc}
 \toprule
-\multirow{2}{*}{\textbf{Constraint}} & \multirow{2}{*}{\textbf{Method}} & \multicolumn{3}{c}{NeRF Synthetic} & \multicolumn{3}{c}{Shiny-Blender} \\
+\multirow{2}{*}{\textbf{Constraint}} & \multirow{2}{*}{\textbf{Method}} & \multicolumn{3}{c}{NeRF-Synthetic} & \multicolumn{3}{c}{Shiny-Blender} \\
 \cmidrule(lr){3-5} \cmidrule(lr){6-8}
 & & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
 \midrule
@@ -22,14 +22,14 @@ measured by us.}
 & 3DGS-DR~\citep{3dgsDR}      & 31.02 & 0.962 & 0.047 & 33.94 & 0.971 & 0.059 \\
 \midrule
 \multirow{2}{*}{Flexible Mesh (context)}
-& GShader~\citep{gaussianShader}      & 31.48 & 0.960 & 0.042 & 30.42 & 0.951 & 0.082 \\
+& GaussianShader~\citep{gaussianShader}      & 31.48 & 0.960 & 0.042 & 30.42 & 0.951 & 0.082 \\
 & RefGS~\citep{refgs}             & 33.20 & 0.966 & 0.036 & 34.80 & 0.973 & 0.056 \\
 \midrule
 \multirow{2}{*}{Fixed Mesh}
 & DNR~\citep{DNR}               & \cellcolor{yellow!25}32.01 & \cellcolor{yellow!25}0.959 & \cellcolor{yellow!25}0.043 & \cellcolor{yellow!25}27.50 & \cellcolor{orange!25}0.931 & \cellcolor{yellow!25}0.097 \\
-& 2DGS*~\citep{2DGS}             & \cellcolor{orange!25}32.32 & \cellcolor{orange!25}0.960 & \cellcolor{orange!25}0.029 & \cellcolor{orange!25}27.70 & \cellcolor{yellow!25}0.930 & \cellcolor{orange!25}0.078 \\
+& 2DGS$^{*}$~\citep{2DGS}             & \cellcolor{orange!25}32.32 & \cellcolor{orange!25}0.960 & \cellcolor{orange!25}0.029 & \cellcolor{orange!25}27.70 & \cellcolor{yellow!25}0.930 & \cellcolor{orange!25}0.078 \\
 \midrule
-Fixed Mesh & Ours              & \cellcolor{green!25}\textbf{33.74} & \cellcolor{green!25}\textbf{0.972} & \cellcolor{green!25}\textbf{0.025} & \cellcolor{green!25}\textbf{38.04} & \cellcolor{green!25}\textbf{0.9830} & \cellcolor{green!25}\textbf{0.0238} \\
+Fixed Mesh & Ours              & \cellcolor{green!25}\textbf{33.74} & \cellcolor{green!25}\textbf{0.972} & \cellcolor{green!25}\textbf{0.025} & \cellcolor{green!25}\textbf{38.04} & \cellcolor{green!25}\textbf{0.983} & \cellcolor{green!25}\textbf{0.024} \\
 \bottomrule
 \end{tabular}
 }

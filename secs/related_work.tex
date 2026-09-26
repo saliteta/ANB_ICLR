@@ -22,7 +22,7 @@ substantially improving specular fidelity within a volumetric field~\citep{refne
 In the splatting regime, recent methods evaluate reflections in screen space against a learned environment map:
 GaussianShader attaches simplified shading functions to each splat~\citep{gaussianShader},
 3DGS-DR defers reflection evaluation to a per-pixel normal buffer~\citep{3dgsDR},
-Ref-Gaussian incorporates physically based deferred shading~\citep{refgs},
+RefGS incorporates physically based deferred shading~\citep{refgs},
 and Spec-Gaussian replaces spherical harmonics with anisotropic spherical Gaussians~\citep{specGaussian}.
 
 Whether it is an evaluated BRDF~\citep{cookTorrance} against a prefiltered environment map, as in classical real-time physically based shading~\citep{karis2013pbr, RealTimeRendering},

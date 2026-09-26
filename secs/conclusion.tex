@@ -15,7 +15,7 @@ synthetic single-object benchmarks. Within a near-convex part, light from the re
 case: \emph{toaster} has our lowest absolute PSNR, even though we still lead every context method
 there (Table~\ref{tab:shiny_perscene}). Real-time evaluation is demonstrated in
 nvdiffrast rather than a shipped shader. We evaluate with the provided meshes; behavior on
-reconstructed meshes is not studied in our main experiments. Because the anchoring is linear in the vertices, appearance gradients also reach the mesh; App.~\ref{app:refinement} nonetheless uses this property to refine a reconstructed mesh in an appendix demonstration, and a full study of refinement is left to future work.
+reconstructed meshes is not studied in our main experiments. Because the anchoring is linear in the vertices, appearance gradients also reach the mesh; App.~\ref{app:refinement} uses this property to refine a reconstructed mesh as a demonstration, and a full study of refinement is left to future work.
 
 % mandatory not included in page limit
 \section{AI Disclosure}
@@ -23,15 +23,15 @@ In this work, we used generative AI tools to assist with writing and editing the
 
 We have not used generative AI tools to generate synthetic datasets, to propose or refine hypotheses, to design or provide feedback on research methodology or experiments, or to translate. Research direction, qualitative analysis, interpretation of results, and experiment design are the authors' own.
 
-The authors have reviewed all AI-assisted work. All AI-assisted proofs and mathematical claims were checked by by the authors, and AI-assisted code was tested for correctness. 
+The authors have reviewed all AI-assisted work. All AI-assisted proofs and mathematical claims were checked by the authors, and AI-assisted code was tested for correctness. 
 
 We take full responsibility for the final content of this work, including text, claims, and artifacts produced with the aid of generative AI.
 
 
 \section{Reproducibility}
 All datasets used, NeRF-Synthetic~\citep{NeRFVanilla} and Shiny-Blender~\citep{refnerf}, are public
-benchmarks with standard splits. The representation's hyperparameters and training objective
-(Eq.~\eqref{eq:loss}, Adam optimizer, 30K iterations) are given in Sec.~\ref{sec:gmm}; the convex
+benchmarks with standard splits. The training objective
+(Eq.~\eqref{eq:loss}, Adam optimizer, 30K iterations) is given in Sec.~\ref{sec:overview} and the mixture's hyperparameters in Sec.~\ref{sec:gmm}; the convex
 decomposition and adaptive environment-map budget in Sec.~\ref{sec:env}; and the FastKAN decoder
 architecture in Sec.~\ref{sec:kan}. We will release our full codebase upon the paper's acceptance or
 publication.

@@ -6,16 +6,16 @@
   \centering
   \caption{Ablation comparisons across all datasets and scenes. Ranking
   (\colorbox{green!25}{\textbf{1st}}, \colorbox{orange!25}{2nd}, \colorbox{yellow!25}{3rd}) is
-  restricted to Ours, DNR, and 2DGS, the fixed-mesh methods that share our input mesh
+  restricted to Ours, DNR, and 2DGS$^{*}$, the fixed-mesh methods that share our input mesh
   (following Table~\ref{tab:main}); the ablation-variant columns are not ranked, since they trace
   an internal progression rather than a competing baseline.}
   \label{tab:combined-ablation-baselines}
   \resizebox{\linewidth}{!}{
   \begin{tabular}{llccccccc}
     \toprule
-    \multirow{2}{*}{Dataset} & \multirow{2}{*}{Scene} & \multicolumn{5}{c}{Ablation Variants} & \multicolumn{2}{c}{Baselines (context)} \\
+    \multirow{2}{*}{Dataset} & \multirow{2}{*}{Scene} & \multicolumn{5}{c}{Ablation Variants} & \multicolumn{2}{c}{Fixed-mesh baselines} \\
     \cmidrule(lr){3-7} \cmidrule(lr){8-9}
-    & & MLP+SG+M Token & MLP + M Token & MLP & 1-Env MLP & Ours & DNR & 2DGS \\
+    & & MLP+SG+M Token & MLP + M Token & MLP & 1-Env MLP & Ours & DNR & 2DGS$^{*}$ \\
     \midrule
     \multicolumn{9}{c}{\textbf{PSNR$\uparrow$}} \\
     \midrule
@@ -99,53 +99,53 @@
   \centering
   \caption{Per-scene comparison on Shiny-Blender against reported results for methods that
   reconstruct their own geometry. Following Table~\ref{tab:main}, these are not given our input
-  mesh, so they are shown as context rather than ranked against \textbf{Ours KAN}, which is bolded
+  mesh, so they are shown as context rather than ranked against \textbf{Ours}, which is bolded
   for reference only.}
   \label{tab:shiny_perscene}
   \resizebox{\linewidth}{!}{
   \begin{tabular}{lccccccc}
     \toprule
-    & \multicolumn{7}{c}{Shiny Blender} \\
+    & \multicolumn{7}{c}{Shiny-Blender} \\
     & Car & Ball & Helmet & Teapot & Toaster & Coffee & Avg. \\
     \midrule
     \multicolumn{8}{c}{PSNR$\uparrow$} \\
     \midrule
-    Ref-NeRF [35]       &  30.41 & 29.14 & 29.92 & 45.19 & 25.29 & 33.99 & 32.32 \\
-    NeRO [22]           & 25.53 & 30.26 & 29.20 & 38.70 & 26.46 & 28.89 & 29.84 \\
-    ENVIDR [20]         & 28.46 & 38.89 & 32.73 & 41.59 & 26.11 & 29.48 & 32.88 \\
-    3DGS [14]           & 27.24 & 27.69 & 28.32 & 45.68 & 20.99 & 32.32 & 30.37 \\
-    GaussianShader [12] & 27.51 & 29.02 & 28.73 & 43.05 & 22.86 & 31.34 & 30.42 \\
-    3iGS [34]           & 27.52 & 26.82 & 28.08 & 46.05 & 22.71 & 32.64 & 30.64 \\
-    3DGS-DR [46]        & 30.43 & 33.44 & 31.49 & 47.00 & 26.69 & 34.61 & 33.94 \\
-    RefGS                & 30.94 & 36.10 & 33.40 & 46.69 & 27.28 & 34.38 & 34.80 \\
+    Ref-NeRF~\citep{refnerf} &  30.41 & 29.14 & 29.92 & 45.19 & 25.29 & 33.99 & 32.32 \\
+    NeRO~\citep{nero} & 25.53 & 30.26 & 29.20 & 38.70 & 26.46 & 28.89 & 29.84 \\
+    ENVIDR~\citep{envidr} & 28.46 & 38.89 & 32.73 & 41.59 & 26.11 & 29.48 & 32.88 \\
+    3DGS~\citep{3DGS} & 27.24 & 27.69 & 28.32 & 45.68 & 20.99 & 32.32 & 30.37 \\
+    GaussianShader~\citep{gaussianShader} & 27.51 & 29.02 & 28.73 & 43.05 & 22.86 & 31.34 & 30.42 \\
+    3iGS~\citep{3igs} & 27.52 & 26.82 & 28.08 & 46.05 & 22.71 & 32.64 & 30.64 \\
+    3DGS-DR~\citep{3dgsDR} & 30.43 & 33.44 & 31.49 & 47.00 & 26.69 & 34.61 & 33.94 \\
+    RefGS~\citep{refgs}                & 30.94 & 36.10 & 33.40 & 46.69 & 27.28 & 34.38 & 34.80 \\
     \midrule
-    \textbf{Ours KAN}     &  \textbf{33.75} & \textbf{45.01} & \textbf{37.94} & \textbf{47.45} & \textbf{28.76} & \textbf{35.33} & \textbf{38.04} \\
+    \textbf{Ours}     &  \textbf{33.75} & \textbf{45.01} & \textbf{37.94} & \textbf{47.45} & \textbf{28.76} & \textbf{35.33} & \textbf{38.04} \\
     \midrule
     \multicolumn{8}{c}{SSIM$\uparrow$} \\
     \midrule
-    Ref-NeRF [35]       & 0.949 & 0.956 & 0.955 & 0.995 & 0.910 & 0.972 & 0.956 \\
-    NeRO [22]           & 0.949 & 0.974 & 0.971 & 0.995 & 0.929 & 0.956 & 0.962 \\
-    ENVIDR [20]         & 0.961 & 0.991 & 0.980 & 0.996 & 0.939 & 0.949 & 0.969 \\
-    3DGS [14]           & 0.930 & 0.937 & 0.951 & 0.996 & 0.895 & 0.971 & 0.947 \\
-    GaussianShader [12] & 0.930 & 0.954 & 0.955 & 0.996 & 0.900 & 0.969 & 0.951 \\
-    3iGS [34]           & 0.930 & 0.933 & 0.951 & 0.996 & 0.909 & 0.972 & 0.948 \\
-    3DGS-DR [46]        & 0.962 & 0.979 & 0.971 & 0.997 & 0.942 & 0.976 & 0.971 \\
-    RefGS               & 0.961 & 0.981 & 0.975 & 0.997 & 0.942 & 0.973 & 0.973 \\
+    Ref-NeRF~\citep{refnerf} & 0.949 & 0.956 & 0.955 & 0.995 & 0.910 & 0.972 & 0.956 \\
+    NeRO~\citep{nero} & 0.949 & 0.974 & 0.971 & 0.995 & 0.929 & 0.956 & 0.962 \\
+    ENVIDR~\citep{envidr} & 0.961 & 0.991 & 0.980 & 0.996 & 0.939 & 0.949 & 0.969 \\
+    3DGS~\citep{3DGS} & 0.930 & 0.937 & 0.951 & 0.996 & 0.895 & 0.971 & 0.947 \\
+    GaussianShader~\citep{gaussianShader} & 0.930 & 0.954 & 0.955 & 0.996 & 0.900 & 0.969 & 0.951 \\
+    3iGS~\citep{3igs} & 0.930 & 0.933 & 0.951 & 0.996 & 0.909 & 0.972 & 0.948 \\
+    3DGS-DR~\citep{3dgsDR} & 0.962 & 0.979 & 0.971 & 0.997 & 0.942 & 0.976 & 0.971 \\
+    RefGS~\citep{refgs}               & 0.961 & 0.981 & 0.975 & 0.997 & 0.942 & 0.973 & 0.973 \\
     \midrule
-    \textbf{Ours KAN}            & \textbf{0.9763} & \textbf{0.9945} & \textbf{0.9902} & \textbf{0.9983} & \textbf{0.9607} & \textbf{0.9777} & \textbf{0.9830} \\
+    \textbf{Ours}            & \textbf{0.9763} & \textbf{0.9945} & \textbf{0.9902} & \textbf{0.9983} & \textbf{0.9607} & \textbf{0.9777} & \textbf{0.9830} \\
     \midrule
     \multicolumn{8}{c}{LPIPS$\downarrow$} \\
     \midrule
-    Ref-NeRF [35]       & 0.051 & 0.307 & 0.087 & 0.013 & 0.118 & 0.082 & 0.110 \\
-    NeRO [22]           & 0.074 & 0.094 & 0.050 & 0.012 & 0.089 & 0.110 & 0.072 \\
-    ENVIDR [20]         & 0.049 & 0.067 & 0.051 & 0.011 & 0.116 & 0.139 & 0.072 \\
-    3DGS [14]           & 0.047 & 0.161 & 0.079 & 0.007 & 0.126 & 0.078 & 0.083 \\
-    GaussianShader [12] & 0.045 & 0.148 & 0.088 & 0.012 & 0.111 & 0.085 & 0.082 \\
-    3iGS [34]           & 0.045 & 0.166 & 0.073 & 0.006 & 0.098 & 0.077 & 0.077 \\
-    3DGS-DR [46]        & 0.034 & 0.104 & 0.050 & 0.006 & 0.083 & 0.076 & 0.059 \\
-    RefGS                & 0.034 & 0.098 & 0.045 & 0.006 & 0.070 & 0.082 & 0.056 \\
+    Ref-NeRF~\citep{refnerf} & 0.051 & 0.307 & 0.087 & 0.013 & 0.118 & 0.082 & 0.110 \\
+    NeRO~\citep{nero} & 0.074 & 0.094 & 0.050 & 0.012 & 0.089 & 0.110 & 0.072 \\
+    ENVIDR~\citep{envidr} & 0.049 & 0.067 & 0.051 & 0.011 & 0.116 & 0.139 & 0.072 \\
+    3DGS~\citep{3DGS} & 0.047 & 0.161 & 0.079 & 0.007 & 0.126 & 0.078 & 0.083 \\
+    GaussianShader~\citep{gaussianShader} & 0.045 & 0.148 & 0.088 & 0.012 & 0.111 & 0.085 & 0.082 \\
+    3iGS~\citep{3igs} & 0.045 & 0.166 & 0.073 & 0.006 & 0.098 & 0.077 & 0.077 \\
+    3DGS-DR~\citep{3dgsDR} & 0.034 & 0.104 & 0.050 & 0.006 & 0.083 & 0.076 & 0.059 \\
+    RefGS~\citep{refgs}                & 0.034 & 0.098 & 0.045 & 0.006 & 0.070 & 0.082 & 0.056 \\
     \midrule
-    \textbf{Ours KAN}     & \textbf{0.0154} & \textbf{0.0224} & \textbf{0.0130} & \textbf{0.0039} & \textbf{0.0455} & \textbf{0.0427} & \textbf{0.0238} \\
+    \textbf{Ours}     & \textbf{0.0154} & \textbf{0.0224} & \textbf{0.0130} & \textbf{0.0039} & \textbf{0.0455} & \textbf{0.0427} & \textbf{0.0238} \\
     \bottomrule
   \end{tabular}
   }

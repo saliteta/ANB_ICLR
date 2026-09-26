@@ -8,8 +8,8 @@
 \includegraphics[width=\linewidth]{figs/teaser.pdf}
 \caption{%
 \textbf{Automatic Neural Baking bakes highly reflective, view-dependent appearance directly onto a mesh, rendering it in real time ($\geq$ 60 FPS) given the same input mesh that flexible-mesh methods must instead reconstruct.}
-\emph{Comparison}: on Shiny-Blender, our method reproduces sharp, high-frequency specular reflections that 2DGS~\citep{2DGS} and DNR~\citep{DNR} smear and that RefGS~\citep{refgs} recovers less crisply, while running natively in an nvdiffrast rasterizer rather than requiring depth-sorted splat rendering.
-\emph{Pipeline}: from posed reference images ~\badgeimg{} and the corresponding triangle mesh~\badgemesh, we optimize three interchangeable, rasterizer-native modules - an on-manifold 2D Gaussian mixture storing diffuse albedo and reflectivity~\badgegmm, an adaptive, hierarchical environment map capturing self-reflection ~\badgeenv; and a lightweight KAN that evaluates the reflection equation for far-field specular~\badgekan - all evaluated per-fragment in a form a standard fragment shader can execute
+\emph{Comparison}: on Shiny-Blender, our method reproduces sharp, high-frequency specular reflections that 2DGS$^{*}$~\citep{2DGS} and DNR~\citep{DNR} smear and that RefGS~\citep{refgs} recovers less crisply, while running natively in an nvdiffrast rasterizer rather than requiring depth-sorted splat rendering.
+\emph{Pipeline}: from posed reference images~\badgeimg{} and the corresponding triangle mesh~\badgemesh, we optimize three interchangeable, rasterizer-native modules---an on-manifold 2D Gaussian mixture storing diffuse albedo and reflectivity~\badgegmm, an adaptive, hierarchical environment map capturing self-reflection~\badgeenv, and a lightweight KAN that evaluates the reflection equation for far-field specular~\badgekan---all evaluated per-fragment in a form a standard fragment shader can execute
 \badgemesh\,\badgegmm\,\badgeenv\,\badgekan.%
 }
 \label{fig:teaser}
@@ -53,7 +53,7 @@ where the difficulty becomes concrete.
 Once primitives are strictly coplanar, their depth keys tie and alpha compositing has no
 well-defined order. The standard remedies fail in instructive ways.
 Offsetting disk $i$ along the face normal by $\varepsilon_i$ separates two disks by
-$(\varepsilon_i-\varepsilon_j)(\mathbf{n}\cdot\mathbf{v})$, where n is the normal of that face, and v is the viewing direction. 
+$(\varepsilon_i-\varepsilon_j)(\mathbf{n}\cdot\mathbf{v})$, where $\mathbf{n}$ is the face normal and $\mathbf{v}$ the viewing direction. 
 The order changes at grazing angles: small
 offsets reproduce the tie, while large ones yield an ordering that flips as the camera orbits, so
 gradients from different views disagree about which primitive owns a fragment.
@@ -106,7 +106,7 @@ it.
 Per-primitive view-dependent color would seem a natural way to add reflection to this field, but a
 second, independent obstruction rules it out. Reflection about a fixed normal is a rotation of the
 view sphere, so any low-order, per-primitive color model occupies a fixed-dimensional function
-space at every fragment, and adding primitives adds no angular bandwidth to escape it (Theorem A,
+space at every fragment, and adding primitives adds no angular bandwidth to escape it (Theorem A1,
 App.~\ref{app:theory}). Only a shared, high-capacity representation read by a per-fragment decoder
 can exceed this floor, which is why the view-dependent term above is not one more per-disk
 attribute but the environment map and KAN decoder of Secs.~\ref{sec:env}--\ref{sec:kan}.

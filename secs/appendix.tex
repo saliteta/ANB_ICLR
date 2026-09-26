@@ -5,7 +5,7 @@
 This section formalizes the two obstructions motivating our representation (Sec.~\ref{sec:intro}):
 coplanar primitives admit no view-stable, geometrically meaningful compositing order
 (\emph{ordering}, Theorem B), and per-primitive view-dependent color models are band-limited at
-every fragment regardless of primitive count (\emph{locality}, Theorem A). We then state
+every fragment regardless of primitive count (\emph{locality}, Theorem A1). We then state
 falsifiable predictions of both and map them to evidence already reported in the paper.
 
 \paragraph{Setup.} Fix a fragment $\mathbf{x}$ on a locally planar patch with unit normal
@@ -53,16 +53,16 @@ spacing $\delta$, the residual jump is at most $T\alpha_i\alpha_j|a(\mathbf{x}_i
 popping.
 
 \paragraph{Proposition 2 (View dependence lower-bounds the jump cost).} Let $p_i,p_j$ be points
-each covered only by their own primitive (rendering $\alpha c_i$, $\alpha c_j$ there), and let $E$
+each covered only by their own primitive (rendering $\alpha c_i$, $\alpha c_j$ there), and let $\eta$
 bound the rendering error at $p_i$, $p_j$, and the two one-sided renders at $\mathbf{x}$ near a
 flip view $\mathbf{v}^*$. Then for any continuous colors,
 \begin{equation}
-E \;\ge\; \frac{T\alpha}{2(1+T\alpha)}\,\big|L(p_i,\mathbf{v}^*)-L(p_j,\mathbf{v}^*)\big|.
+\eta \;\ge\; \frac{T\alpha}{2(1+T\alpha)}\,\big|L(p_i,\mathbf{v}^*)-L(p_j,\mathbf{v}^*)\big|.
 \label{eq:jump-lb}
 \end{equation}
 \emph{Proof sketch.} The jump is $J=T\alpha(\alpha c_i-\alpha c_j)$ (Lemma~3); the private-point
-errors give $|\alpha c_i-\alpha c_j|\ge|\Delta L|-2E$; continuity of $L(\mathbf{x},\cdot)$ at
-$\mathbf{v}^*$ forces $|J|\le 2E$; combining and rearranging gives Eq.~\eqref{eq:jump-lb}. To first
+errors give $|\alpha c_i-\alpha c_j|\ge|\Delta L|-2\eta$; continuity of $L(\mathbf{x},\cdot)$ at
+$\mathbf{v}^*$ forces $|J|\le 2\eta$; combining and rearranging gives Eq.~\eqref{eq:jump-lb}. To first
 order $|\Delta L|\approx \delta|\nabla_{\boldsymbol{\omega}} E|(2\kappa+1/d)$ for a mirror of
 curvature $\kappa$ at distance $d$ (the diffuse analogue is $\delta|\nabla a|$), so the floor decays
 with surface roughness and vanishes in the diffuse limit, but for sharp environments it approaches
@@ -118,7 +118,7 @@ environment map, Sec.~\ref{sec:env}). Then: (i) error is governed by $|E-\hat E|
 per-element capacity; (ii) parameters drop from $N(\ell+1)^2$ to $(\ell+1)^2+O(N)$; (iii)
 $\hat E$ is constrained by every reflective pixel of every training view, so Corollary~A2's cap
 disappears; (iv) merging or pruning elements acts only on the scalar attributes $(a_i,m_i)$, so
-elements stay individually addressable and mergeable (Sec.~\ref{app:compaction}). Per-part maps
+elements stay individually addressable and mergeable (App.~\ref{app:compaction}). Per-part maps
 (our convex decomposition, Sec.~\ref{sec:env}) make $\hat E$ depend on the part and preserve all
 four properties.
 
@@ -133,11 +133,11 @@ $\Delta\mathbf{x}\ne0$ then $\mathbf{m}\not\parallel\mathbf{n}$, and every great
 equator enters the visible hemisphere: every pair with distinct centers flips at some visible view,
 for any finite offset.
 
-\paragraph{B2 (Suppressing flips costs thickness).} The flip circle's maximum elevation is
-$\max(\mathbf{n}\cdot\mathbf{f})=|\Delta\mathbf{x}|/\sqrt{|\Delta\mathbf{x}|^2+\Delta\varepsilon^2}$.
-Keeping every flip below elevation $\theta$ needs $|\Delta\varepsilon|\ge|\Delta\mathbf{x}|\cot\theta$
+\paragraph{B2 (Suppressing flips costs thickness).} The flip circle's maximum elevation $\phi_{\max}$ above the surface satisfies
+$\sin\phi_{\max}=\max(\mathbf{n}\cdot\mathbf{f})=|\Delta\mathbf{x}|/\sqrt{|\Delta\mathbf{x}|^2+\Delta\varepsilon^2}$.
+Keeping every flip below elevation $\phi$ needs $|\Delta\varepsilon|\ge|\Delta\mathbf{x}|\cot\phi$
 for every overlapping pair, which for the widest pair (lateral distance $D$) requires offsets
-spanning at least $D\cot\theta$ ($\approx5.7D$ at $\theta=10^\circ$) and diverges as $\theta\to0$:
+spanning at least $D\cot\phi$ ($\approx5.7D$ at $\phi=10^\circ$) and diverges as $\phi\to0$:
 flip-free rendering to grazing angles needs a layer thicker than the cluster is wide, a volume, not
 a surface.
 
@@ -164,7 +164,7 @@ warp-compensated residuals and flip-count heatmaps is left to future work. Table
 results already reported in the paper to the claim each one supports.
 \input{tabs/theory_evidence}
 
-\paragraph{Scope of the theory.} The argument shows locality (Theorem~A), not ordering, carries most
+\paragraph{Scope of the theory.} The argument shows locality (Theorem~A1), not ordering, carries most
 of the quality gap: fixed-index compositing survives Theorem~B (it is view-stable, so Prop.~2's
 jump bound does not apply) but is still defeated by Theorem~A1 when colors are per-primitive. We
 have not run the isolating experiment (2DGS$^{*}$ with fixed-index order plus our environment map
@@ -175,25 +175,25 @@ popping Theorem~B describes.
 
 \subsection{Ablation Details}
 
-Here, we present detailed qualitative and quantitative results from our ablation study comparing our approach against closely related baselines. We first evaluated replacing the KAN with a standard MLP. Additionally, we experimented with incorporating material tokens or features, similar to scaffolded Gaussian Splats; however, the performance was inferior to that of a straightforward MLP. We also attempted to use spherical Gaussians for the view-dependent representation, but this approach yielded suboptimal results. These quantitative comparisons are summarized in Tab.~\ref{tab:combined-ablation-baselines}.
+Here, we present detailed qualitative and quantitative results from our ablation study comparing our approach against closely related baselines. We first evaluated replacing the KAN with a standard MLP. Additionally, we experimented with incorporating material tokens or features, similar to scaffolded Gaussian Splats; however, the performance was inferior to that of a straightforward MLP. We also attempted to use spherical Gaussians for the view-dependent representation, but this approach yielded suboptimal results. These quantitative comparisons are summarized in Table~\ref{tab:combined-ablation-baselines}.
 
-Furthermore, we provide qualitative visualizations that decompose the outputs of our method. Specifically, our rendering function consists of three components: multiple environment maps for self-reflection, a KAN for specular reflection, and a GMM for diffuse lighting. We visualize the distinct contributions of each of these lighting components. To isolate the effects of the 2D GMM, Fig.~\ref{fig:abl_qualitative} compares our method against a 2DGS baseline exhibiting depth-fighting (with spherical harmonics set to zero). Finally, Tab.~\ref{tab:shiny_perscene} details a per-scene comparison against reported state-of-the-art results on the Shiny-Blender dataset; these methods reconstruct their own geometry rather than being given ours, so, following Table~\ref{tab:main}, they are shown as context rather than ranked.
+Furthermore, we provide qualitative visualizations that decompose the outputs of our method. Specifically, our rendering function consists of three components: multiple environment maps for self-reflection, a KAN for specular reflection, and a GMM for diffuse lighting. We visualize the distinct contributions of each of these lighting components. To isolate the effects of the 2D GMM, Figure~\ref{fig:abl_qualitative} compares our method against a 2DGS$^{*}$ baseline exhibiting depth-fighting (with spherical harmonics set to zero). Finally, Tab.~\ref{tab:shiny_perscene} details a per-scene comparison against reported state-of-the-art results on the Shiny-Blender dataset; these methods reconstruct their own geometry rather than being given ours, so, following Table~\ref{tab:main}, they are shown as context rather than ranked.
 
 \input{tabs/tabs}
 
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/ablation.pdf}
-    \caption{From left to right: 2DGS baseline, 2D GMM for diffuse light, KAN with one environment map, KAN with multiple environment maps, and ground truth. We highlight that our multi-environment setting successfully approximates the self-reflection effects on concave objects in toaster. For convex-objects, since there is nearly no self-reflection, the visual results seems highly aligned}
+    \caption{From left to right: 2DGS$^{*}$ baseline, 2D GMM for diffuse light, KAN with one environment map, KAN with multiple environment maps, and ground truth. We highlight that our multi-environment setting successfully approximates the self-reflection effects on the concave \emph{toaster}. For convex objects, which have almost no self-reflection, the single- and multi-map results look nearly identical.}
     \label{fig:abl_qualitative}
 \end{figure}
 
 \subsection{Mesh Refinement Through the Anchoring}
 \label{app:refinement}
-Although our main experiments assume a fixed mesh setting where we let a ground truth mesh drive appearance (i.e. vertices don't move), we explore the capability of ANB's representation in refining an \emph{extracted mesh}. We evaluate this by refining an extracted mesh from a splatting representation (Ref-GS) and comparing its inferred geometry with a withheld ground truth mesh. 
+Although our main experiments assume a fixed mesh setting where we let a ground truth mesh drive appearance (i.e. vertices don't move), we explore the capability of ANB's representation in refining an \emph{extracted mesh}. We evaluate this by refining an extracted mesh from a splatting representation (RefGS) and comparing its inferred geometry with a withheld ground truth mesh. 
 
-To form this mesh, we first extract the surface parameterized by Ref-GS~\citep{refgs}'s Gaussians using TSDF fusion \citep{tsdf} and then extract a mesh using
-Marching Cubes~\citep{marchingcubes}. We note that the input mesh carries two normals. The \emph{face normal} $\mathbf{n}_f$ is the geometric normal of each triangle, computed from its current vertex positions; it is also the normal of every disk anchored to that face. The \emph{vertex normal} $\mathbf{n}_v$ is a per-vertex attribute obtained by averaging Ref-GS's rendered normal maps over the training views; it is interpolated across each face as ANB's shading normal and is optimized along with the mesh during refinement. Both normals, as well as the vertex positions, may differ from the ground truth. We use the agreement of the two normals as a \emph{normal}-consistency prior, which penalizes misalignment between each face normal and the normals of its vertices while keeping $\mathbf{n}_v$ close to its Ref-GS initialization.
+To form this mesh, we first extract the surface parameterized by RefGS~\citep{refgs}'s Gaussians using TSDF fusion \citep{tsdf} and then extract a mesh using
+Marching Cubes~\citep{marchingcubes}. We note that the input mesh carries two normals. The \emph{face normal} $\mathbf{n}_f$ is the geometric normal of each triangle, computed from its current vertex positions; it is also the normal of every disk anchored to that face. The \emph{vertex normal} $\mathbf{n}_v$ is a per-vertex attribute obtained by averaging RefGS's rendered normal maps over the training views; it is interpolated across each face as ANB's shading normal and is optimized along with the mesh during refinement. Both normals, as well as the vertex positions, may differ from the ground truth. We use the agreement of the two normals as a \emph{normal}-consistency prior, which penalizes misalignment between each face normal and the normals of its vertices while keeping $\mathbf{n}_v$ close to its RefGS initialization.
 %$\mathbf{n}_{face}$ and RefGS's inferred splat normals projected onto the vertices $\mathbf{n}_{gauss}$.%
 Each refinement cycle then moves the vertices along the sum of two gradients: the photometric
 gradient, taken at the disk centers, evaluated at the ray--disk intersection and pulled back to the
@@ -243,7 +243,7 @@ $\mathrm{MAE}_{\mathbf{n}_v}$ by $14.2\%$ ($6.31^\circ \rightarrow 5.41^\circ$),
 
 We highlight the effect
 of refinement on high-frequency surface artifacts left by the extraction in Figure~\ref{fig:mesh_ringing}: the fine noise on
-\emph{teapot} and the concentric marching-cubes ringing on \emph{helmet} are both smoothed away. Because barycentric anchoring fixes topology, our proposed mesh refinement method can \emph{adjust} existing surface but \emph{cannot recover} surface that is absent (i.e. large holes). We leave extensions such as remeshing and more detailed comparisons against SOTA mesh refinement methods as future work.
+\emph{teapot} and the concentric marching-cubes ringing on \emph{helmet} are both smoothed away. Figure~\ref{fig:mesh_qual} shows the extracted, warmed-up, and refined meshes alongside the ground truth for held-out views of \emph{teapot}, \emph{helmet}, and \emph{toaster}. Because barycentric anchoring fixes topology, our proposed mesh refinement method can \emph{adjust} existing surface but \emph{cannot recover} surface that is absent (i.e. large holes). We leave extensions such as remeshing and more detailed comparisons against SOTA mesh refinement methods as future work.
 
 % % ; normal error falls on
 % all six scenes and accuracy on five of six (Table~\ref{tab:refine_perscene}).
@@ -267,7 +267,7 @@ of refinement on high-frequency surface artifacts left by the extraction in Figu
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/mesh_qual.pdf}
-    \caption{\textbf{Mesh refinement qualitative.} Each row is one held-out test view, two each of \emph{teapot}, \emph{helmet} and \emph{toaster}. \emph{Columns 1--3} follow one mesh through our pipeline and are flat-shaded so that surface defects stay visible: (1) the mesh extracted from Ref-GS through TSDF fusion and marching cubes; (2) that mesh after appearance warm-up (3) the same mesh after refinement. Columns 1 and 2 differ only by simplification, so the change from column 2 to column 3 is due to refinement alone. \emph{Columns 4--5} are for reference only: the ground-truth mesh (smooth-shaded) and the ground-truth normal map for the same view.}
+    \caption{\textbf{Mesh refinement qualitative.} Each row is one held-out test view, two each of \emph{teapot}, \emph{helmet} and \emph{toaster}. \emph{Columns 1--3} follow one mesh through our pipeline and are flat-shaded so that surface defects stay visible: (1) the mesh extracted from RefGS through TSDF fusion and marching cubes; (2) that mesh after appearance warm-up; (3) the same mesh after refinement. Columns 1 and 2 differ only by simplification, so the change from column 2 to column 3 is due to refinement alone. \emph{Columns 4--5} are for reference only: the ground-truth mesh (smooth-shaded) and the ground-truth normal map for the same view.}
     \label{fig:mesh_qual}
 \end{figure}
 
