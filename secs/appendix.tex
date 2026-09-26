@@ -281,7 +281,7 @@ it once on the trained asset to merge and prune disks down to a target fraction,
 optimization. Table~\ref{tab:compaction_perscene} details the per-scene results summarized in
 Table~\ref{tab:compaction}. Degradation is graceful and uneven across scenes: \emph{teapot} and
 \emph{ball} are essentially unaffected down to $10\%$ of the disks, while \emph{helmet}, the most
-geometrically detailed scene, loses the most on every metric. This is the behavior we would expect
+geometrically detailed scene, loses the most in PSNR and LPIPS. This is the behavior we would expect
 from an asset built out of individually addressable, mergeable elements, and it is the property a
 baking pipeline needs for automatic level-of-detail generation, the splat analogue of a mipmap
 chain, without a bespoke LOD method.
