@@ -10,9 +10,8 @@ view-independent fields, an adaptive hierarchical environment map the incident l
 decoder the view-dependent term. With this bridge in place, the next steps are engine
 integration, real captures, and element-level operations such as merging or editing disks directly.
 
-\paragraph{Scope.} Our method takes the mesh as input and is optimized per scene, and we evaluate on
-synthetic single-object benchmarks. Within a near-convex part, light arriving from the rest of the
-object is treated as distant and position-independent, so strongly concave objects are the hardest
+\paragraph{Scope.} Our method takes the mesh as input, is optimized per scene, and is evaluated on
+synthetic single-object benchmarks. Within a near-convex part, light from the rest of the object is treated as distant and position-independent, so strongly concave objects are the hardest
 case: \emph{toaster} has our lowest absolute PSNR, even though we still lead every context method
 there (Table~\ref{tab:shiny_perscene}). Real-time evaluation is demonstrated in
 nvdiffrast rather than a shipped shader. We evaluate with the provided meshes; behavior on
