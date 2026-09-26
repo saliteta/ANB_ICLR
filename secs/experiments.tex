@@ -22,8 +22,8 @@ initialized evenly on the mesh surface, with every gradient projected onto the m
 can slide along its face but never leave it), we additionally displace each disk by a small, fixed
 offset $\varepsilon$ along the face normal at initialization; because normal motion is disallowed
 during training, this offset persists and gives every disk a fixed depth order for compositing. We
-sweep $\varepsilon\in\{10^{-5},10^{-4},10^{-3}\}$ on two representative scenes, \emph{ball} and
-\emph{helmet}. Table~\ref{tab:ordering} shows PSNR is flat across three orders of magnitude of
+sweep $\varepsilon\in\{10^{-5},10^{-4},10^{-3}\}$ across all six Shiny-Blender scenes.
+Table~\ref{tab:ordering} shows PSNR is flat across three orders of magnitude of
 $\varepsilon$ and no better than the untied $\varepsilon{=}0$ baseline: fixing an arbitrary order
 does not recover the quality a geometrically meaningful one would, confirming that the obstruction
 is order-dependence itself, not depth.
