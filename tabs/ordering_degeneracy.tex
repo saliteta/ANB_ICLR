@@ -1,12 +1,8 @@
 \begin{table}[t]
 \centering
-\caption{\textbf{Ordering degeneracy.} Mean PSNR on Shiny-Blender for 2DGS$^{*}$ anchored to the
-mesh, after breaking the exact coplanar tie with a small, fixed offset $\varepsilon$ along the face
-normal at initialization; because normal motion is disallowed during training, this offset fixes
-each disk's compositing order for the rest of training. The $\varepsilon{=}0$ column is the untied
-baseline (Table~\ref{tab:combined-ablation-baselines}). PSNR does not improve as $\varepsilon$
-grows over three orders of magnitude, and is no better than leaving the tie unresolved: fixing an
-arbitrary order does not recover the quality a geometrically meaningful one would.}
+\caption{\textbf{Ordering degeneracy.} Mean Shiny-Blender PSNR for 2DGS$^{*}$ with a fixed per-disk
+normal offset $\varepsilon$ at initialization, versus the untied $\varepsilon{=}0$ baseline
+(Table~\ref{tab:combined-ablation-baselines}). PSNR does not improve with $\varepsilon$.}
 \label{tab:ordering}
 \begin{tabular}{lcccc}
 \toprule
