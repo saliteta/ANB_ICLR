@@ -13,11 +13,22 @@ synthetic single-object benchmarks. Within a near-convex part, light arriving fr
 object is treated as distant and position-independent, so strongly concave objects are the hardest
 case: \emph{toaster} has our lowest absolute PSNR, even though we still lead every context method
 there (Table~\ref{tab:shiny_perscene}). Real-time evaluation is demonstrated in
-nvdiffrast rather than a shipped shader. We evaluate with the provided meshes; behaviour on
-reconstructed meshes is not studied here. Because the anchoring is linear in the vertices,
-appearance gradients also reach the mesh; App.~\ref{app:refinement} uses this to refine a
-reconstructed mesh, and a full study of refinement is left to future work.
+nvdiffrast rather than a shipped shader. We evaluate with the provided meshes; behavior on
+reconstructed meshes is not studied in our main experiments. Because the anchoring is linear in the vertices, appearance gradients also reach the mesh; App.~\ref{app:refinement} nonetheless uses this property to refine a reconstructed mesh in an appendix demonstration, and a full study of refinement is left to future work.
 
 % mandatory not included in page limit
 \section{AI Disclosure}
-DISCLOSURE GOES HERE NOT PART OF PAGE LIMIT
+In this work, we used generative AI tools to assist with the writing and editing of the language of the paper, including grammar and LaTeX formatting. Core method development was done by authors. We used generative AI tools (i.e. Claude Code) in an assistive capacity during code implementation including evaluation scripts, visualization scripts, and debugging. For cleaning and reformatting data, we utilized generative AI tools to modify dataloader code, but not to modify dataset assets directly.  
+
+We have not utilized generative AI tools to generate synthetic datasets, develop mathematical theories, or to do proofs. We have not utilized generative AI tools to translate.
+
+We have not utilized generative AI models to propose or to refine hypotheses. Research direction,
+qualitative analysis, interpretation of results, and experiment design are the authors' own. 
+
+The authors have reviewed all AI-assisted work and take full responsibility for the final content of this work including texts, claims, and artifacts produced with the aid of generative AI. The authors did not use generative AI for translation.
+
+
+\section{Reproducibility}
+TODO: We will release the code containing all our experiments upon acceptance...The code can be found X, Y, Z
+
+
