@@ -157,9 +157,10 @@ predicts that, with 2DGS$^{*}$ anchored to the mesh, pure camera translation cau
 and hence no flicker, while camera rotation reorders with flicker concentrated where the surface
 faces the camera ($\propto1/\sin\theta$) and weaker toward silhouettes; under pure rotation about
 the camera center every surface point is seen along an unchanged ray, so any flicker is a sorting
-artifact by construction. We observe this qualitatively on \emph{ball}-like scenes (strong face-on
-flicker under rotation, none under translation); quantifying it with warp-compensated residuals and
-flip-count heatmaps is left to future work. Table~\ref{tab:theory_evidence} maps the remaining
+artifact by construction. \textbf{We provide qualitative video evidence for this prediction} on
+\emph{ball}-like scenes (supplementary video: strong face-on flicker under rotation, none under
+translation). This is a qualitative confirmation, not a quantitative one; a quantitative test via
+warp-compensated residuals and flip-count heatmaps is left to future work. Table~\ref{tab:theory_evidence} maps the remaining
 results already reported in the paper to the claim each one supports.
 \input{tabs/theory_evidence}
 
