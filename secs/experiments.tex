@@ -10,14 +10,31 @@ flexible-mesh methods (GaussianShader~\citep{gaussianShader}, RefGS~\citep{refgs
 these methods optimize geometry rather than taking it as given, so they are not directly comparable.
 
 
-\subsection{Comparison}
-Among fixed-mesh methods (Table~\ref{tab:main}), which share our input mesh, we attain the best
-PSNR and SSIM on both datasets and the best LPIPS on Shiny-Blender; the unconstrained and
-flexible-mesh rows are shown for context, since those methods reconstruct their own geometry
-rather than being given ours. Qualitatively (Figure~\ref{fig:qualitative}), our renders reproduce
-sharp, high-frequency environment reflections on metallic surfaces most faithfully; 2DGS$^{*}$ and
-DNR blur them and RefGS recovers them less crisply. Against the best context method per scene, our
-margin is smallest on \emph{teapot} ($+0.45$~dB) and \emph{coffee} ($+0.72$~dB)
+\subsection{Ordering Degeneracy}
+\label{sec:ordering}
+Sec.~\ref{sec:intro} argues that binding floating splats to a mesh face makes them coplanar, so
+alpha compositing has no well-defined order, and that the standard remedy, offsetting each
+primitive along the face normal, does not fix this: it only trades an undefined order for an
+arbitrary one. We test this empirically. Starting from the 2DGS$^{*}$ baseline (2D Gaussians
+initialized evenly on the mesh surface, with every gradient projected onto the manifold so a disk
+can slide along its face but never leave it), we additionally displace each disk by a small, fixed
+offset $\varepsilon$ along the face normal at initialization; because normal motion is disallowed
+during training, this offset persists and gives every disk a fixed depth order for compositing. We
+sweep $\varepsilon\in\{10^{-5},10^{-4},10^{-3}\}$ on two representative scenes, \emph{ball} and
+\emph{helmet}. Table~\ref{tab:ordering} shows PSNR is flat across three orders of magnitude of
+$\varepsilon$ and no better than the untied $\varepsilon{=}0$ baseline: fixing an arbitrary order
+does not recover the quality a geometrically meaningful one would, confirming that the obstruction
+is order-dependence itself, not depth.
+\input{tabs/ordering_degeneracy}
+
+\subsection{Appearance Quality}
+\label{sec:quality}
+Given the mesh, our renders reproduce sharp, high-frequency environment reflections on metallic
+surfaces (Figure~\ref{fig:qualitative}), reaching $38.04$~dB PSNR on Shiny-Blender and $33.74$~dB
+on NeRF-Synthetic (Table~\ref{tab:main}). The fixed-mesh rows share our input mesh and are the only
+ones we compare against directly; the unconstrained and flexible-mesh rows reconstruct their own
+geometry and are shown as context. Across scenes, our margin over the best context method is
+smallest on \emph{teapot} ($+0.45$~dB) and \emph{coffee} ($+0.72$~dB)
 (Table~\ref{tab:shiny_perscene}).
 
 

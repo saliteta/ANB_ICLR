@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\caption{\textbf{Ordering degeneracy.} PSNR on \emph{ball} and \emph{helmet} for 2DGS$^{*}$ anchored
+to the mesh, after breaking the exact coplanar tie with a small, fixed offset $\varepsilon$ along
+the face normal at initialization; because normal motion is disallowed during training, this offset
+fixes each disk's compositing order for the rest of training. The $\varepsilon{=}0$ column is the
+untied baseline (Table~\ref{tab:combined-ablation-baselines}). PSNR does not improve as
+$\varepsilon$ grows over three orders of magnitude, and is no better than leaving the tie
+unresolved: fixing an arbitrary order does not recover the quality a geometrically meaningful one
+would.}
+\label{tab:ordering}
+\begin{tabular}{lcccc}
+\toprule
+Scene & $\varepsilon{=}0$ (baseline) & $10^{-5}$ & $10^{-4}$ & $10^{-3}$ \\
+\midrule
+Ball   & 20.99 & 20.74 & 20.74 & 20.81 \\
+Helmet & 26.23 & 25.45 & 25.44 & 25.34 \\
+\bottomrule
+\end{tabular}
+\end{table}
