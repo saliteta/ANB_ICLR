@@ -25,23 +25,14 @@ training, PSNR stays flat from $\varepsilon{=}10^{-5}$ to $10^{-3}$ and matches 
 \vspace{-2mm}
 \subsection{Appearance Quality}
 \label{sec:quality}
-% Given the mesh, our renders reproduce sharp, high-frequency environment reflections on metallic
-% surfaces (Figure~\ref{fig:qualitative}), reaching $38.04$~dB PSNR on Shiny-Blender and $33.74$~dB
-% on NeRF-Synthetic (Table~\ref{tab:main}). The fixed-mesh rows share our input mesh and are the only
-% ones we compare against directly; the unconstrained and flexible-mesh rows reconstruct their own
-% geometry and are shown as context. Across scenes, our margin over the best context method is
-% smallest on \emph{teapot} ($+0.45$~dB) and \emph{coffee} ($+0.72$~dB)
-% (Table~\ref{tab:shiny_perscene}).
-
 Given the mesh, our appearance field reaches $38.04$~dB PSNR on Shiny-Blender and $33.74$~dB on
-NeRF-Synthetic (Table~\ref{tab:main}) -- not just the best fixed-mesh result, but the best result
-in the table overall: on Shiny-Blender we surpass RefGS and 3DGS-DR, the best flexible-mesh and
-no-mesh methods, by $3.24$ and $4.10$~dB, despite their freedom to reconstruct their own
-geometry from scratch. The margin over the best context method (Table~\ref{tab:shiny_perscene})
-tracks how reflective a scene is, from $+6.12$~dB on the near-mirror \emph{ball} down to
-$+0.45$~dB on \emph{teapot}, whose highlights are smallest. Qualitatively
-(Figure~\ref{fig:qualitative}), only our renders reproduce the sharp, high-frequency reflections
-that 2DGS$^{*}$ and DNR blur and RefGS recovers less crisply.
+NeRF-Synthetic (Table~\ref{tab:main}), the best result among fixed-mesh methods that share our
+input mesh; the no-mesh and flexible-mesh rows reconstruct their own geometry and are shown as
+context, not ranked against ours. The margin over the best context method
+(Table~\ref{tab:shiny_perscene}) tracks how reflective a scene is, from $+6.12$~dB on the
+near-mirror \emph{ball} down to $+0.45$~dB on \emph{teapot}, whose highlights are smallest.
+Qualitatively (Figure~\ref{fig:qualitative}), our renders reproduce sharp, high-frequency
+reflections on metallic surfaces that 2DGS$^{*}$ and DNR blur.
 
 
 \begin{figure}[t]
