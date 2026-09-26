@@ -16,50 +16,62 @@ Furthermore, we provide qualitative visualizations that decompose the outputs of
 
 \subsection{Mesh Refinement Through the Anchoring}
 \label{app:refinement}
-Because each disk center is a barycentric combination of its face's vertices
-(Eq.~\eqref{eq:center}), the anchoring is linear in the mesh, $\mathbf{X}=\mathbf{B}\mathbf{V}$, and
-photometric gradients reach the vertices. We use this to refine an imperfect input mesh, as a
-demonstration of the property rather than as a new refinement method: the photometric gradient is taken at the disk centers, evaluated at the
-ray--disk intersection, and pulled back to the vertices through the anchoring, similar in spirit to
-the mesh-anchored refinement of SuGaR~\citep{sugar} and OMeGa~\citep{omega}; connectivity is fixed.
+Although our main experiments assume a fixed mesh setting where we let a ground truth mesh drive appearance (i.e. vertices don't move), we explore the capability of ANB's representation in refining an \emph{extracted mesh}. We evaluate this capability by refining an extracted mesh from a splatting representation (Ref-GS) and comparing its inferred geometry with a withheld ground truth mesh. To form this mesh, we first extract the surface parameterized by Ref-GS~\citep{refgs}'s Gaussians using TSDF fusion \citep{tsdf} and then extract a mesh using
+Marching Cubes~\citep{marchingcubes}. We note that the extracted mesh has two inferred normals: surface normals from the Gaussian disks ($\mathbf{n}_{gauss}$) as well as per-triangle face normals ($\mathbf{n}_{face}$). Both these inferred normals as well as the vertex positions may differ from the ground truth mesh. We utilize the consistency of these two normals as a \emph{normal}-consistency prior, which penalizes mis-alignment between the two and
+empirically weight this prior by $\lambda_{\text{nrm}} = 0.5$. 
+%$\mathbf{n}_{face}$ and RefGS's inferred splat normals projected onto the vertices $\mathbf{n}_{gauss}$.%
+Then, mesh refinement propagates the photometric gradient taken at the disk centers, evaluated at the
+ray--disk intersection, and is pulled back to the vertices through the anchoring.
+% Because each disk center is a barycentric combination of its face's vertices
+% (Eq.~\eqref{eq:center}), the anchoring is linear in the mesh, $\mathbf{X}=\mathbf{B}\mathbf{V}$, and
+% photometric gradients reach the vertices. We use this to refine an imperfect input mesh, as a
 
-\paragraph{Setup.} We evaluate on the six Shiny-Blender scenes. For our input mesh, we use the mesh
-Ref-GS~\citep{refgs} extracts from its unconstrained Gaussians (TSDF fusion~\citep{tsdf} and
-marching cubes~\citep{marchingcubes}, then simplification and hole filling). We warm up the
-appearance model on it for 625 optimizer steps and freeze the KAN shader and environment maps. The
-vertices $\mathbf{V}$ are then refined with the \emph{photometric} loss of Eq.~\eqref{eq:loss} and a
-\emph{normal}-consistency prior, which penalizes the misalignment ($1-\cos$) between each face's
-geometric normal $\mathbf{n}_f$ and its normal on the input mesh (the normalized mean of that face's
-input vertex normals $\mathbf{n}_v$, held fixed), averaged over faces weighted by area. We
-empirically weight the normal term by $\lambda_{\text{nrm}} = 0.5$, relative to the norm of the
-photometric gradient. We alternate 300 cycles of a geometry step, which moves each vertex along its
-normal by a smoothed, capped update whose size is set relative to the initial disk scale $s_0$ from
-which the per-disk scales $s_{i,j}$ are initialized, and an appearance step on the disks with the
-mesh fixed. Table~\ref{tab:refine_decomp} shows that the normal term is necessary: the photometric
-loss alone degrades face normals ($7.20^\circ \rightarrow 18.58^\circ$), while the normal term alone
-does not use the images and moves the surface away from the ground truth; only the two together
-improve on the input mesh on all three metrics.
+We emphasize that we evaluate mesh refinement as a capability rather than propose a new refinement method and note similarities of our mesh refinement method with existing methods such as OMeGa~\citep{omega}. 
 
+
+
+% similar in spirit to
+% the mesh-anchored refinement of SuGaR~\citep{sugar} and ; connectivity is fixed.
+% then conduct simplification and hole filling). 
+\paragraph{Setup.} We evaluate on the six Shiny-Blender scenes.  We warm up ANB
+on this extracted mesh for 625 optimizer steps and then freeze the KAN shader and environment maps to isolate the effect of mesh refinement, rather than the mesh extraction itself and run the mesh refinement process for 300 cycles.
+
+% We denote this mesh as before refinement and the resulting mesh as after mesh.
+
+% First, we evaluate the disks in ray-splat space (\ref{2DGS}) using the \emph{photometric} loss of Eq.~\eqref{eq:loss} and a
+ % We then update each vertex's positions by an update whose size is set relative to the disk scale. The vertices positions are updated and then we run an appearance step on the disks with the its
+% mesh fixed. We repeat this process for 300 cycles.
+
+% along this inferred normal $\mathbf{n_f}
 \paragraph{Metrics.} Geometry is scored against the ground-truth Blender models. Normals are
-scored by mean angular error (in degrees) against the ground-truth normal maps of the 200 test
-views, for both the face normals ($\mathrm{MAE}_{\mathbf{n}_f}$) and the vertex normals
-($\mathrm{MAE}_{\mathbf{n}_v}$) of the mesh. To assess
-the surface itself, we use the accuracy term (Acc.) of the Chamfer distance~\citep{dtu}, the mean
+scored by mean angular error in degrees against the ground-truth normal maps of 200 test
+views, for both the face normals ($\mathrm{MAE}_{\mathbf{n}_{face}}$) and the vertex normals
+($\mathrm{MAE}_{\mathbf{n}_{gauss}}$) of the refined mesh. To assess the quality of the vertex
+positions of the mesh, we use the accuracy term (Acc.) of the Chamfer distance~\citep{dtu}, the mean
 distance from points on the refined mesh to the nearest ground-truth surface visible from the test
 cameras (lower is better). Following Ref-NeuS~\citep{ref-neus}, we report accuracy rather than
 completeness, which is dominated by regions missing from the input mesh that a fixed-connectivity
 refinement cannot fill.
 
-\paragraph{Results.} Overall, the anchoring lets ANB refine the mesh it is given, reducing normal
-error and improving accuracy. Refinement lowers face- and vertex-normal error by $18.3\%$ and
-$14.2\%$ and improves accuracy by $5.8\%$ (Table~\ref{tab:refine_improve}); normal error falls on
-all six scenes and accuracy on five of six (Table~\ref{tab:refine_perscene}).
-Figure~\ref{fig:mesh_qual} shows the refined meshes, and Figure~\ref{fig:mesh_ringing} the effect
-of refinement on high-frequency surface artifacts left by the extraction: the fine noise on
-\emph{teapot} and the concentric marching-cubes ringing on \emph{helmet} are both smoothed away.
+Overall, we find ANB is able to refine an extracted mesh it is given, reducing normal
+error and improving accuracy (Table~\ref{tab:refine_improve}). Table~\ref{tab:refine_decomp} shows that the normal-consistency prior is necessary: the photometric
+loss alone degrades face normals ($7.20^\circ \rightarrow 18.58^\circ$), while the normal term alone
+does not use the images and moves the surface away from the ground truth; only the two together
+improve on the extracted mesh on all three metrics.
+Refinement improves the input mesh's face and vertex-normal error by $18.3\%$ and
+$14.2\%$ and position accuracy by $5.8\%$ .
+
+We highlight the effect
+of refinement on high-frequency surface artifacts left by the extraction in Figure~\ref{fig:mesh_ringing}: the fine noise on
+\emph{teapot} and the concentric marching-cubes ringing on \emph{helmet} are both smoothed away. Because barycentric anchoring fixes topology, our proposed mesh refinement method can \emph{adjust} existing surface but \emph{cannot recover} surface that is absent (i.e. large holes). We leave extensions such as remeshing and more detailed comparisons against SOTA mesh refinement methods as future work.
+
+% % ; normal error falls on
+% all six scenes and accuracy on five of six (Table~\ref{tab:refine_perscene}).
+% Figure~\ref{fig:mesh_qual} shows the refined meshes, %
+
 
 \input{tabs/refine_decomp}
-\input{tabs/refine_perscene}
+% \input{tabs/refine_perscene}
 
 \begin{figure}
     \centering
@@ -75,7 +87,7 @@ of refinement on high-frequency surface artifacts left by the extraction: the fi
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/mesh_qual.pdf}
-    \caption{\textbf{Mesh refinement results.} Each row is one held-out test view, two each of \emph{teapot}, \emph{helmet} and \emph{toaster}. \emph{Columns 1--3} follow one mesh through our pipeline and are flat-shaded so that surface defects stay visible: (1) the mesh Ref-GS extracts by TSDF fusion and marching cubes; (2) that mesh after simplification and hole filling, which is the input to refinement; (3) the same mesh after refinement. Columns 1 and 2 differ only by simplification, so the change from column 2 to column 3 is due to refinement alone. \emph{Columns 4--5} are for reference only: the ground-truth mesh (smooth-shaded) and the ground-truth normal map for the same view.}
+    \caption{\textbf{Mesh refinement qualitative.} Each row is one held-out test view, two each of \emph{teapot}, \emph{helmet} and \emph{toaster}. \emph{Columns 1--3} follow one mesh through our pipeline and are flat-shaded so that surface defects stay visible: (1) the mesh extracted from Ref-GS through TSDF fusion and marching cubes; (2) that mesh after appearance warm-up (3) the same mesh after refinement. Columns 1 and 2 differ only by simplification, so the change from column 2 to column 3 is due to refinement alone. \emph{Columns 4--5} are for reference only: the ground-truth mesh (smooth-shaded) and the ground-truth normal map for the same view.}
     \label{fig:mesh_qual}
 \end{figure}
 

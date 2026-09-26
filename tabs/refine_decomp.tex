@@ -10,7 +10,7 @@ error. Metrics as in Table~\ref{tab:refine_decomp}.}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lcc@{}}
 \toprule
-& w/o $\rightarrow$ w/ & Improvement \\
+& before $\rightarrow$ after & Improvement \\
 \midrule
 $\mathrm{MAE}_{\mathbf{n}_f}$ ($^\circ$)$\downarrow$ & $7.20 \rightarrow 5.88$ & $+18.3\%$ \\
 $\mathrm{MAE}_{\mathbf{n}_v}$ ($^\circ$)$\downarrow$ & $6.31 \rightarrow 5.41$ & $+14.2\%$ \\
@@ -23,8 +23,7 @@ Acc.\ ($\times10^{-3}$)$\downarrow$         & $5.83 \rightarrow 5.49$ & $+5.8\%$
 \centering
 \caption{\textbf{Where the refinement gain comes from} (means over the six Shiny-Blender scenes,
 lower is better; angular errors in degrees, Acc.\ $\times10^{-3}$). Rows name the terms
-optimized: the photometric loss, the normal-consistency prior, or both. Per-scene values in
-Table~\ref{tab:refine_perscene}.}
+optimized: the photometric loss, the normal-consistency prior, or both. }
 \label{tab:refine_decomp}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lccc@{}}
