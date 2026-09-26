@@ -9,29 +9,29 @@ Table~\ref{tab:refine_decomp}. Avg.\ averages the per-scene values. \colorbox{gr
 \toprule
 & Helmet & Teapot & Toaster & Coffee & Car & Ball & Avg. \\
 \midrule
-\multicolumn{8}{c}{MAE$_{\mathbf{n}_f}$ ($^\circ$)$\downarrow$} \\
+\multicolumn{8}{c}{$\mathrm{MAE}_{\mathbf{n}_f}$ ($^\circ$)$\downarrow$} \\
 \midrule
 Input mesh & 4.48 & 7.25 & 9.40 & 9.02 & 9.81 & 3.21 & 7.20 \\
 \midrule
-Prior only & \cellcolor{green!25} \textbf{1.98} & \cellcolor{orange!25} 4.99 & \cellcolor{orange!25} 8.45 & \cellcolor{orange!25} 8.85 & \cellcolor{green!25} \textbf{8.41} & \cellcolor{green!25} \textbf{0.62} & \cellcolor{green!25} \textbf{5.55} \\
-Ours (image only) & \cellcolor{yellow!25} 21.42 & \cellcolor{yellow!25} 13.16 & \cellcolor{yellow!25} 21.51 & \cellcolor{yellow!25} 16.31 & \cellcolor{yellow!25} 17.53 & \cellcolor{yellow!25} 21.54 & \cellcolor{yellow!25} 18.58 \\
-Ours (image + prior) & \cellcolor{orange!25} 2.41 & \cellcolor{green!25} \textbf{4.71} & \cellcolor{green!25} \textbf{7.85} & \cellcolor{green!25} \textbf{8.21} & \cellcolor{orange!25} 9.09 & \cellcolor{orange!25} 3.01 & \cellcolor{orange!25} 5.88 \\
+Normal only & \cellcolor{green!25} \textbf{1.98} & \cellcolor{orange!25} 4.99 & \cellcolor{orange!25} 8.45 & \cellcolor{orange!25} 8.85 & \cellcolor{green!25} \textbf{8.41} & \cellcolor{green!25} \textbf{0.62} & \cellcolor{green!25} \textbf{5.55} \\
+Photometric only & \cellcolor{yellow!25} 21.42 & \cellcolor{yellow!25} 13.16 & \cellcolor{yellow!25} 21.51 & \cellcolor{yellow!25} 16.31 & \cellcolor{yellow!25} 17.53 & \cellcolor{yellow!25} 21.54 & \cellcolor{yellow!25} 18.58 \\
+Photometric + normal & \cellcolor{orange!25} 2.41 & \cellcolor{green!25} \textbf{4.71} & \cellcolor{green!25} \textbf{7.85} & \cellcolor{green!25} \textbf{8.21} & \cellcolor{orange!25} 9.09 & \cellcolor{orange!25} 3.01 & \cellcolor{orange!25} 5.88 \\
 \midrule
-\multicolumn{8}{c}{MAE$_{\mathbf{n}_v}$ ($^\circ$)$\downarrow$} \\
+\multicolumn{8}{c}{$\mathrm{MAE}_{\mathbf{n}_v}$ ($^\circ$)$\downarrow$} \\
 \midrule
 Input mesh & 2.77 & 6.69 & 9.02 & 10.02 & 8.69 & 0.64 & 6.31 \\
 \midrule
-Prior only & \cellcolor{orange!25} 2.61 & \cellcolor{orange!25} 5.52 & \cellcolor{orange!25} 9.08 & \cellcolor{orange!25} 9.08 & \cellcolor{orange!25} 8.40 & \cellcolor{orange!25} 0.58 & \cellcolor{orange!25} 5.88 \\
-Ours (image only) & \cellcolor{yellow!25} 2.69 & \cellcolor{yellow!25} 6.44 & \cellcolor{yellow!25} 9.69 & \cellcolor{yellow!25} 10.35 & \cellcolor{yellow!25} 9.34 & \cellcolor{yellow!25} 0.67 & \cellcolor{yellow!25} 6.53 \\
-Ours (image + prior) & \cellcolor{green!25} \textbf{2.48} & \cellcolor{green!25} \textbf{4.89} & \cellcolor{green!25} \textbf{8.23} & \cellcolor{green!25} \textbf{8.32} & \cellcolor{green!25} \textbf{7.96} & \cellcolor{green!25} \textbf{0.57} & \cellcolor{green!25} \textbf{5.41} \\
+Normal only & \cellcolor{orange!25} 2.61 & \cellcolor{orange!25} 5.52 & \cellcolor{orange!25} 9.08 & \cellcolor{orange!25} 9.08 & \cellcolor{orange!25} 8.40 & \cellcolor{orange!25} 0.58 & \cellcolor{orange!25} 5.88 \\
+Photometric only & \cellcolor{yellow!25} 2.69 & \cellcolor{yellow!25} 6.44 & \cellcolor{yellow!25} 9.69 & \cellcolor{yellow!25} 10.35 & \cellcolor{yellow!25} 9.34 & \cellcolor{yellow!25} 0.67 & \cellcolor{yellow!25} 6.53 \\
+Photometric + normal & \cellcolor{green!25} \textbf{2.48} & \cellcolor{green!25} \textbf{4.89} & \cellcolor{green!25} \textbf{8.23} & \cellcolor{green!25} \textbf{8.32} & \cellcolor{green!25} \textbf{7.96} & \cellcolor{green!25} \textbf{0.57} & \cellcolor{green!25} \textbf{5.41} \\
 \midrule
 \multicolumn{8}{c}{Acc.\ ($\times10^{-3}$)$\downarrow$} \\
 \midrule
 Input mesh & 4.40 & 4.25 & 7.93 & 9.34 & 4.06 & 4.97 & 5.83 \\
 \midrule
-Prior only & \cellcolor{yellow!25} 4.74 & \cellcolor{yellow!25} 4.58 & \cellcolor{orange!25} 8.13 & \cellcolor{yellow!25} 9.75 & \cellcolor{yellow!25} 4.61 & \cellcolor{orange!25} 5.28 & \cellcolor{yellow!25} 6.18 \\
-Ours (image only) & \cellcolor{orange!25} 4.63 & \cellcolor{green!25} \textbf{4.23} & \cellcolor{yellow!25} 9.09 & \cellcolor{orange!25} 8.80 & \cellcolor{green!25} \textbf{3.99} & \cellcolor{yellow!25} 5.93 & \cellcolor{orange!25} 6.11 \\
-Ours (image + prior) & \cellcolor{green!25} \textbf{3.56} & \cellcolor{orange!25} 4.30 & \cellcolor{green!25} \textbf{7.60} & \cellcolor{green!25} \textbf{8.72} & \cellcolor{orange!25} 4.02 & \cellcolor{green!25} \textbf{4.72} & \cellcolor{green!25} \textbf{5.49} \\
+Normal only & \cellcolor{yellow!25} 4.74 & \cellcolor{yellow!25} 4.58 & \cellcolor{orange!25} 8.13 & \cellcolor{yellow!25} 9.75 & \cellcolor{yellow!25} 4.61 & \cellcolor{orange!25} 5.28 & \cellcolor{yellow!25} 6.18 \\
+Photometric only & \cellcolor{orange!25} 4.63 & \cellcolor{green!25} \textbf{4.23} & \cellcolor{yellow!25} 9.09 & \cellcolor{orange!25} 8.80 & \cellcolor{green!25} \textbf{3.99} & \cellcolor{yellow!25} 5.93 & \cellcolor{orange!25} 6.11 \\
+Photometric + normal & \cellcolor{green!25} \textbf{3.56} & \cellcolor{orange!25} 4.30 & \cellcolor{green!25} \textbf{7.60} & \cellcolor{green!25} \textbf{8.72} & \cellcolor{orange!25} 4.02 & \cellcolor{green!25} \textbf{4.72} & \cellcolor{green!25} \textbf{5.49} \\
 \bottomrule
 \end{tabular}
 \end{table}

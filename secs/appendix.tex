@@ -27,28 +27,23 @@ the mesh-anchored refinement of SuGaR~\citep{sugar} and OMeGa~\citep{omega}; con
 Ref-GS~\citep{refgs} extracts from its unconstrained Gaussians (TSDF fusion~\citep{tsdf} and
 marching cubes~\citep{marchingcubes}, then simplification and hole filling). We warm up the
 appearance model on it for 625 optimizer steps and freeze the KAN shader and environment maps. The
-vertices $\mathbf{V}$ are then refined against
-\begin{equation}
-\mathcal{L}(\mathbf{V}) = \mathcal{L}_{\text{app}} + \lambda_{\text{nrm}}\,\mathcal{L}_{\text{nrm}},
-\qquad
-\mathcal{L}_{\text{nrm}} = \frac{\sum_f A_f\,\big(1 - \mathbf{n}_f(\mathbf{V})^{\top}\bar{\mathbf{n}}_f\big)}{\sum_f A_f},
-\label{eq:refine_loss}
-\end{equation}
-where $\mathcal{L}_{\text{app}}$ is the photometric loss of Eq.~\eqref{eq:loss} and
-$\mathcal{L}_{\text{nrm}}$ is a normal-consistency prior between each face's geometric normal
-$\mathbf{n}_f(\mathbf{V})$ and $\bar{\mathbf{n}}_f$, the normalized mean of the input mesh's vertex
-normals $\mathbf{n}_v$ at that face (held fixed); $A_f$ is the face area (treated as a constant).
-We empirically set $\lambda_{\text{nrm}} = 0.5$, relative to the norm of the photometric gradient.
-We alternate 300 cycles of a geometry step, which moves each vertex along its normal by a smoothed,
-capped update whose size is set relative to the initial disk scale $s_0$ from which the per-disk
-scales $s_{i,j}$ are initialized, and an appearance step on the disks with the mesh fixed.
-Table~\ref{tab:refine_decomp} shows that this consistency term is necessary: the photometric
-gradient alone degrades face normals ($7.20^\circ \rightarrow 18.58^\circ$), while the prior alone
+vertices $\mathbf{V}$ are then refined with the \emph{photometric} loss of Eq.~\eqref{eq:loss} and a
+\emph{normal}-consistency prior, which penalizes the misalignment ($1-\cos$) between each face's
+geometric normal $\mathbf{n}_f$ and its normal on the input mesh (the normalized mean of that face's
+input vertex normals $\mathbf{n}_v$, held fixed), averaged over faces weighted by area. We
+empirically weight the normal term by $\lambda_{\text{nrm}} = 0.5$, relative to the norm of the
+photometric gradient. We alternate 300 cycles of a geometry step, which moves each vertex along its
+normal by a smoothed, capped update whose size is set relative to the initial disk scale $s_0$ from
+which the per-disk scales $s_{i,j}$ are initialized, and an appearance step on the disks with the
+mesh fixed. Table~\ref{tab:refine_decomp} shows that the normal term is necessary: the photometric
+loss alone degrades face normals ($7.20^\circ \rightarrow 18.58^\circ$), while the normal term alone
 does not use the images and moves the surface away from the ground truth; only the two together
-improve on the input mesh.
+improve on the input mesh on all three metrics.
 
 \paragraph{Metrics.} Geometry is scored against the ground-truth Blender models. Normals are
-scored by mean angular error against the ground-truth normal maps of the 200 test views. To assess
+scored by mean angular error (in degrees) against the ground-truth normal maps of the 200 test
+views, for both the face normals ($\mathrm{MAE}_{\mathbf{n}_f}$) and the vertex normals
+($\mathrm{MAE}_{\mathbf{n}_v}$) of the mesh. To assess
 the surface itself, we use the accuracy term of the Chamfer distance~\citep{dtu} (Acc.): the mean
 distance from points on the refined mesh to the nearest ground-truth surface visible from the test
 cameras (lower is better). Following Ref-NeuS~\citep{ref-neus}, we report accuracy rather than
