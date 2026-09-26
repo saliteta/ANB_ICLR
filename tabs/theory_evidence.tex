@@ -1,0 +1,21 @@
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{\textbf{Results already reported in the paper, mapped to the claim each one supports.}
+2DGS$^{*}$ uses $4$M primitives against $1$M disks for our representation; a matched-count
+comparison is left to future work.}
+\label{tab:theory_evidence}
+\begin{tabular}{@{}p{0.30\linewidth}p{0.32\linewidth}p{0.30\linewidth}@{}}
+\toprule
+Evidence & Numbers & Supports \\
+\midrule
+$\varepsilon$ sweep (Table~\ref{tab:ordering}) & flat: $27.70/27.63/27.59/27.66$~dB & B2, B3 \\
+Mostly diffuse (NeRF-Synthetic) & 2DGS$^{*}$ $32.32$ vs.\ Ours $33.74$~dB (small gap) & Prop.~1 \\
+Reflective (Shiny-Blender) & 2DGS$^{*}$ $27.70$ vs.\ Ours $38.04$~dB (large gap) & Prop.~2, Thm.~A1 \\
+Near-mirror \emph{ball} vs.\ \emph{teapot} & 2DGS$^{*}$ $20.99$ vs.\ $40.75$~dB & Prop.~2 (cost scales with sharp reflection) \\
+Order-free diffuse mixture & 2D GMM $31.40$ vs.\ 2DGS$^{*}$ $27.70$~dB & ordering removal alone helps \\
+Per-primitive SG (ablation) & $34.24$ vs.\ $34.37$~dB without SG & Cor.~A2 (overfits) \\
+Shared env.\ maps + KAN & $35.60\to38.04$~dB & Prop.~A4 \\
+\bottomrule
+\end{tabular}
+\end{table}

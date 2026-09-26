@@ -1,4 +1,177 @@
 \section{Appendix}
+
+\subsection{Theoretical Analysis: Ordering and Locality}
+\label{app:theory}
+This section formalizes the two obstructions motivating our representation (Sec.~\ref{sec:intro}):
+coplanar primitives admit no view-stable, geometrically meaningful compositing order
+(\emph{ordering}, Theorem B), and per-primitive view-dependent color models are band-limited at
+every fragment regardless of primitive count (\emph{locality}, Theorem A). We then state
+falsifiable predictions of both and map them to evidence already reported in the paper.
+
+\paragraph{Setup.} Fix a fragment $\mathbf{x}$ on a locally planar patch with unit normal
+$\mathbf{n}$. Primitives $i=1,\dots,K$ overlap $\mathbf{x}$ with opacity $\alpha_i\in(0,1]$ and
+view-dependent color $c_i(\mathbf{v})$, continuous in $\mathbf{v}$. A renderer picks an order $\pi$
+and composites
+\begin{equation}
+C_\pi(\mathbf{v}) = \sum_i w_i^\pi c_i(\mathbf{v}), \qquad
+w^\pi_{\pi(k)} = \alpha_{\pi(k)}\prod_{l<k}\big(1-\alpha_{\pi(l)}\big).
+\label{eq:theory-composite}
+\end{equation}
+3DGS and 2DGS sort by view-space center depth $z_i = (\mathbf{x}_i - \mathbf{c})\cdot \mathbf{f}$,
+with camera center $\mathbf{c}$ and optical axis $\mathbf{f}$; this is the order we analyze, so the
+analysis is exact rather than an orthographic approximation. The mirror target is
+$L(\mathbf{x},\mathbf{v}) = E(\boldsymbol{\omega}_r)$ with
+$\boldsymbol{\omega}_r = 2(\mathbf{n}\cdot\mathbf{v})\mathbf{n}-\mathbf{v}$ and environment $E$.
+
+\paragraph{Lemma 1 (Coverage is order-invariant).} For every order $\pi$,
+$\sum_i w_i^\pi = 1-\prod_i(1-\alpha_i) =: A$. With $T_k=\prod_{l<k}(1-\alpha_{\pi(l)})$,
+$w_{\pi(k)}=T_k-T_{k+1}$ telescopes to $T_1-T_{K+1}$, a commutative product independent of $\pi$.
+
+\paragraph{Lemma 2 (Geometry of order flips).} Coplanar centers satisfy
+$(\mathbf{x}_i-\mathbf{x}_j)\perp\mathbf{n}$, so their depth order flips exactly when
+$(\mathbf{x}_i-\mathbf{x}_j)\cdot\mathbf{f}=0$, a condition on the optical axis $\mathbf{f}$ alone,
+independent of camera position. On the sphere of possible axes the flip set for each pair is a
+great circle through $\pm\mathbf{n}$; taking $\mathbf{n}$ as the pole, these are meridians.
+Consequently: pure camera translation never flips a pair; azimuthal rotation about $\mathbf{n}$
+crosses every meridian; tilting $\mathbf{f}$ toward or away from $\mathbf{n}$ at fixed azimuth
+crosses none unless it passes face-on ($\mathbf{f}\parallel\pm\mathbf{n}$), which flips every pair
+at once. The flip rate under rotation scales as $1/\sin\theta$ for $\theta$ the angle between
+$\mathbf{f}$ and $\mathbf{n}$: flips are dense face-on and sparse at grazing angles.
+
+\paragraph{Lemma 3 (Exact jump at a flip).} Swapping an adjacent pair $(i,j)$ with prefix
+transmittance $T$ changes the composite by
+$C_\pi - C_{\pi'} = T\alpha_i\alpha_j\big(c_i(\mathbf{v})-c_j(\mathbf{v})\big)$; more generally, by
+Lemma~1, $C_\pi-C_{\pi'}=\sum_i(w_i^\pi-w_i^{\pi'})(c_i-\bar c)$ for any $\bar c$. Every jump is
+therefore bounded by $2A$ times the color dispersion of the overlapping primitives, and is zero
+exactly when the overlapping colors agree at that view.
+
+\paragraph{Proposition 1 (Diffuse appearance makes flips harmless).} If
+$L(\mathbf{x},\mathbf{v})=L_0$ is view-independent, setting $c_i\equiv L_0/A$ fits $\mathbf{x}$
+exactly under every order, so all jumps vanish. With a spatially varying albedo at primitive
+spacing $\delta$, the residual jump is at most $T\alpha_i\alpha_j|a(\mathbf{x}_i)-a(\mathbf{x}_j)|
+\lesssim \delta|\nabla a|$: a fixed, view-independent blur that shrinks under densification, not
+popping.
+
+\paragraph{Proposition 2 (View dependence lower-bounds the jump cost).} Let $p_i,p_j$ be points
+each covered only by their own primitive (rendering $\alpha c_i$, $\alpha c_j$ there), and let $E$
+bound the rendering error at $p_i$, $p_j$, and the two one-sided renders at $\mathbf{x}$ near a
+flip view $\mathbf{v}^*$. Then for any continuous colors,
+\begin{equation}
+E \;\ge\; \frac{T\alpha}{2(1+T\alpha)}\,\big|L(p_i,\mathbf{v}^*)-L(p_j,\mathbf{v}^*)\big|.
+\label{eq:jump-lb}
+\end{equation}
+\emph{Proof sketch.} The jump is $J=T\alpha(\alpha c_i-\alpha c_j)$ (Lemma~3); the private-point
+errors give $|\alpha c_i-\alpha c_j|\ge|\Delta L|-2E$; continuity of $L(\mathbf{x},\cdot)$ at
+$\mathbf{v}^*$ forces $|J|\le 2E$; combining and rearranging gives Eq.~\eqref{eq:jump-lb}. To first
+order $|\Delta L|\approx \delta|\nabla_{\boldsymbol{\omega}} E|(2\kappa+1/d)$ for a mirror of
+curvature $\kappa$ at distance $d$ (the diffuse analogue is $\delta|\nabla a|$), so the floor decays
+with surface roughness and vanishes in the diffuse limit, but for sharp environments it approaches
+the full environment contrast independent of $\delta$: no amount of densification removes it.
+
+\paragraph{Proposition 3 (Gradient splitting).} As $\alpha\to1$, back primitives receive vanishing
+gradient, so primitive $i$ is fit only from the (Lemma-2-determined) azimuthal wedge of training
+views in which it is frontmost. A view-dependent color with $m=(\ell+1)^2$ spherical-harmonic
+coefficients needs at least $m$ such views to be identified; with fewer, the unconstrained component
+freezes at initialization yet is still rendered at test time. A diffuse color ($m=1$) needs only
+one.
+
+\paragraph{Lemma A0 (Reflection is a rotation).} $\boldsymbol{\omega}_r=R_\mathbf{n}\mathbf{v}$ with
+$R_\mathbf{n}=2\mathbf{n}\mathbf{n}^\top-I$, a rotation by $\pi$ about $\mathbf{n}$ (eigenvalues
+$(1,-1,-1)$, determinant $+1$). It maps the visible hemisphere $H_\mathbf{n}$ onto itself and
+preserves $P_\ell$, the space of spherical harmonics of degree $\le\ell$.
+
+\paragraph{Theorem A1 (Band limit independent of primitive count).} If every $c_i\in P_\ell$ and
+the blend weights at $\mathbf{x}$ are view-independent (a fixed order or a partition of unity),
+then for \emph{any} number, position, or weighting of primitives,
+\begin{equation}
+\|C(\mathbf{x},\cdot)-L(\mathbf{x},\cdot)\|_{L^2(H_\mathbf{n})} \;\ge\;
+\tau_\ell(E,\mathbf{n}) := \min_{p\in P_\ell}\|E-p\|_{L^2(H_\mathbf{n})}.
+\label{eq:band-limit}
+\end{equation}
+\emph{Proof.} $C(\mathbf{x},\cdot)=\sum_i w_i(\mathbf{x})c_i\in P_\ell$ since $P_\ell$ is a linear
+space; by Lemma~A0, $L(\mathbf{x},\cdot)=E\circ R_\mathbf{n}$, and composing with the rotation
+$R_\mathbf{n}$ preserves both $P_\ell$ and the $L^2(H_\mathbf{n})$ norm, so the distance from
+$L(\mathbf{x},\cdot)$ to $P_\ell$ is exactly $\tau_\ell(E,\mathbf{n})$. $\blacksquare$ The bound is
+strictly positive whenever $E$ has edges or sharp lights (on the full sphere it is the SH tail
+energy $\sum_{l>\ell}|E_l|^2$), and it does not shrink as $K\to\infty$: \emph{adding primitives
+never adds angular bandwidth at a fragment.} The same argument with $P_\ell$ replaced by
+$KM$-lobe spherical-Gaussian mixtures gives the analogous floor for SG models.
+
+\paragraph{Corollary A2 (Identifiability caps the usable degree).} Each primitive observes the
+fragment's function at most once per training view (Prop.~3), so identifying its $(\ell+1)^2$
+coefficients needs $N_v\ge(\ell+1)^2$ views, i.e.\ $\ell_{\max}=\lfloor\sqrt{N_v}\rfloor-1$ and a
+generalization floor of $\tau_{\ell_{\max}}(E,\mathbf{n})$. With $100$ training views, $\ell\le9$ at
+best, before gradient splitting reduces it further, the mechanism behind the per-primitive
+spherical-Gaussian overfitting in Sec.~\ref{sec:ablation}.
+
+\paragraph{Corollary A3 (Locality and ordering degenerate together).} In free-floating splatting,
+view-dependent selection among overlapping splats is the only mechanism that could exceed the
+Theorem-A1 floor. On a plane the order is independent of elevation (Lemma~2), so along any meridian
+the rendered function is a single fixed blend in $P_\ell$ and Theorem~A1 applies there; reordering
+can only add azimuthal discontinuities (Prop.~2's jumps), never elevation detail. The one escape
+from locality is exactly the mechanism that produces popping.
+
+\paragraph{Proposition A4 (A shared environment map removes the floor).} Factor appearance as
+$C(\mathbf{x},\mathbf{v})=g\big(a(\mathbf{x}),m(\mathbf{x}),\hat E(R_\mathbf{n}\mathbf{v})\big)$
+with per-element, view-independent $(a_i,m_i)$ and a single shared, high-capacity $\hat E$ (our
+environment map, Sec.~\ref{sec:env}). Then: (i) error is governed by $|E-\hat E|$, independent of
+per-element capacity; (ii) parameters drop from $N(\ell+1)^2$ to $(\ell+1)^2+O(N)$; (iii)
+$\hat E$ is constrained by every reflective pixel of every training view, so Corollary~A2's cap
+disappears; (iv) merging or pruning elements acts only on the scalar attributes $(a_i,m_i)$, so
+elements stay individually addressable and mergeable (Sec.~\ref{app:compaction}). Per-part maps
+(our convex decomposition, Sec.~\ref{sec:env}) make $\hat E$ depend on the part and preserve all
+four properties.
+
+\paragraph{Theorem B: no cheap fix to the ordering. Definition.} A fix is \emph{cheap} if it keeps
+sort-based compositing with key $k_i=z_i+g_i$, a static per-primitive perturbation of the depth; a
+normal offset $\varepsilon_i$ is the canonical example (Sec.~\ref{sec:ordering}).
+
+\paragraph{B1 (Flips are unavoidable).} The pair order is the sign of
+$(\Delta\mathbf{x}+\Delta\varepsilon\,\mathbf{n})\cdot\mathbf{f}$, whose flip set is the great
+circle normal to $\mathbf{m}=\Delta\mathbf{x}+\Delta\varepsilon\,\mathbf{n}$. If
+$\Delta\mathbf{x}\ne0$ then $\mathbf{m}\not\parallel\mathbf{n}$, and every great circle but the
+equator enters the visible hemisphere: every pair with distinct centers flips at some visible view,
+for any finite offset.
+
+\paragraph{B2 (Suppressing flips costs thickness).} The flip circle's maximum elevation is
+$\max(\mathbf{n}\cdot\mathbf{f})=|\Delta\mathbf{x}|/\sqrt{|\Delta\mathbf{x}|^2+\Delta\varepsilon^2}$.
+Keeping every flip below elevation $\theta$ needs $|\Delta\varepsilon|\ge|\Delta\mathbf{x}|\cot\theta$
+for every overlapping pair, which for the widest pair (lateral distance $D$) requires offsets
+spanning at least $D\cot\theta$ ($\approx5.7D$ at $\theta=10^\circ$) and diverges as $\theta\to0$:
+flip-free rendering to grazing angles needs a layer thicker than the cluster is wide, a volume, not
+a surface.
+
+\paragraph{B3 (Offsets are not learnable).} The key affects $C$ only through the discrete order,
+and a small normal offset barely changes the projected footprint, so $\partial C/\partial
+\varepsilon_i=0$ almost everywhere and $\varepsilon$ freezes at initialization. At our
+$\sim\!4$M-primitive spacing ($|\Delta\mathbf{x}|\sim10^{-3}$), offsets $\varepsilon\le10^{-3}$
+leave flips reaching $45^\circ$ or more, predicting the flat PSNR of Sec.~\ref{sec:ordering}'s
+$\varepsilon$ sweep, which we confirm empirically (Table~\ref{tab:ordering}).
+
+\paragraph{B4 (The only flip-free sort is geometry-free).} A view-stable order must be independent
+of depth, either the per-pixel tie-break or the $\varepsilon\to\infty$ limit, and is then a fixed
+index order that encodes no geometry.
+
+\paragraph{Falsifiable predictions and evidence.} Beyond the $\varepsilon$ sweep (B2--B3), Lemma~2
+predicts that, with 2DGS$^{*}$ anchored to the mesh, pure camera translation causes no reordering
+and hence no flicker, while camera rotation reorders with flicker concentrated where the surface
+faces the camera ($\propto1/\sin\theta$) and weaker toward silhouettes; under pure rotation about
+the camera center every surface point is seen along an unchanged ray, so any flicker is a sorting
+artifact by construction. We observe this qualitatively on \emph{ball}-like scenes (strong face-on
+flicker under rotation, none under translation); quantifying it with warp-compensated residuals and
+flip-count heatmaps is left to future work. Table~\ref{tab:theory_evidence} maps the remaining
+results already reported in the paper to the claim each one supports.
+\input{tabs/theory_evidence}
+
+\paragraph{Scope of the theory.} The argument shows locality (Theorem~A), not ordering, carries most
+of the quality gap: fixed-index compositing survives Theorem~B (it is view-stable, so Prop.~2's
+jump bound does not apply) but is still defeated by Theorem~A1 when colors are per-primitive. We
+have not run the isolating experiment (2DGS$^{*}$ with fixed-index order plus our environment map
+and KAN) that would confirm this directly, nor proven that the order-free partition-of-unity blend
+is optimal rather than merely sufficient; we leave both to future work. The per-primitive blur that
+Prop.~1 allows ($O(\delta|\nabla a|)$) is continuous and shrinks under densification, unlike the
+popping Theorem~B describes.
+
 \subsection{Ablation Details}
 
 Here, we present detailed qualitative and quantitative results from our ablation study comparing our approach against closely related baselines. We first evaluated replacing the KAN with a standard MLP. Additionally, we experimented with incorporating material tokens or features, similar to scaffolded Gaussian Splats; however, the performance was inferior to that of a straightforward MLP. We also attempted to use spherical Gaussians for the view-dependent representation, but this approach yielded suboptimal results. These quantitative comparisons are summarized in Tab.~\ref{tab:combined-ablation-baselines}.

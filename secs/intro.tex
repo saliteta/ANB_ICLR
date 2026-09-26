@@ -62,7 +62,12 @@ drift the binding was meant to remove and degrading the surface it is bound to.
 Breaking ties by a fixed primitive index is view-stable but imposes an occlusion relation
 uncorrelated with geometry.
 The obstruction is not depth but \emph{order-dependence itself}: on a single opaque surface no
-ordering is both view-stable and geometrically meaningful.
+ordering is both view-stable and geometrically meaningful. We prove this formally as Theorem B in
+App.~\ref{app:theory}: no fix that keeps sort-based compositing with a static per-primitive
+perturbation of the depth key, a normal offset being the canonical example, can avoid it. Every
+finite offset still flips some pair at a visible view, and suppressing all flips to within a
+grazing angle requires an offset that diverges as the angle shrinks, turning the surface into a
+volume. We confirm this experimentally in Sec.~\ref{sec:ordering}.
 
 
 %We therefore drop ordering altogether. We bake appearance as an \emph{element-%wise field whose
@@ -97,6 +102,14 @@ disks. A convex combination is invariant to the order of its terms, so the globa
 becomes an $O(K)$ local gather with no degeneracy to avoid. On this field we place the
 view-dependent term, and the construction turns out to carry more than the problem that motivated
 it.
+
+Per-primitive view-dependent color would seem a natural way to add reflection to this field, but a
+second, independent obstruction rules it out. Reflection about a fixed normal is a rotation of the
+view sphere, so any low-order, per-primitive color model occupies a fixed-dimensional function
+space at every fragment, and adding primitives adds no angular bandwidth to escape it (Theorem A,
+App.~\ref{app:theory}). Only a shared, high-capacity representation read by a per-fragment decoder
+can exceed this floor, which is why the view-dependent term above is not one more per-disk
+attribute but the environment map and KAN decoder of Secs.~\ref{sec:env}--\ref{sec:kan}.
 
 Our central contribution is the representation; the remaining items are properties it makes
 possible.
