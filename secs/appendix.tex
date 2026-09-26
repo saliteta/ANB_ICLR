@@ -16,8 +16,10 @@ Furthermore, we provide qualitative visualizations that decompose the outputs of
 
 \subsection{Mesh Refinement Through the Anchoring}
 \label{app:refinement}
-Although our main experiments assume a fixed mesh setting where we let a ground truth mesh drive appearance (i.e. vertices don't move), we explore the capability of ANB's representation in refining an \emph{extracted mesh}. We evaluate this capability by refining an extracted mesh from a splatting representation (Ref-GS) and comparing its inferred geometry with a withheld ground truth mesh. To form this mesh, we first extract the surface parameterized by Ref-GS~\citep{refgs}'s Gaussians using TSDF fusion \citep{tsdf} and then extract a mesh using
-Marching Cubes~\citep{marchingcubes}. We note that the extracted mesh has two inferred normals: surface normals from the Gaussian disks ($\mathbf{n}_{gauss}$) as well as per-triangle face normals ($\mathbf{n}_{face}$). Both these inferred normals as well as the vertex positions may differ from the ground truth mesh. We utilize the consistency of these two normals as a \emph{normal}-consistency prior, which penalizes mis-alignment between the two and
+Although our main experiments assume a fixed mesh setting where we let a ground truth mesh drive appearance (i.e. vertices don't move), we explore the capability of ANB's representation in refining an \emph{extracted mesh}. We evaluate this by refining an extracted mesh from a splatting representation (Ref-GS) and comparing its inferred geometry with a withheld ground truth mesh. 
+
+To form this mesh, we first extract the surface parameterized by Ref-GS~\citep{refgs}'s Gaussians using TSDF fusion \citep{tsdf} and then extract a mesh using
+Marching Cubes~\citep{marchingcubes}. We note that the input mesh has two inferred normals: surface normals from the Gaussian disks ($\mathbf{n}_{gauss}$) as well as per-triangle face normals ($\mathbf{n}_{face}$) in our anchoring. Both these inferred normals as well as the vertex positions may differ from the ground truth mesh. We utilize the consistency of these two normals as a \emph{normal}-consistency prior, which penalizes mis-alignment between the two and
 empirically weight this prior by $\lambda_{\text{nrm}} = 0.5$. 
 %$\mathbf{n}_{face}$ and RefGS's inferred splat normals projected onto the vertices $\mathbf{n}_{gauss}$.%
 Then, mesh refinement propagates the photometric gradient taken at the disk centers, evaluated at the
@@ -26,7 +28,7 @@ ray--disk intersection, and is pulled back to the vertices through the anchoring
 % (Eq.~\eqref{eq:center}), the anchoring is linear in the mesh, $\mathbf{X}=\mathbf{B}\mathbf{V}$, and
 % photometric gradients reach the vertices. We use this to refine an imperfect input mesh, as a
 
-We emphasize that we evaluate mesh refinement as a capability rather than propose a new refinement method and note similarities of our mesh refinement method with existing methods such as OMeGa~\citep{omega}. 
+We emphasize that we evaluate mesh refinement as a capability rather than propose a new refinement method and note similarities of this mesh refinement process with prior work on mesh refinemnt methods such as OMeGa~\citep{omega}. 
 
 
 
@@ -47,19 +49,19 @@ on this extracted mesh for 625 optimizer steps and then freeze the KAN shader an
 scored by mean angular error in degrees against the ground-truth normal maps of 200 test
 views, for both the face normals ($\mathrm{MAE}_{\mathbf{n}_{face}}$) and the vertex normals
 ($\mathrm{MAE}_{\mathbf{n}_{gauss}}$) of the refined mesh. To assess the quality of the vertex
-positions of the mesh, we use the accuracy term (Acc.) of the Chamfer distance~\citep{dtu}, the mean
+positions of the refined mesh, we use the accuracy term (Acc.) of the Chamfer distance~\citep{dtu}, the mean
 distance from points on the refined mesh to the nearest ground-truth surface visible from the test
 cameras (lower is better). Following Ref-NeuS~\citep{ref-neus}, we report accuracy rather than
 completeness, which is dominated by regions missing from the input mesh that a fixed-connectivity
 refinement cannot fill.
 
-Overall, we find ANB is able to refine an extracted mesh it is given, reducing normal
+Overall, we find ANB is able to refine the input mesh, reducing normal
 error and improving accuracy (Table~\ref{tab:refine_improve}). Table~\ref{tab:refine_decomp} shows that the normal-consistency prior is necessary: the photometric
 loss alone degrades face normals ($7.20^\circ \rightarrow 18.58^\circ$), while the normal term alone
 does not use the images and moves the surface away from the ground truth; only the two together
 improve on the extracted mesh on all three metrics.
 Refinement improves the input mesh's face and vertex-normal error by $18.3\%$ and
-$14.2\%$ and position accuracy by $5.8\%$ .
+$14.2\%$ and accuracy by $5.8\%$ .
 
 We highlight the effect
 of refinement on high-frequency surface artifacts left by the extraction in Figure~\ref{fig:mesh_ringing}: the fine noise on
