@@ -118,7 +118,9 @@ possible.
 field built from kernels sited on the surface, each element carrying its own value, blended at a
 fragment by a smooth partition of unity over its $K$ nearest neighbours. Because the kernels are
 placed in barycentric coordinates, the field needs no global UV atlas; because a convex blend is
-invariant to the order of its terms, the coplanar degeneracy cannot arise.
+invariant to the order of its terms, the coplanar degeneracy cannot arise. This is a resolution, not
+the resolution: a fixed-index order also satisfies Theorem B, and whether it can be paired with the
+same shared decoder to match this representation is a question we leave open (App.~\ref{app:theory}).
 To our knowledge this is the first splat representation developed as an element-wise texture:
 a field whose elements are individually addressable, differentiable, and mergeable, and whose
 domain is the surface itself, rather than a distribution in ambient $\mathbb{R}^3$. Mergeability

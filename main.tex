@@ -63,12 +63,12 @@ no compositing order that is both view-stable and geometrically meaningful, and 
 per-primitive perturbation of the depth, such as a normal offset, can repair this. Second,
 reflection about a fixed normal is a rotation of the view sphere, so any per-primitive
 view-dependent color model is band-limited at a fragment regardless of how many primitives are
-used: adding primitives adds no angular bandwidth. We resolve both with Automatic Neural Baking. An
-\emph{on-manifold kernel field}, 2D Gaussian disks anchored to mesh faces and blended by an
-order-free partition of unity, removes the ordering obstruction; factoring view dependence out of
-the elements into a shared environment map and a FastKAN decoder removes the locality bound. The
-result composes directly with the traditional rendering pipeline, baking splat-quality, real-time
-appearance onto a mesh.
+used: adding primitives adds no angular bandwidth. We resolve both with Automatic Neural Baking, a construction that works rather than the only one
+that could. An \emph{on-manifold kernel field}, 2D Gaussian disks anchored to mesh faces and
+blended by an order-free partition of unity, removes the ordering obstruction; factoring view
+dependence out of the elements into a shared environment map and a FastKAN decoder removes the
+locality bound. The result composes directly with the traditional rendering pipeline, baking
+splat-quality, real-time appearance onto a mesh.
 \end{abstract}
 
 \input{secs/intro}
