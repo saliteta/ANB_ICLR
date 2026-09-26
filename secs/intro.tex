@@ -54,9 +54,9 @@ Once primitives are strictly coplanar, their depth keys tie and alpha compositin
 well-defined order. The standard remedies fail in instructive ways.
 Offsetting disk $i$ along the face normal by $\varepsilon_i$ separates two disks by
 $(\varepsilon_i-\varepsilon_j)(\mathbf{n}\cdot\mathbf{v})$, where $\mathbf{n}$ is the face normal and $\mathbf{v}$ the viewing direction. 
-The order changes at grazing angles: small
-offsets reproduce the tie, while large ones yield an ordering that flips as the camera orbits, so
-gradients from different views disagree about which primitive owns a fragment.
+With small offsets, pairs still flip at views reaching high elevations, and flips are densest where
+the surface faces the camera; larger offsets push the flips toward grazing angles but never remove
+them, so gradients from different views still disagree about which primitive owns a fragment.
 Large offsets also let the optimizer reintroduce extent along $\mathbf{n}$, reinstating the ambient
 drift the binding was meant to remove and degrading the surface it is bound to.
 Breaking ties by a fixed primitive index is view-stable but imposes an occlusion relation
