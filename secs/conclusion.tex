@@ -2,21 +2,15 @@
 \section{Conclusion and Discussion}
 \vspace{-2mm}
 \label{sec:conclusion}
-We present automatic neural baking, a representation that composes directly with the traditional
-rendering pipeline: an element-wise ``texture'' whose domain is the mesh surface and whose blending
-is order-independent, so the asset needs no UV atlas and no depth sort and is evaluated per fragment
-at real-time rates. A 2D Gaussian mixture anchored in barycentric coordinates carries the
-view-independent fields, an adaptive hierarchical environment map the incident light, and a FastKAN
-decoder the view-dependent term. With this bridge in place, the next steps are engine
-integration and element-level operations such as merging or editing disks directly.
+We present automatic neural baking: an element-wise, order-independent ``texture'' on the mesh
+surface that needs no UV atlas or depth sort and runs per fragment in real time. Next steps are
+engine integration and element-level editing.
 
-\paragraph{Scope and limitations.} Following the baking setting, our method takes a mesh and posed
-images, is optimized per scene, and bakes the input illumination, including static shadows; dynamic
-shadows and full relighting are future work, though environment maps can be swapped at render time
-(App.~\ref{app:scope}). Within a near-convex part, light from elsewhere is treated as distant, like an
-uncorrected reflection probe, so strongly concave objects (\emph{toaster}) are hardest and nearby
-surroundings can show parallax. Real-capture evaluation (App.~\ref{app:real}) covers three
-object-centric scenes.
+\paragraph{Scope and limitations.} As in baking, we take a mesh and posed images, optimize per
+scene, and bake the input illumination (static shadows included); relighting beyond swapping
+environment maps (App.~\ref{app:scope}) is future work. Light from outside a near-convex part is
+treated as distant, so strongly concave objects (\emph{toaster}) are hardest and nearby surroundings
+can show parallax. Real captures (Sec.~\ref{sec:real}) cover three object-centric scenes.
 
 % mandatory not included in page limit
 \section{AI Disclosure}
