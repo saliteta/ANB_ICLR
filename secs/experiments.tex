@@ -5,7 +5,7 @@
 \vspace{-1mm}
 \label{sec:Exp}
 \textbf{Setting.} We evaluate on NeRF-Synthetic~\citep{NeRFVanilla} and Shiny-Blender~\citep{refnerf}
-in a \emph{fixed-mesh setting} (real captures in App.~\ref{app:real}). All methods recover appearance
+in a \emph{fixed-mesh setting} (real captures in Sec.~\ref{sec:real}). All methods recover appearance
 only from posed images; none reads the assets' textures. Fixed-mesh baselines share our ground-truth
 mesh with geometry frozen and are evaluated at $2\times$ SSAA: DNR~\citep{DNR}; 2DGS$^{*}$, a
 mesh-constrained 2DGS~\citep{2DGS} with four million disks and gradients projected onto the faces;
@@ -44,9 +44,7 @@ as context, not ranked. Our margin over the best of them (Table~\ref{tab:shiny_p
 reflective a scene is: $+6.12$~dB on the near-mirror \emph{ball} and $+0.45$~dB on \emph{teapot},
 whose highlights are smallest. Qualitatively (Figure~\ref{fig:qualitative}), our renders reproduce
 sharp, high-frequency reflections on metallic surfaces that 2DGS$^{*}$ and DNR blur.
-On real captures (Ref-NeRF's real scenes), using an imperfect mesh reconstructed by RefGS, we beat
-RefGS bound to that same mesh on every scene ($24.12$ vs.\ $23.68$~dB). Refining the mesh through our
-representation raises this to $24.61$~dB (App.~\ref{app:real}).
+
 
 \begin{figure}[t]
     \centering
@@ -55,6 +53,15 @@ representation raises this to $24.61$~dB (App.~\ref{app:real}).
     \label{fig:qualitative}
     \vspace{-2mm}
 \end{figure}
+
+\subsection{Real Captures with Reconstructed Geometry}
+\label{sec:real}
+Synthetic scenes remove geometric error and capture noise. On the real Ref-NeRF scenes, we bake onto
+an imperfect mesh reconstructed by RefGS (TSDF fusion and marching cubes, cropped to the reflective
+objects) and compare against RefGS bound to the same mesh (Table~\ref{tab:real}). Our method wins on
+every scene ($+0.44$~dB mean), and refining the mesh through our representation adds another
+$+0.49$~dB. The full protocol is in App.~\ref{app:real}.
+\input{tabs/real_captures}
 
 \subsection{Ablation}
 \label{sec:ablation}
