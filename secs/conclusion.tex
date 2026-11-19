@@ -10,20 +10,13 @@ view-independent fields, an adaptive hierarchical environment map the incident l
 decoder the view-dependent term. With this bridge in place, the next steps are engine
 integration and element-level operations such as merging or editing disks directly.
 
-\paragraph{Scope and limitations.} Our method follows the baking setting: it takes a mesh and posed
-images as input, is optimized per scene, and bakes the illumination of the input images, including
-static shadows, as a lightmap does. Dynamic shadows from moving lights are outside this setting.
-When the illumination is known, the environment maps can be fixed to it during training and swapped
-or rotated at render time without retraining (App.~\ref{app:scope}), but a full relighting method is
-future work. Within a near-convex part, light from the rest of the object and from nearby
-surroundings is treated as distant and position-independent, like an uncorrected reflection probe.
-Strongly concave objects are therefore the hardest case: \emph{toaster} has our lowest absolute PSNR,
-though we still lead every context method there (Table~\ref{tab:shiny_perscene}). Nearby
-surroundings can show parallax error. In large scenes, ANB is meant to be applied per reflective
-asset, as specialized shaders are in production pipelines, so convex decomposition scales with the
-number of such assets, not with scene size. Real-time evaluation is demonstrated in nvdiffrast and in
-a Blender scene, not in a shipped engine shader. Our real-capture evaluation covers three
-object-centric scenes; scene-scale captures with strong near-field reflections remain to be tested.
+\paragraph{Scope and limitations.} Following the baking setting, our method takes a mesh and posed
+images, is optimized per scene, and bakes the input illumination, including static shadows; dynamic
+shadows and full relighting are future work, though environment maps can be swapped at render time
+(App.~\ref{app:scope}). Within a near-convex part, light from elsewhere is treated as distant, like an
+uncorrected reflection probe, so strongly concave objects (\emph{toaster}) are hardest and nearby
+surroundings can show parallax. Real-capture evaluation (App.~\ref{app:real}) covers three
+object-centric scenes.
 
 % mandatory not included in page limit
 \section{AI Disclosure}
@@ -40,7 +33,7 @@ We take full responsibility for the final content of this work, including text, 
 All datasets used, NeRF-Synthetic~\citep{NeRFVanilla}, Shiny-Blender~\citep{refnerf}, and the
 real Ref-NeRF captures~\citep{refnerf, bakingNeRF}, are public benchmarks with standard splits. The
 protocols for the added baselines and real-capture experiments are given in App.~\ref{app:baselines}
-and Sec.~\ref{sec:real}. The training objective
+and App.~\ref{app:real}. The training objective
 (Eq.~\eqref{eq:loss}, Adam optimizer, 30K iterations) is given in Sec.~\ref{sec:overview} and the mixture's hyperparameters in Sec.~\ref{sec:gmm}; the convex
 decomposition and adaptive environment-map budget in Sec.~\ref{sec:env}; and the FastKAN decoder
 architecture in Sec.~\ref{sec:kan}. We will release our full codebase upon the paper's acceptance or

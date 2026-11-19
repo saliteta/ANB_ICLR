@@ -86,12 +86,9 @@ disks rather than an alpha composite. This is the order-independence the represe
 around (Sec.~\ref{sec:intro}): the blend never asks which disk lies in front, so the coplanar depth
 ties cannot arise and the $\mathcal{O}(K)$ gather needs no sort.
 
-\paragraph{Continuity across faces.} Adjacent faces $f,f'$ gather from different sets
-$\mathcal{N}(f)\neq\mathcal{N}(f')$, so the blend can jump at their shared edge. At an edge point
-$\mathbf{x}$, the jump in $a$ is at most the normalized Gaussian weight that disks in only one of
-the two sets carry at $\mathbf{x}$ (App.~\ref{app:continuity}). Disks that weigh noticeably at an
-edge lie near both faces and so appear in both top-$K$ sets, which keeps this residual weight
-small.
+Adjacent faces gather from different sets, but the resulting jump at a shared edge is bounded by
+the weight of disks gathered by only one face, which is small since such disks lie near both faces
+(App.~\ref{app:continuity}).
 
 \subsection{Adaptive Environment Map}
 \label{sec:env}
@@ -99,10 +96,8 @@ We describe the reflection lookup first without its learned parts, where it is o
 
 \paragraph{Fetching.}
 Treat the environment as a classical equirectangular map. At a surface point with normal $\mathbf{n}$ seen from view direction $\mathbf{v}$, the mirror-reflected direction is $\boldsymbol{\omega}_r = 2(\mathbf{n}\cdot\mathbf{v})\,\mathbf{n} - \mathbf{v}$. We then convert to a longitude--elevation coordinate and bilinearly sample according to the direction.
-This is a single sharp fetch from a map that is not prefiltered. Glossy appearance comes from the
-decoder, which receives a roughness-attenuated encoding of $\boldsymbol{\omega}_r$
-(Sec.~\ref{sec:kan}). Replacing the fetch with a learned blend over a mip chain, or with a
-roughness-sized kernel footprint, gives the same quality (App.~\ref{app:splitsum}).
+This is a single sharp fetch; glossiness comes from the decoder's roughness-attenuated input
+(Sec.~\ref{sec:kan}), and prefiltered variants give the same quality (App.~\ref{app:splitsum}).
 
 \paragraph{Which map: near-convex parts.}
 A single global map assumes all light arrives from infinitely far away, so it cannot reproduce the
@@ -137,11 +132,8 @@ E(\boldsymbol{\omega}_r, f) = \sum_{p} \beta_p(f)\, E_p(\boldsymbol{\omega}_r),
 %
 where $d_p(f)$ is the distance from face $f$ to the nearest face assigned to map $p$, and $\tau$
 sets the blend width: $\beta$ is $\approx$ one-hot inside a region and blends smoothly within
-$\sim\tau$ of a border, so the weighted fetch removes the seam. Because
-$d_p$ changes by at most the distance $h$ between adjacent face centroids, the jump in $\beta$ across
-an edge is at most $2h/\tau$ (in $\ell_1$), and it vanishes inside a region
-(App.~\ref{app:continuity}). The per-part maps play the role of reflection probes in a game engine,
-except that they are placed and fit automatically. Each $E_p$ stores a learned
+$\sim\tau$ of a border, so the weighted fetch removes the seam. The jump in $\beta$ across an edge is at most $2h/\tau$ for centroid distance $h$
+(App.~\ref{app:continuity}). Each $E_p$ stores a learned
 multi-channel feature rather than RGB, decoded into reflected color by the network of
 Sec.~\ref{sec:kan}.
 

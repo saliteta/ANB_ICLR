@@ -27,11 +27,9 @@ Baking also presupposes a global UV atlas, whose automatic construction remains 
 The seminal automatic neural baking method is Deferred Neural Rendering (DNR)~\citep{DNR}, which bakes learned neural textures onto a mesh and decodes them at render time.
 However, DNR shares the same weakness as classical baking and cannot reproduce high frequency view-dependent color.
 Our method is a direct, modern successor to it: the mesh is an input, an artist-authored asset as in standard baking workflows, and unlike DNR we also capture the sharp, view-dependent appearance that baking has always lacked.
-As in any baking setting, including DNR and nvdiffrec~\citep{nvdiffrec} with known geometry, the
-mesh and the capture poses are given and the goal is not reconstruction but precomputing appearance
-for real-time use. Like a lightmap, the result captures the illumination of the input images,
-including static shadows. The representation does not require a ground-truth mesh, however: it also
-bakes onto meshes reconstructed from real captures and can refine them (Sec.~\ref{sec:real}).
+As in any baking setting (DNR, or nvdiffrec~\citep{nvdiffrec} with known geometry), mesh and poses
+are given and the goal is precomputing appearance, not reconstruction; the representation also bakes
+onto, and refines, meshes reconstructed from real captures (App.~\ref{app:real}).
 
 Such appearance has instead been the domain of neural and splat representations. Neural Radiance
 Fields (NeRFs)~\citep{NeRFVanilla} and 3D Gaussian Splatting (3DGS)~\citep{3DGS} have

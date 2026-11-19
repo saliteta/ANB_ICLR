@@ -298,7 +298,8 @@ frequently edited meshes.
 \subsection{Practical Scope: Decomposition, Scenes, and Relighting}
 \label{app:scope}
 \paragraph{Convex decomposition.} The decomposition~\citep{coacd} is fully automatic, runs once per
-asset, and takes 30\,s to 1\,min, small compared to training.
+asset, and takes 30\,s to 1\,min, small compared to training. The per-part maps act like reflection probes in a game
+engine, except that they are placed and fit automatically.
 \paragraph{Larger scenes.} Production pipelines assign shaders per material: large scenes are mostly
 diffuse and use standard shading, and specialized shaders are applied only where needed. ANB fits
 this practice: it is applied to the complex reflective assets in a scene while other materials keep
@@ -410,8 +411,24 @@ of refinement on high-frequency surface artifacts left by the extraction in Figu
     \label{fig:mesh_qual}
 \end{figure}
 
+\subsection{Real Captures with Reconstructed Geometry}
+\label{app:real}
+Synthetic scenes remove geometric error and capture noise. To test the pipeline where both must be
+handled, we use the real captured scenes released with Ref-NeRF~\citep{refnerf} (\emph{sedan}; and
+\emph{gardenspheres} and \emph{toycar}, originally from SNeRG~\citep{bakingNeRF}). Protocol: (1) we
+train RefGS on each scene and export its mesh by TSDF fusion and marching cubes; this mesh carries
+real reconstruction errors. (2) We crop the mesh to the central region with the reflective objects.
+(3) On this same mesh we train RefGS anchored to the mesh (30K iterations), our method with the mesh
+frozen, and our method with the mesh refinement of App.~\ref{app:refinement}. On the same imperfect
+mesh, our method beats RefGS on every scene (Table~\ref{tab:real}; $+0.44$~dB mean). Refining the
+mesh through our representation adds another $+0.49$~dB, so the pipeline both recovers appearance and
+improves the geometry it is baked onto.
+\input{tabs/real_captures}
+
 \subsection{Element-wise Compaction}
 \label{app:compaction}
+Timing details: H100 measurements use CUDA 12.8; RTX 4090 measurements use WSL2 (Ubuntu 22.04);
+peak CUDA memory is $2.75$ GB; all under \texttt{torch.compile}.
 Because each disk is anchored independently in barycentric coordinates and carries its own albedo
 and reflectivity (Sec.~\ref{sec:gmm}), it is an ordinary Gaussian splat rather than a representation-specific
 primitive. This lets us apply NanoGS~\citep{nanogs}, a training-free splat simplifier developed for
