@@ -25,8 +25,7 @@ $\varepsilon{=}0$ baseline (Table~\ref{tab:ordering}).
 Theorem B4 leaves one view-stable sort, a fixed index order. With RGB-only primitives
 (Table~\ref{tab:fixed_index}), it removes popping but \emph{lowers} PSNR ($27.70\to26.89$\,dB):
 reordering was the only source of view dependence, which depth-sorted 2DGS$^{*}$ exploits to fake
-reflections at the cost of popping (Corollary A3). Our order-free blend is equally view-stable and
-gains $+3.7$ and $+4.5$\,dB over the sorted and fixed orders.
+reflections at the cost of popping (Corollary A3). Our order-free blend is view-stable and quantitatively better than sorted and fixed-order variant.
 \input{tabs/ordering_degeneracy}
 
 \vspace{-2mm}
@@ -87,6 +86,5 @@ quality.
 The full asset ($10^6$ disks, five maps, shader) takes $48.3$ MB and renders at
 $800{\times}800$ at $91.7$ / $68.6$ FPS (NeRF-Synthetic / Shiny-Blender) on an H100 and $76.8$ FPS on
 Shiny-Blender on an RTX 4090 (mean memory $1.74$ GB). Since each disk is an ordinary splat,
-NanoGS~\citep{nanogs} compacts the asset with no change to our pipeline: at $10\times$ compaction
-PSNR falls by only $2.0$~dB (Table~\ref{tab:compaction}, App.~\ref{app:compaction}).
+NanoGS~\citep{nanogs} compacts the asset with no change to our pipeline:  (Table~\ref{tab:compaction}, App.~\ref{app:compaction}).
 \input{tabs/combine_table_ICLR}
