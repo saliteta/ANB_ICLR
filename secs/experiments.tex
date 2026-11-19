@@ -4,6 +4,7 @@
 \section{Experiments}
 \vspace{-1mm}
 \label{sec:Exp}
+\begin{revblock}
 \textbf{Setting.} We evaluate on NeRF-Synthetic~\citep{NeRFVanilla} and Shiny-Blender~\citep{refnerf}
 in a \emph{fixed-mesh setting} (real captures in Sec.~\ref{sec:real}). All methods recover appearance
 only from posed images; none reads the assets' textures. Fixed-mesh baselines share our ground-truth
@@ -12,6 +13,7 @@ mesh-constrained 2DGS~\citep{2DGS} with four million disks and gradients project
 nvdiffrec~\citep{nvdiffrec}, split-sum inverse rendering; and RefGS~\citep{refgs} bound to the mesh
 (App.~\ref{app:baselines}). No-mesh and flexible-mesh methods optimize their own geometry and are
 reported as context only.
+\end{revblock}
 
 \subsection{Ordering Degeneracy}
 \label{sec:ordering}
@@ -22,10 +24,13 @@ fixed $\varepsilon$ along the face normal at initialization, with no further nor
 training. PSNR stays flat from $\varepsilon{=}10^{-5}$ to $10^{-3}$ and matches the tied
 $\varepsilon{=}0$ baseline (Table~\ref{tab:ordering}).
 
+\begin{addblock}
 Theorem B4 leaves one view-stable sort, a fixed index order. With RGB-only primitives
 (Table~\ref{tab:fixed_index}), it removes popping but \emph{lowers} PSNR ($27.70\to26.89$\,dB):
 reordering was the only source of view dependence, which depth-sorted 2DGS$^{*}$ exploits to fake
 reflections at the cost of popping (Corollary A3). Our order-free blend is view-stable and quantitatively better than sorted and fixed-order variant.
+\end{addblock}
+
 \input{tabs/ordering_degeneracy}
 
 \vspace{-2mm}
@@ -33,12 +38,12 @@ reflections at the cost of popping (Corollary A3). Our order-free blend is view-
 \label{sec:quality}
 Given the mesh, our appearance field reaches $38.04$~dB PSNR on Shiny-Blender and $33.74$~dB on
 NeRF-Synthetic (Table~\ref{tab:main}), the best result among the fixed-mesh methods that share our
-input mesh. Split-sum shading with the same mesh (nvdiffrec) trails by $6.3$~dB and loses on every
+input mesh. \addtext{Split-sum shading with the same mesh (nvdiffrec) trails by $6.3$~dB and loses on every
 scene and metric (Table~\ref{tab:nvdiffrec}). The gap is largest on mirror-like \emph{ball} and
 \emph{helmet}, where the prefiltered lookup blurs high-frequency detail, and stays large on concave
 \emph{toaster}, where one environment map cannot represent self-reflection. Bound to the mesh, RefGS
 drops from $34.80$~dB (own geometry) to $30.08$~dB, and its large gain from supersampling is
-consistent with Theorem B's ordering artifacts (App.~\ref{app:baselines}). The no-mesh and flexible-mesh rows reconstruct their own geometry and are shown
+consistent with Theorem B's ordering artifacts (App.~\ref{app:baselines}).} The no-mesh and flexible-mesh rows reconstruct their own geometry and are shown
 as context, not ranked. Our margin over the best of them (Table~\ref{tab:shiny_perscene}) tracks how
 reflective a scene is: $+6.12$~dB on the near-mirror \emph{ball} and $+0.45$~dB on \emph{teapot},
 whose highlights are smallest. Qualitatively (Figure~\ref{fig:qualitative}), our renders reproduce
@@ -53,6 +58,7 @@ sharp, high-frequency reflections on metallic surfaces that 2DGS$^{*}$ and DNR b
     \vspace{-2mm}
 \end{figure}
 
+\begin{addblock}
 \subsection{Real Captures with Reconstructed Geometry}
 \label{sec:real}
 Synthetic scenes remove geometric error and capture noise. On the real Ref-NeRF scenes, we bake onto
@@ -61,6 +67,7 @@ objects) and compare against RefGS bound to the same mesh (Table~\ref{tab:real})
 every scene ($+0.44$~dB mean), and refining the mesh through our representation adds another
 $+0.49$~dB. The full protocol is in App.~\ref{app:real}.
 \input{tabs/real_captures}
+\end{addblock}
 
 \subsection{Ablation}
 \label{sec:ablation}
@@ -74,17 +81,19 @@ unavailable: each point takes one order-independent blend. A per-primitive spher
 MLP decoder therefore only overfits the sparse views ($34.24$~dB), and dropping it in favor of a
 single shared environment map changes the result little ($34.37$~dB). The gains come instead from the
 adaptive hierarchical maps ($+1.2$~dB over a single global map) and from the KAN decoder
-($+2.44$~dB over a parameter-matched MLP). Prefiltered lookups in place of the sharp fetch match our quality, and a full split-sum shader
-trains $3.5\times$ faster but loses $4.3$~dB (App.~\ref{app:splitsum}).
+($+2.44$~dB over a parameter-matched MLP). \addtext{Prefiltered lookups in place of the sharp fetch match our quality, and a full split-sum shader
+trains $3.5\times$ faster but loses $4.3$~dB (App.~\ref{app:splitsum}).}
 
+\begin{addblock}
 At matched capacity with diffuse color only, the 2D mixture and a UV texture are on par in quality
 and speed ($27.11$ vs.\ $26.93$~dB; App.~\ref{app:uv}); the mixture's advantage is capability, not
 quality.
+\end{addblock}
 
 \subsection{Efficiency and Compaction}
 \label{sec:compaction}
 The full asset ($10^6$ disks, five maps, shader) takes $48.3$ MB and renders at
 $800{\times}800$ at $91.7$ / $68.6$ FPS (NeRF-Synthetic / Shiny-Blender) on an H100 and $76.8$ FPS on
 Shiny-Blender on an RTX 4090 (mean memory $1.74$ GB). Since each disk is an ordinary splat,
-NanoGS~\citep{nanogs} compacts the asset with no change to our pipeline:  (Table~\ref{tab:compaction}, App.~\ref{app:compaction}).
+NanoGS~\citep{nanogs} compacts the asset with no change to our pipeline (Table~\ref{tab:compaction}, App.~\ref{app:compaction}).
 \input{tabs/combine_table_ICLR}

@@ -8,19 +8,19 @@
   (\colorbox{green!25}{\textbf{1st}}, \colorbox{orange!25}{2nd}, \colorbox{yellow!25}{3rd}) is
   restricted to Ours, DNR, and 2DGS$^{*}$, the fixed-mesh methods that share our input mesh
   (following Table~\ref{tab:main}); the ablation-variant columns are not ranked, since they trace
-  an internal progression rather than a competing baseline. Column names match
+  an internal progression rather than a competing baseline. \protect\rev{Column names match
   Table~\ref{tab:ablation}: \emph{SG + MLP} adds per-primitive spherical-Gaussian lobes with an MLP
   decoder; \emph{MLP} is the MLP decoder without environment maps; \emph{MLP + 1-Env} uses a single
   global map; \emph{MLP + AdaMap} uses our adaptive maps; \emph{Ours} replaces the MLP with KAN. In
   the SG + MLP and MLP + AdaMap runs, each disk also stores a two-channel material token (two extra
-  per-disk channels next to its color); an earlier draft wrongly labeled these columns ``M Token''.}
+  per-disk channels next to its color); an earlier draft wrongly labeled these columns ``M Token''.}}
   \label{tab:combined-ablation-baselines}
   \resizebox{\linewidth}{!}{
   \begin{tabular}{llccccccc}
     \toprule
     \multirow{2}{*}{Dataset} & \multirow{2}{*}{Scene} & \multicolumn{5}{c}{Ablation Variants} & \multicolumn{2}{c}{Fixed-mesh baselines} \\
     \cmidrule(lr){3-7} \cmidrule(lr){8-9}
-    & & SG + MLP & MLP + AdaMap & MLP & MLP + 1-Env & Ours & DNR & 2DGS$^{*}$ \\
+    & & \rev{SG + MLP} & \rev{MLP + AdaMap} & MLP & \rev{MLP + 1-Env} & Ours & DNR & 2DGS$^{*}$ \\
     \midrule
     \multicolumn{9}{c}{\textbf{PSNR$\uparrow$}} \\
     \midrule

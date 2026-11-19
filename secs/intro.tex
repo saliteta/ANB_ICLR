@@ -23,13 +23,13 @@ The standard baking-and-rasterization pipeline meets this by precomputing appear
 
 Automating this stage, however, remains hard for the shiny, view-dependent materials that matter most:
 the usual baked formats, for instance, lightmaps or low-order Spherical Harmonic (SH) probes, store only smooth, view-independent lighting and miss angle-dependent highlights~\citep{AllFrequency, curveSurfaces, nerfTexture}.
-Baking also presupposes a global UV atlas, whose automatic construction remains fragmented and largely manual~\citep{Levy2002LSCM, poranne2017autocuts, li2018optcuts, srinivasan2024nuvo}. Per-face texturing such as Ptex~\citep{ptex} removes the UV atlas and is routinely used to store BSDF parameters for path-traced rendering of even mirror-like materials; what it does not provide is automatic baking of sharp, view-dependent appearance under a real-time, rasterization-only budget.
+Baking also presupposes a global UV atlas, whose automatic construction remains fragmented and largely manual~\citep{Levy2002LSCM, poranne2017autocuts, li2018optcuts, srinivasan2024nuvo}. Per-face texturing such as Ptex~\citep{ptex} removes the UV atlas \rev{and is routinely used to store BSDF parameters for path-traced rendering of even mirror-like materials; what it does not provide is automatic baking of sharp, view-dependent appearance under a real-time, rasterization-only budget.}
 The seminal automatic neural baking method is Deferred Neural Rendering (DNR)~\citep{DNR}, which bakes learned neural textures onto a mesh and decodes them at render time.
 However, DNR shares the same weakness as classical baking and cannot reproduce high frequency view-dependent color.
 Our method is a direct, modern successor to it: the mesh is an input, an artist-authored asset as in standard baking workflows, and unlike DNR we also capture the sharp, view-dependent appearance that baking has always lacked.
-As in any baking setting (DNR, or nvdiffrec~\citep{nvdiffrec} with known geometry), mesh and poses
+\addtext{As in any baking setting (DNR, or nvdiffrec~\citep{nvdiffrec} with known geometry), mesh and poses
 are given and the goal is precomputing appearance, not reconstruction; the representation also bakes
-onto, and refines, meshes reconstructed from real captures (Sec.~\ref{sec:real}).
+onto, and refines, meshes reconstructed from real captures (Sec.~\ref{sec:real}).}
 
 Such appearance has instead been the domain of neural and splat representations. Neural Radiance
 Fields (NeRFs)~\citep{NeRFVanilla} and 3D Gaussian Splatting (3DGS)~\citep{3DGS} have
@@ -122,9 +122,9 @@ field built from kernels sited on the surface, each element carrying its own val
 fragment by a smooth partition of unity over its $K$ nearest neighbours. Because the kernels are
 placed in barycentric coordinates, the field needs no global UV atlas; because a convex blend is
 invariant to the order of its terms, the coplanar degeneracy cannot arise. This is a resolution, not
-the resolution: a fixed-index order is also view-stable, but on the same mesh it loses $4.5$~dB to our
+the resolution: \rev{a fixed-index order is also view-stable, but on the same mesh it loses $4.5$~dB to our
 blend, because removing reordering also removes the only view dependence a per-primitive color can
-fake (Sec.~\ref{sec:ordering}).
+fake (Sec.~\ref{sec:ordering}).}
 To our knowledge this is the first splat representation developed as an element-wise texture:
 a field whose elements are individually addressable, differentiable, and mergeable, and whose
 domain is the surface itself, rather than a distribution in ambient $\mathbb{R}^3$. Mergeability
@@ -136,18 +136,20 @@ mipmap generation (Sec.~\ref{sec:compaction}).
 \item \textbf{Sharp view-dependent appearance, baked.} A FastKAN decoder over an adaptive
 hierarchical environment map captures high-frequency specularity, and near-convex decomposition
 reduces self-reflection to a local lookup rather than a secondary ray. On Shiny-Blender we reach
-$38.04$\,dB PSNR given the same geometry, $6.3$\,dB above split-sum inverse
+$38.04$\,dB PSNR \rev{given the same geometry, $6.3$\,dB above split-sum inverse
 rendering~\citep{nvdiffrec} and $8.0$\,dB above a reflective Gaussian splatting
 method~\citep{refgs} bound to the same mesh. On real captures with reconstructed meshes, we beat the
-latter on every scene.
+latter on every scene.}
 
 \item \textbf{Serves as a texture.} By construction, our field is read like a texture: a local,
 per-fragment lookup with no UV atlas and no depth sort, though the lookup itself runs a small
 decoder rather than a single sample. We realize it in nvdiffrast and render both datasets at over
 $60$ FPS, while reaching the novel-view-synthesis quality of splat representations.
 \end{itemize}
+\begin{addblock}
 We do not claim that the 2D mixture improves quality over a UV texture at matched capacity: with
 diffuse color only, the two are on par (Sec.~\ref{sec:ablation}). The quality gains come from the
 shading model. Our claim is that splats can be bound to a given mesh, so that the mesh stays the
 authoritative geometry while appearance keeps the trainable, element-wise form of splats, and that
 the two obstructions above dictate how this must be done.
+\end{addblock}

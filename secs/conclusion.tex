@@ -6,11 +6,13 @@ We present automatic neural baking: an element-wise, order-independent ``texture
 surface that needs no UV atlas or depth sort and runs per fragment in real time. Next steps are
 engine integration and element-level editing.
 
+\begin{revblock}
 \paragraph{Scope and limitations.} As in baking, we take a mesh and posed images, optimize per
 scene, and bake the input illumination (static shadows included); relighting beyond swapping
 environment maps (App.~\ref{app:scope}) is future work. Light from outside a near-convex part is
 treated as distant, so strongly concave objects (\emph{toaster}) are hardest and nearby surroundings
 can show parallax. Real captures (Sec.~\ref{sec:real}) cover three object-centric scenes.
+\end{revblock}
 
 % mandatory not included in page limit
 \section{AI Disclosure}

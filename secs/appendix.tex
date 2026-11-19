@@ -96,6 +96,7 @@ strictly positive whenever $E$ has edges or sharp lights (on the full sphere it 
 energy $\sum_{l>\ell}|E_l|^2$), and it does not shrink as $K\to\infty$: \emph{adding primitives
 never adds angular bandwidth at a fragment.}
 
+\begin{revblock}
 \paragraph{Remark (SG mixtures).} Theorem~A1 relies on $P_\ell$ being a linear space of fixed
 dimension, which holds for fixed-order SH. Per-primitive spherical-Gaussian (SG) mixtures are not:
 blending $K$ primitives with $M$ lobes each gives a $KM$-lobe mixture, whose best-approximation error
@@ -107,6 +108,7 @@ samples of it are constrained, and its values at unobserved directions are deter
 inductive bias of the lobe model. For SG models the limit is thus one of generalization, set by
 $N_v$, rather than representation. This matches the ablation: per-primitive SG lobes do not help
 ($34.24$ vs.\ $34.37$~dB without them, Table~\ref{tab:ablation}).
+\end{revblock}
 
 \paragraph{Corollary A2 (Identifiability caps the usable degree).} Each primitive observes the
 fragment's function at most once per training view (Prop.~3), so identifying its $(\ell+1)^2$
@@ -120,10 +122,10 @@ view-dependent selection among overlapping splats is the only mechanism that cou
 Theorem-A1 floor. On a plane the order is independent of elevation (Lemma~2), so along any meridian
 the rendered function is a single fixed blend in $P_\ell$ and Theorem~A1 applies there; reordering
 can only add azimuthal discontinuities (Prop.~2's jumps), never elevation detail. The one escape
-from locality is exactly the mechanism that produces popping. Table~\ref{tab:fixed_index} tests this
+from locality is exactly the mechanism that produces popping. \addtext{Table~\ref{tab:fixed_index} tests this
 directly in the RGB-only setting ($\ell=0$), where reordering is the \emph{only} source of view
 dependence: fixing the order removes popping and also lowers PSNR ($27.70\to26.89$~dB), because the
-rendered appearance becomes strictly view-independent.
+rendered appearance becomes strictly view-independent.}
 
 \paragraph{Proposition A4 (A shared environment map removes the floor).} Factor appearance as
 $C(\mathbf{x},\mathbf{v})=g\big(a(\mathbf{x}),m(\mathbf{x}),\hat E(R_\mathbf{n}\mathbf{v})\big)$
@@ -180,18 +182,19 @@ results already reported in the paper to the claim each one supports.
 
 \paragraph{Scope of the theory.} The argument shows locality (Theorem~A1), not ordering, carries most
 of the quality gap: fixed-index compositing survives Theorem~B (it is view-stable, so Prop.~2's
-jump bound does not apply) but is still defeated by Theorem~A1 when colors are per-primitive. In the
+jump bound does not apply) but is still defeated by Theorem~A1 when colors are per-primitive. \rev{In the
 RGB-only setting, Table~\ref{tab:fixed_index} shows that a fixed order loses $4.5$~dB to our
 order-free blend on the same mesh. With our environment maps and KAN decoder, view dependence comes
 from the shared maps, so the per-primitive layer stores only view-independent attributes (albedo and
 reflectivity). That is exactly the diffuse setting of Table~\ref{tab:fixed_index}, where the
 fixed order already loses to our blend. We therefore chose the order-free blend for the surface
-attributes and did not carry the fixed-index variant into the full model.
+attributes and did not carry the fixed-index variant into the full model.}
 We have not proven that the order-free partition-of-unity blend is optimal rather than merely
 sufficient. The per-primitive blur that
 Prop.~1 allows ($O(\delta|\nabla a|)$) is continuous and shrinks under densification, unlike the
 popping Theorem~B describes.
 
+\begin{addblock}
 \subsection{Continuity Across Faces}
 \label{app:continuity}
 Two per-face quantities can jump across a shared edge: the gather set $\mathcal{N}(f)$ of the
@@ -312,10 +315,11 @@ environment maps to the scene's HDRI during training and replace or rotate it at
 no retraining. The same video shows environment-map replacement and rotation, and the
 supplementary material decomposes the result into diffuse, specular and environment-map
 contributions.
+\end{addblock}
 
 \subsection{Ablation Details}
 
-Here, we present detailed qualitative and quantitative results from our ablation study comparing our approach against closely related baselines. We first evaluated replacing the KAN with a standard MLP. In the MLP variants, each disk also stored a two-channel material token next to its color, intended to carry material information; earlier drafts labeled these columns ``M Token''. Column names in Table~\ref{tab:combined-ablation-baselines} now match Table~\ref{tab:ablation}, and the $35.60$~dB result is the MLP decoder with our adaptive environment maps (MLP + AdaMap). We also attempted to use spherical Gaussians for the view-dependent representation, but this approach yielded suboptimal results. These quantitative comparisons are summarized in Table~\ref{tab:combined-ablation-baselines}.
+Here, we present detailed qualitative and quantitative results from our ablation study comparing our approach against closely related baselines. We first evaluated replacing the KAN with a standard MLP. \rev{In the MLP variants, each disk also stored a two-channel material token next to its color, intended to carry material information; earlier drafts labeled these columns ``M Token''. Column names in Table~\ref{tab:combined-ablation-baselines} now match Table~\ref{tab:ablation}, and the $35.60$~dB result is the MLP decoder with our adaptive environment maps (MLP + AdaMap).} We also attempted to use spherical Gaussians for the view-dependent representation, but this approach yielded suboptimal results. These quantitative comparisons are summarized in Table~\ref{tab:combined-ablation-baselines}.
 
 Furthermore, we provide qualitative visualizations that decompose the outputs of our method. Specifically, our rendering function consists of three components: multiple environment maps for self-reflection, a KAN for specular reflection, and a GMM for diffuse lighting. We visualize the distinct contributions of each of these lighting components. To isolate the effects of the 2D GMM, Figure~\ref{fig:abl_qualitative} compares our method against a 2DGS$^{*}$ baseline exhibiting depth-fighting (with spherical harmonics set to zero). Finally, Tab.~\ref{tab:shiny_perscene} details a per-scene comparison against reported state-of-the-art results on the Shiny-Blender dataset; these methods reconstruct their own geometry rather than being given ours, so, following Table~\ref{tab:main}, they are shown as context rather than ranked.
 
@@ -411,6 +415,7 @@ of refinement on high-frequency surface artifacts left by the extraction in Figu
     \label{fig:mesh_qual}
 \end{figure}
 
+\begin{addblock}
 \subsection{Real Captures with Reconstructed Geometry}
 \label{app:real}
 Synthetic scenes remove geometric error and capture noise. To test the pipeline where both must be
@@ -423,11 +428,12 @@ frozen, and our method with the mesh refinement of App.~\ref{app:refinement}. On
 mesh, our method beats RefGS on every scene (Table~\ref{tab:real}; $+0.44$~dB mean). Refining the
 mesh through our representation adds another $+0.49$~dB, so the pipeline both recovers appearance and
 improves the geometry it is baked onto.
+\end{addblock}
 
 \subsection{Element-wise Compaction}
 \label{app:compaction}
-Timing details: H100 measurements use CUDA 12.8; RTX 4090 measurements use WSL2 (Ubuntu 22.04);
-peak CUDA memory is $2.75$ GB; all under \texttt{torch.compile}.
+\addtext{Timing details: H100 measurements use CUDA 12.8; RTX 4090 measurements use WSL2 (Ubuntu 22.04);
+peak CUDA memory is $2.75$ GB; all under \texttt{torch.compile}.}
 Because each disk is anchored independently in barycentric coordinates and carries its own albedo
 and reflectivity (Sec.~\ref{sec:gmm}), it is an ordinary Gaussian splat rather than a representation-specific
 primitive. This lets us apply NanoGS~\citep{nanogs}, a training-free splat simplifier developed for
