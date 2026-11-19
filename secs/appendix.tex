@@ -94,8 +94,19 @@ $R_\mathbf{n}$ preserves both $P_\ell$ and the $L^2(H_\mathbf{n})$ norm, so the 
 $L(\mathbf{x},\cdot)$ to $P_\ell$ is exactly $\tau_\ell(E,\mathbf{n})$. $\blacksquare$ The bound is
 strictly positive whenever $E$ has edges or sharp lights (on the full sphere it is the SH tail
 energy $\sum_{l>\ell}|E_l|^2$), and it does not shrink as $K\to\infty$: \emph{adding primitives
-never adds angular bandwidth at a fragment.} The same argument with $P_\ell$ replaced by
-$KM$-lobe spherical-Gaussian mixtures gives the analogous floor for SG models.
+never adds angular bandwidth at a fragment.}
+
+\paragraph{Remark (SG mixtures).} Theorem~A1 relies on $P_\ell$ being a linear space of fixed
+dimension, which holds for fixed-order SH. Per-primitive spherical-Gaussian (SG) mixtures are not:
+blending $K$ primitives with $M$ lobes each gives a $KM$-lobe mixture, whose best-approximation error
+can shrink as $K$ grows. The floor of Eq.~\eqref{eq:band-limit} therefore does \emph{not} carry over
+to SG models directly, and we do not claim it does. What carries over is identifiability
+(Corollary~A2): all lobes that cover a fragment are fit from the same $N_v$ training views, and each
+view observes the fragment's function at most once. However many lobes the blend has, at most $N_v$
+samples of it are constrained, and its values at unobserved directions are determined only by the
+inductive bias of the lobe model. For SG models the limit is thus one of generalization, set by
+$N_v$, rather than representation. This matches the ablation: per-primitive SG lobes do not help
+($34.24$ vs.\ $34.37$~dB without them, Table~\ref{tab:ablation}).
 
 \paragraph{Corollary A2 (Identifiability caps the usable degree).} Each primitive observes the
 fragment's function at most once per training view (Prop.~3), so identifying its $(\ell+1)^2$
@@ -109,7 +120,10 @@ view-dependent selection among overlapping splats is the only mechanism that cou
 Theorem-A1 floor. On a plane the order is independent of elevation (Lemma~2), so along any meridian
 the rendered function is a single fixed blend in $P_\ell$ and Theorem~A1 applies there; reordering
 can only add azimuthal discontinuities (Prop.~2's jumps), never elevation detail. The one escape
-from locality is exactly the mechanism that produces popping.
+from locality is exactly the mechanism that produces popping. Table~\ref{tab:fixed_index} tests this
+directly in the RGB-only setting ($\ell=0$), where reordering is the \emph{only} source of view
+dependence: fixing the order removes popping and also lowers PSNR ($27.70\to26.89$~dB), because the
+rendered appearance becomes strictly view-independent.
 
 \paragraph{Proposition A4 (A shared environment map removes the floor).} Factor appearance as
 $C(\mathbf{x},\mathbf{v})=g\big(a(\mathbf{x}),m(\mathbf{x}),\hat E(R_\mathbf{n}\mathbf{v})\big)$
@@ -166,16 +180,141 @@ results already reported in the paper to the claim each one supports.
 
 \paragraph{Scope of the theory.} The argument shows locality (Theorem~A1), not ordering, carries most
 of the quality gap: fixed-index compositing survives Theorem~B (it is view-stable, so Prop.~2's
-jump bound does not apply) but is still defeated by Theorem~A1 when colors are per-primitive. We
-have not run the isolating experiment (2DGS$^{*}$ with fixed-index order plus our environment map
-and KAN) that would confirm this directly, nor proven that the order-free partition-of-unity blend
-is optimal rather than merely sufficient; we leave both to future work. The per-primitive blur that
+jump bound does not apply) but is still defeated by Theorem~A1 when colors are per-primitive. In the
+RGB-only setting, Table~\ref{tab:fixed_index} shows that a fixed order loses $4.5$~dB to our
+order-free blend on the same mesh. With our environment maps and KAN decoder, view dependence comes
+from the shared maps, so the per-primitive layer stores only view-independent attributes (albedo and
+reflectivity). That is exactly the diffuse setting of Table~\ref{tab:fixed_index}, where the
+fixed order already loses to our blend. We therefore chose the order-free blend for the surface
+attributes and did not carry the fixed-index variant into the full model.
+We have not proven that the order-free partition-of-unity blend is optimal rather than merely
+sufficient. The per-primitive blur that
 Prop.~1 allows ($O(\delta|\nabla a|)$) is continuous and shrinks under densification, unlike the
 popping Theorem~B describes.
 
+\subsection{Continuity Across Faces}
+\label{app:continuity}
+Two per-face quantities can jump across a shared edge: the gather set $\mathcal{N}(f)$ of the
+mixture and the map memberships $\beta(f)$.
+
+\paragraph{Mixture.} Let $f,f'$ share an edge and let $\mathbf{x}$ lie on it. Write
+$W_\cap=\sum_{k\in\mathcal{N}(f)\cap\mathcal{N}(f')}w_k(\mathbf{x})$,
+$W_A=\sum_{k\in\mathcal{N}(f)\setminus\mathcal{N}(f')}w_k(\mathbf{x})$, and
+$W_B=\sum_{k\in\mathcal{N}(f')\setminus\mathcal{N}(f)}w_k(\mathbf{x})$, and set
+$\epsilon=W_A/(W_\cap+W_A)$ and $\epsilon'=W_B/(W_\cap+W_B)$. Then
+$a_f(\mathbf{x})=(1-\epsilon)\,a_\cap+\epsilon\,a_A$ and
+$a_{f'}(\mathbf{x})=(1-\epsilon')\,a_\cap+\epsilon'\,a_B$, where $a_\cap,a_A,a_B$ are the normalized
+blends over the three subsets. Since all albedos lie in $[0,1]^3$,
+\begin{equation}
+\big\|a_f(\mathbf{x})-a_{f'}(\mathbf{x})\big\|_\infty \le \epsilon+\epsilon',
+\end{equation}
+and the same bound holds for the blended reflectivity logits, scaled by their range. The jump is
+controlled only by the normalized weight that disks gathered by just one of the two faces carry on
+the edge. Because $\mathcal{N}(f)$ holds the $K$ disks nearest $f$ and spans its neighboring faces, a
+disk with non-negligible density on the shared edge is near both faces and tends to belong to both
+sets, so $\epsilon,\epsilon'$ are small. Larger $K$ shrinks them further at linear cost.
+
+\paragraph{Environment memberships.} With $\beta(f)=\operatorname{softmax}(-d(f)/\tau)$, the
+softmax Jacobian $J=\operatorname{diag}(\beta)-\beta\beta^\top$ satisfies
+$\|J\mathbf{u}\|_1=\sum_p\beta_p|u_p-\beta\cdot\mathbf{u}|\le\max_p u_p-\min_p u_p\le2\|\mathbf{u}\|_\infty$,
+so $\|\beta(f)-\beta(f')\|_1\le 2\max_p|d_p(f)-d_p(f')|/\tau$. A distance to a set is 1-Lipschitz,
+so with $d_p$ measured from face centroids, $|d_p(f)-d_p(f')|\le h$, the centroid distance, and
+$\|\beta(f)-\beta(f')\|_1\le 2h/\tau$. Inside a region $\beta$ is one-hot on both sides and the jump is
+zero. The environment-feature jump is at most $2h/\tau\cdot\max_p\|E_p\|_\infty$.
+
+\paragraph{Decoder.} The remaining decoder inputs (position encoding, normal, reflected direction)
+are continuous in $\mathbf{x}$ wherever the shading normal is, and the decoder and the logit-space
+composite of Eq.~\eqref{eq:appearance} are Lipschitz. A visible seam therefore requires one of the
+two jumps above, and both are bounded by quantities the method controls ($K$ and $\tau$).
+
+\subsection{Additional Baselines on the Same Mesh}
+\label{app:baselines}
+\paragraph{Split-sum shading (nvdiffrec).} nvdiffrec~\citep{nvdiffrec} uses the same ground-truth
+meshes as our method, with geometry frozen, so only materials and lighting are optimized. Both
+methods use the same training and test views, resolution, and $2\times$ SSAA evaluation. nvdiffrec
+otherwise uses its default settings (40K iterations, $6{\times}512{\times}512$ cube map).
+Table~\ref{tab:nvdiffrec} reports per-scene results. We win on every scene and metric, by
+$+6.3$~dB PSNR on average. The gap is largest on sharp, mirror-like reflections (\emph{ball},
+\emph{helmet}), where the prefiltered lookup blurs high-frequency detail, and stays large on the
+concave \emph{toaster}, where a single environment map cannot represent self-reflection.
+
+\paragraph{RefGS on the mesh.} We anchor RefGS~\citep{refgs} to the same ground-truth meshes by
+projecting each Gaussian to its nearest face and aligning it with the face, keeping RefGS's deferred
+shading and environment map. At $2\times$ SSAA it reaches $30.08$ / $0.9588$ / $0.0435$
+(PSNR / SSIM / LPIPS), against $34.80$~dB with its own free geometry. At $1\times$ it reaches
+$27.31$~dB. The large gain from supersampling is consistent with the ordering artifacts of Theorem B,
+which supersampling partly averages out.
+\input{tabs/rebuttal_appendix_tables}
+
+\subsection{Prefiltered and Split-Sum Shading in Our Pipeline}
+\label{app:splitsum}
+Our environment fetch is a single sharp bilinear lookup, and glossiness is handled by the decoder's
+roughness-attenuated IDE input (Sec.~\ref{sec:kan}). To test whether explicit prefiltering helps, we
+replace the fetch or the whole shader (Table~\ref{tab:splitsum}).
+(1) \emph{4-level mip}: each environment map is stored as a 4-level mip chain, and the KAN predicts
+blend weights over the features fetched at each level.
+(2) \emph{Spherical beta $9{\times}9$}: the KAN outputs a spherical beta kernel that gathers a
+$9{\times}9$ footprint from the feature map.
+(3) \emph{Split-sum}: the KAN shader is replaced by nvdiffrec's split-sum model. Each disk stores
+albedo, occlusion, roughness and metallic. Each mesh region learns an RGB cube map ($512^2$ per face)
+that nvdiffrec's renderutils prefilter into a GGX mip chain plus an irradiance map. Each pixel is
+shaded as irradiance $\times$ diffuse color $+ (F_0A+B)\times$ the roughness-selected prefiltered
+lookup, with $(A,B)$ from nvdiffrec's precomputed BRDF table at $(\mathbf{n}\cdot\mathbf{v},
+\text{roughness})$. We use nvdiffrec's learning rate, light regularizer and clamping.
+Variants (1) and (2) match our quality ($37.92$ and $37.91$~dB versus $38.04$~dB) and reduce training
+time by 3--5\% and by over 40\%, respectively. Full split-sum trains about $3.5\times$ faster but
+loses $4.3$~dB, a clear quality--speed trade-off for applications that need a classical BRDF.
+
+\subsection{Comparison with UV Textures}
+\label{app:uv}
+\paragraph{Matched-capacity quality.} To isolate the representation, we compare our 2D mixture with a
+UV texture with no decoder or environment map, since a strong decoder with positional encoding can
+absorb appearance and mask representation differences. Both store diffuse color only, without mipmaps
+or SSAA. We use $10^6$ disks (8M floats) against a $1730^2$ texture (slightly under 9M floats). The
+UV texture is trained with nvdiffrec's backbone. The two match closely in quality ($27.11$ vs.\
+$26.93$~dB) and in speed ($98.8$ vs.\ $101.8$ FPS; Table~\ref{tab:uv}). We report raw parameter counts
+rather than on-disk sizes because on-disk size depends mostly on storage choices independent of the
+representation. For textures these are the compression format (PNG, JPEG, or block compression such
+as BC7), atlas packing (gutters and unused regions typically take 20--40\%), and the mipmap chain
+(another third). For splats they are quantization, entropy coding, and compaction such as
+NanoGS (Table~\ref{tab:compaction}). Comparing particular compression pipelines would not compare the
+representations.
+
+\paragraph{Capabilities.} The two representations differ in what they can do, not in quality. A UV
+texture is defined through a global parameterization: the mesh must be unwrapped into an atlas, and
+resolution and layout are tied to it. Our mixture has no global parameterization: each element is
+anchored to a face in barycentric coordinates and is individually addressable. Hence (i) no
+unwrapping, seams, charts or packing; (ii) local resolution changes, adding, removing or merging
+elements in one region with only a local neighbor-set update; (iii) element-wise operations, such as
+compaction with splat tools (Sec.~\ref{sec:compaction}) and editing, deleting or merging individual
+elements; and (iv) robustness to mesh edits, since elements on unaffected faces stay valid when part
+of the mesh changes. Small edits within the existing resolution cost about the same in both
+representations. Table~\ref{tab:editing} lists the cases where they differ, and an editing video
+demonstrates them (\url{https://youtu.be/pwqujx1IS2Q}). Conversely, UV textures benefit from decades of hardware and tool support
+(hardware filtering, mipmaps, block compression). The two are complementary: ours suits
+automatically baked, element-wise assets where unwrapping is a bottleneck, such as reconstructed or
+frequently edited meshes.
+
+\subsection{Practical Scope: Decomposition, Scenes, and Relighting}
+\label{app:scope}
+\paragraph{Convex decomposition.} The decomposition~\citep{coacd} is fully automatic, runs once per
+asset, and takes 30\,s to 1\,min, small compared to training.
+\paragraph{Larger scenes.} Production pipelines assign shaders per material: large scenes are mostly
+diffuse and use standard shading, and specialized shaders are applied only where needed. ANB fits
+this practice: it is applied to the complex reflective assets in a scene while other materials keep
+their usual shaders, so convex decomposition runs per reflective asset. A video
+(\url{https://www.youtube.com/watch?v=IBxhzpB0c6w}) shows ANB-baked reflective objects rendered
+interactively alongside standard materials in a large Blender scene.
+\paragraph{Relighting.} Baking does not normally model lighting: appearance is captured under the
+illumination of the input images, as with lightmaps. When the illumination is known, we fix the
+environment maps to the scene's HDRI during training and replace or rotate it at render time, with
+no retraining. The same video shows environment-map replacement and rotation, and the
+supplementary material decomposes the result into diffuse, specular and environment-map
+contributions.
+
 \subsection{Ablation Details}
 
-Here, we present detailed qualitative and quantitative results from our ablation study comparing our approach against closely related baselines. We first evaluated replacing the KAN with a standard MLP. Additionally, we experimented with incorporating material tokens or features, similar to scaffolded Gaussian Splats; however, the performance was inferior to that of a straightforward MLP. We also attempted to use spherical Gaussians for the view-dependent representation, but this approach yielded suboptimal results. These quantitative comparisons are summarized in Table~\ref{tab:combined-ablation-baselines}.
+Here, we present detailed qualitative and quantitative results from our ablation study comparing our approach against closely related baselines. We first evaluated replacing the KAN with a standard MLP. In the MLP variants, each disk also stored a two-channel material token next to its color, intended to carry material information; earlier drafts labeled these columns ``M Token''. Column names in Table~\ref{tab:combined-ablation-baselines} now match Table~\ref{tab:ablation}, and the $35.60$~dB result is the MLP decoder with our adaptive environment maps (MLP + AdaMap). We also attempted to use spherical Gaussians for the view-dependent representation, but this approach yielded suboptimal results. These quantitative comparisons are summarized in Table~\ref{tab:combined-ablation-baselines}.
 
 Furthermore, we provide qualitative visualizations that decompose the outputs of our method. Specifically, our rendering function consists of three components: multiple environment maps for self-reflection, a KAN for specular reflection, and a GMM for diffuse lighting. We visualize the distinct contributions of each of these lighting components. To isolate the effects of the 2D GMM, Figure~\ref{fig:abl_qualitative} compares our method against a 2DGS$^{*}$ baseline exhibiting depth-fighting (with spherical harmonics set to zero). Finally, Tab.~\ref{tab:shiny_perscene} details a per-scene comparison against reported state-of-the-art results on the Shiny-Blender dataset; these methods reconstruct their own geometry rather than being given ours, so, following Table~\ref{tab:main}, they are shown as context rather than ranked.
 

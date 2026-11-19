@@ -1,14 +1,41 @@
 \begin{table}[t]
 \centering
-\caption{\textbf{Ordering degeneracy.} Mean Shiny-Blender PSNR for 2DGS$^{*}$ with a fixed per-disk
-normal offset $\varepsilon$ at initialization, versus the tied $\varepsilon{=}0$ baseline
-(Table~\ref{tab:combined-ablation-baselines}). PSNR does not improve with $\varepsilon$.}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{minipage}[t]{0.40\textwidth}
+\centering
+\caption{\textbf{Normal offsets do not fix ordering.} Mean Shiny-Blender PSNR for 2DGS$^{*}$ with a
+fixed per-disk normal offset $\varepsilon$ at initialization, versus the tied $\varepsilon{=}0$
+baseline. PSNR does not improve with $\varepsilon$ (Theorem B2--B3).}
 \label{tab:ordering}
-\begin{tabular}{lcccc}
+\begin{tabular}{@{}lc@{}}
 \toprule
-Dataset & $\varepsilon{=}0$ (baseline) & $10^{-5}$ & $10^{-4}$ & $10^{-3}$ \\
+Offset & PSNR$\uparrow$ \\
 \midrule
-Shiny-Blender (PSNR$\uparrow$) & 27.70 & 27.63 & 27.59 & 27.66 \\
+$\varepsilon{=}0$ (baseline) & 27.70 \\
+$\varepsilon{=}10^{-5}$ & 27.63 \\
+$\varepsilon{=}10^{-4}$ & 27.59 \\
+$\varepsilon{=}10^{-3}$ & 27.66 \\
 \bottomrule
 \end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.57\textwidth}
+\centering
+\caption{\textbf{Compositing order on a fixed mesh} (Shiny-Blender means, $2\times$ SSAA). All
+variants are RGB-only, with no environment map or decoder, use the same initialization, and train
+for 30K iterations without densification or pruning. Only the way primitives combine at a fragment
+differs.}
+\label{tab:fixed_index}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Representation & View-stable & PSNR$\uparrow$ \\
+\midrule
+2DGS$^{*}$, depth-sorted & No (popping) & 27.70 \\
+2DGS$^{*}$, fixed-index order & Yes & 26.89 \\
+2D GMM, order-free blend (ours) & Yes & \textbf{31.40} \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vspace{-2mm}
 \end{table}

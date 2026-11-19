@@ -1,0 +1,103 @@
+% Tables added in the revision (appendix).
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{\textbf{Split-sum baseline on the same mesh} (Shiny-Blender, PSNR / SSIM / LPIPS, $2\times$
+SSAA). nvdiffrec~\citep{nvdiffrec} optimizes split-sum materials and a $6{\times}512^2$ cube-map
+light on the ground-truth mesh with geometry frozen (default settings, 40K iterations).}
+\label{tab:nvdiffrec}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Scene & Ours & nvdiffrec & $\Delta$PSNR \\
+\midrule
+ball    & 45.01 / 0.9945 / 0.0224 & 36.14 / 0.9471 / 0.1386 & +8.9 \\
+car     & 33.75 / 0.9763 / 0.0154 & 28.38 / 0.9265 / 0.0781 & +5.4 \\
+coffee  & 35.33 / 0.9777 / 0.0427 & 32.13 / 0.9508 / 0.0736 & +3.2 \\
+helmet  & 37.94 / 0.9902 / 0.0130 & 28.40 / 0.9350 / 0.1197 & +9.5 \\
+teapot  & 47.45 / 0.9983 / 0.0039 & 42.22 / 0.9912 / 0.0137 & +5.2 \\
+toaster & 28.76 / 0.9607 / 0.0455 & 22.90 / 0.8856 / 0.1906 & +5.9 \\
+\midrule
+mean    & \textbf{38.04} / \textbf{0.9830} / \textbf{0.0238} & 31.70 / 0.9394 / 0.1024 & +6.3 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\caption{\textbf{Prefiltered and split-sum shading inside our pipeline} (Shiny-Blender, PSNR /
+SSIM / LPIPS). \emph{4-level mip}: the decoder predicts blend weights over a 4-level mip chain of
+each environment map. \emph{Spherical beta $9{\times}9$}: the decoder outputs a spherical beta
+kernel that gathers a $9{\times}9$ footprint from the map. \emph{Split-sum}: the KAN shader is
+replaced by nvdiffrec's split-sum model, with per-disk albedo, occlusion, roughness and metallic
+and one GGX-prefiltered RGB cube map ($512^2$ per face) per mesh region.}
+\label{tab:splitsum}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Scene & KAN (ours) & 4-level mip & Spherical beta $9{\times}9$ & Split-sum \\
+\midrule
+ball    & 45.01 / 0.9945 / 0.0224 & 44.74 / 0.9946 / 0.0226 & 45.57 / 0.9950 / 0.0227 & 41.18 / 0.9966 / 0.0107 \\
+car     & 33.75 / 0.9763 / 0.0154 & 33.53 / 0.9751 / 0.0159 & 33.57 / 0.9754 / 0.0161 & 29.86 / 0.9666 / 0.0277 \\
+coffee  & 35.33 / 0.9777 / 0.0427 & 35.42 / 0.9778 / 0.0418 & 34.47 / 0.9757 / 0.0474 & 33.41 / 0.9725 / 0.0523 \\
+helmet  & 37.94 / 0.9902 / 0.0130 & 37.58 / 0.9894 / 0.0142 & 37.63 / 0.9899 / 0.0147 & 32.09 / 0.9820 / 0.0283 \\
+teapot  & 47.45 / 0.9983 / 0.0039 & 47.62 / 0.9983 / 0.0038 & 47.72 / 0.9983 / 0.0040 & 42.95 / 0.9957 / 0.0107 \\
+toaster & 28.76 / 0.9607 / 0.0455 & 28.61 / 0.9604 / 0.0461 & 28.51 / 0.9598 / 0.0461 & 22.72 / 0.9236 / 0.0947 \\
+\midrule
+mean    & 38.04 / 0.9830 / 0.0238 & 37.92 / 0.9826 / 0.0241 & 37.91 / 0.9823 / 0.0252 & 33.70 / 0.9728 / 0.0374 \\
+\midrule
+Training time & $1\times$ & $\approx0.96\times$ & $<0.6\times$ & $\approx0.29\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{\textbf{2D Gaussian mixture versus a UV texture} (NeRF-Synthetic). Both store diffuse RGB
+only, with no decoder, environment map, mipmaps or SSAA, at roughly matched raw capacity: $10^6$
+disks (8M floats) versus a $1730^2$ RGB texture ($\approx$9M floats). The UV texture is trained with
+nvdiffrec's backbone~\citep{nvdiffrec}. FPS is measured with the same rasterizer.}
+\label{tab:uv}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+& \multicolumn{2}{c}{PSNR$\uparrow$} & \multicolumn{2}{c}{FPS$\uparrow$} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Scene & 2D GMM & UV $1730^2$ & 2D GMM & UV $1730^2$ \\
+\midrule
+chair     & 28.14 & 27.62 & 160 & 158 \\
+drums     & 23.50 & 23.59 & 69 & 70 \\
+ficus     & 27.41 & 27.08 & 110 & 120 \\
+hotdog    & 31.23 & 30.98 & 141 & 144 \\
+lego      & 31.01 & 30.70 & 55 & 56 \\
+materials & 22.27 & 22.20 & 144 & 151 \\
+mic       & 27.81 & 27.69 & 59 & 60 \\
+ship      & 25.49 & 25.58 & 52 & 55 \\
+\midrule
+mean      & 27.11 & 26.93 & 98.8 & 101.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\caption{\textbf{Edits that need new resolution or new surface.} Small edits within the existing
+resolution cost about the same in both representations; the two differ when an edit needs more
+resolution or new surface in one region.}
+\label{tab:editing}
+\begin{tabular}{@{}p{0.17\linewidth}p{0.14\linewidth}p{0.32\linewidth}p{0.31\linewidth}@{}}
+\toprule
+Scenario & Typical user & UV texture & 2D GMM (ours) \\
+\midrule
+Stretching faces & Post-processing, editing & Region keeps its texel count and blurs; restoring resolution means enlarging the chart, repacking and resampling & Disks deform with the face; new disks are added where resolution is needed; only local neighbor sets are rebuilt \\
+\midrule
+Connecting faces (bridging nearby but disconnected parts) & Repairing captured meshes & Parts sit in separate charts, so filtering cannot blend across the bridge; new faces have no texels until they are unwrapped and painted or re-baked & New disks on the bridging faces are initialized from the surrounding field; the blend is continuous across the bridge \\
+\midrule
+Painting fine detail on a uniform region & Artists & Detail finer than the local texel density needs a higher-resolution map or re-unwrapping, which raises memory for the whole asset & Disks are added only where the detail is; resolution and memory grow locally \\
+\bottomrule
+\end{tabular}
+\end{table}

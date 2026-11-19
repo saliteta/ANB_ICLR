@@ -68,7 +68,9 @@ that could. An \emph{on-manifold kernel field}, 2D Gaussian disks anchored to me
 blended by an order-free partition of unity, removes the ordering obstruction; factoring view
 dependence out of the elements into a shared environment map and a FastKAN decoder removes the
 locality bound. The result composes directly with the traditional rendering pipeline, baking
-splat-quality, real-time appearance onto a mesh.
+splat-quality, real-time appearance onto a mesh. Given the same mesh on Shiny-Blender, it surpasses
+split-sum inverse rendering by 6.3\,dB and a reflective Gaussian splatting method bound to the mesh
+by 8.0\,dB, and on real captures it bakes onto, and refines, meshes reconstructed from the images.
 \end{abstract}
 
 \input{secs/intro}

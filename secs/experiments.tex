@@ -4,36 +4,63 @@
 \section{Experiments}
 \vspace{-1mm}
 \label{sec:Exp}
-\textbf{Novel View Synthesis} We conduct experiments on NeRF-Synthetic~\citep{NeRFVanilla} and Shiny-Blender~\citep{refnerf} in a \emph{fixed mesh setting}. We choose two fixed-mesh baselines:  DNR~\citep{DNR} and a mesh-constrained 2DGS, denoted
-2DGS$^{*}$~\citep{2DGS}. We initialize 2DGS$^{*}$ with four million 2D Gaussians uniformly on the surface
-and all gradients are projected onto the manifold defined by the mesh faces. We also report
-no-mesh methods (Ref-NeRF~\citep{refnerf}, 3DGS~\citep{3DGS}, 3iGS~\citep{3igs}, ENVIDR~\citep{envidr}, 3DGS-DR~\citep{3dgsDR}) and
-flexible-mesh methods (GaussianShader~\citep{gaussianShader}, RefGS~\citep{refgs}) as reference. Note that
-these methods optimize geometry rather than taking it as given, so they are not directly comparable.
-
+\textbf{Setting.} We evaluate on NeRF-Synthetic~\citep{NeRFVanilla} and Shiny-Blender~\citep{refnerf}
+in a \emph{fixed-mesh setting}, and on real captures with reconstructed meshes in
+Sec.~\ref{sec:real}. In every experiment, ours and every baseline (including the UV-texture baseline)
+recover appearance only from the posed images. No method reads the textures of the synthetic
+assets. Fixed-mesh baselines get the same ground-truth mesh with geometry frozen:
+DNR~\citep{DNR}; a mesh-constrained 2DGS, denoted 2DGS$^{*}$~\citep{2DGS}, initialized with four
+million 2D Gaussians uniformly on the surface, with all gradients projected onto the faces;
+nvdiffrec~\citep{nvdiffrec}, split-sum inverse rendering with a learned cube-map light, the closest
+classical real-time shading model; and RefGS~\citep{refgs} bound to the mesh (Gaussians projected to
+their nearest face and aligned to it, keeping its deferred shading and environment map). Fixed-mesh
+methods are evaluated at $2\times$ SSAA. As context we also report no-mesh methods
+(Ref-NeRF~\citep{refnerf}, 3DGS~\citep{3DGS}, 3iGS~\citep{3igs}, ENVIDR~\citep{envidr},
+3DGS-DR~\citep{3dgsDR}) and flexible-mesh methods (GaussianShader~\citep{gaussianShader},
+RefGS~\citep{refgs}). These optimize their own geometry, so they are not directly comparable.
 
 \subsection{Ordering Degeneracy}
 \label{sec:ordering}
 Theorem B (App.~\ref{app:theory}) predicts that a fixed normal offset cannot repair the ordering
 obstruction of Sec.~\ref{sec:intro}: every finite offset still flips at some visible view, and the
-offset itself receives no learning signal. We confirm this on 2DGS$^{*}$: displacing every disk by
-a fixed $\varepsilon$ along the face normal at initialization, with no further normal motion during
-training, PSNR stays flat from $\varepsilon{=}10^{-5}$ to $10^{-3}$ and matches the tied $\varepsilon{=}0$ baseline
-(Table~\ref{tab:ordering}).
+offset itself receives no learning signal. We confirm this on 2DGS$^{*}$. We displace every disk by a
+fixed $\varepsilon$ along the face normal at initialization, with no further normal motion during
+training. PSNR stays flat from $\varepsilon{=}10^{-5}$ to $10^{-3}$ and matches the tied
+$\varepsilon{=}0$ baseline (Table~\ref{tab:ordering}).
+
+Theorem B4 leaves one view-stable sort: a fixed index order. Table~\ref{tab:fixed_index} isolates the
+compositing rule. All three variants are RGB-only, with no environment map or decoder, and share
+initialization and training. Fixed-index compositing removes popping, but PSNR \emph{drops}
+($27.70\to26.89$\,dB). Here each primitive's color is view-independent, so in depth-sorted 2DGS$^{*}$
+the only source of view dependence is reordering: as the view rotates, the front-most primitive at a
+fragment changes. On reflective scenes the optimizer exploits this to fake reflections, at the cost
+of popping. A fixed order removes the reordering, and with it the only view-dependent mechanism in
+this setting, so the rendered appearance becomes strictly view-independent. This is exactly what
+Corollary A3 predicts: reordering is the only way past the locality floor, and it is the same
+mechanism that causes popping. Our order-free blend is also view-stable and gains $+3.7$\,dB over the
+sorted baseline and $+4.5$\,dB over the fixed order on the same mesh. Fixed-index 2DGS$^{*}$ with
+per-primitive SH would regain some view dependence, but Theorem A1 bounds it. We therefore move view
+dependence out of the primitives and into shared environment maps
+(Secs.~\ref{sec:env}--\ref{sec:kan}).
 \input{tabs/ordering_degeneracy}
 
 \vspace{-2mm}
 \subsection{Appearance Quality}
 \label{sec:quality}
 Given the mesh, our appearance field reaches $38.04$~dB PSNR on Shiny-Blender and $33.74$~dB on
-NeRF-Synthetic (Table~\ref{tab:main}), the best result among fixed-mesh methods that share our
-input mesh; the no-mesh and flexible-mesh rows reconstruct their own geometry and are shown as
-context, not ranked against ours. The margin over the best context method
-(Table~\ref{tab:shiny_perscene}) tracks how reflective a scene is, from $+6.12$~dB on the
-near-mirror \emph{ball} down to $+0.45$~dB on \emph{teapot}, whose highlights are smallest.
-Qualitatively (Figure~\ref{fig:qualitative}), our renders reproduce sharp, high-frequency
-reflections on metallic surfaces that 2DGS$^{*}$ and DNR blur.
-
+NeRF-Synthetic (Table~\ref{tab:main}), the best result among the fixed-mesh methods that share our
+input mesh. Split-sum shading with the same mesh (nvdiffrec) trails by $6.3$~dB and loses on every
+scene and metric (Table~\ref{tab:nvdiffrec}). The gap is largest on mirror-like \emph{ball} and
+\emph{helmet}, where the prefiltered lookup blurs high-frequency detail, and stays large on concave
+\emph{toaster}, where one environment map cannot represent self-reflection. Binding a strong recent
+splat method to the mesh does not preserve its quality: RefGS reaches $34.80$~dB with its own free
+geometry but $30.08$~dB on the mesh. Its large gain from supersampling ($27.31$~dB at $1\times$,
+$30.08$~dB at $2\times$) is consistent with the ordering artifacts of Theorem B, which supersampling
+partly averages out. The no-mesh and flexible-mesh rows reconstruct their own geometry and are shown
+as context, not ranked. Our margin over the best of them (Table~\ref{tab:shiny_perscene}) tracks how
+reflective a scene is: $+6.12$~dB on the near-mirror \emph{ball} and $+0.45$~dB on \emph{teapot},
+whose highlights are smallest. Qualitatively (Figure~\ref{fig:qualitative}), our renders reproduce
+sharp, high-frequency reflections on metallic surfaces that 2DGS$^{*}$ and DNR blur.
 
 \begin{figure}[t]
     \centering
@@ -43,40 +70,55 @@ reflections on metallic surfaces that 2DGS$^{*}$ and DNR blur.
     \vspace{-2mm}
 \end{figure}
 
+\subsection{Real Captures with Reconstructed Geometry}
+\label{sec:real}
+Synthetic scenes remove geometric error and capture noise. To test the pipeline where both must be
+handled, we use the real captured scenes released with Ref-NeRF~\citep{refnerf} (\emph{sedan}; and
+\emph{gardenspheres} and \emph{toycar}, originally from SNeRG~\citep{bakingNeRF}). Protocol: (1) we
+train RefGS on each scene and export its mesh by TSDF fusion and marching cubes; this mesh carries
+real reconstruction errors. (2) We crop the mesh to the central region with the reflective objects.
+(3) On this same mesh we train RefGS anchored to the mesh (30K iterations), our method with the mesh
+frozen, and our method with the mesh refinement of App.~\ref{app:refinement}. On the same imperfect
+mesh, our method beats RefGS on every scene (Table~\ref{tab:real}; $+0.44$~dB mean). Refining the
+mesh through our representation adds another $+0.49$~dB, so the pipeline both recovers appearance and
+improves the geometry it is baked onto.
+\input{tabs/real_captures}
 
 \subsection{Ablation}
 \label{sec:ablation}
-Table~\ref{tab:ablation} follows the path by which the appearance model was built. The coplanar
+Table~\ref{tab:ablation} follows the path by which we built the appearance model. The coplanar
 2DGS$^{*}$ baseline suffers the depth-fighting of Sec.~\ref{sec:intro}, and a purely diffuse mixture
 cannot represent view-dependent reflection, so both collapse on the reflective scenes. Per-primitive
-view-dependent color --- spherical harmonics in 3DGS, or the anisotropic spherical Gaussians of
-Spec-Gaussian~\citep{specGaussian} --- is strong for \emph{floating} splats, where overlapping,
+view-dependent color (spherical harmonics in 3DGS, or the anisotropic spherical Gaussians of
+Spec-Gaussian~\citep{specGaussian}) is strong for \emph{floating} splats, where overlapping,
 depth-ordered primitives compose the appearance. On a single opaque surface that composition is
-unavailable: each point takes one order-independent blend, so a per-primitive spherical Gaussian
-with an MLP decoder only overfits the sparse views ($34.24$~dB), and dropping it barely changes the
-result (Table~\ref{tab:ablation}). The gains come instead from the adaptive hierarchical maps
-($+1.2$~dB over a single global map) and from the KAN decoder ($+2.44$~dB over a parameter-matched
-MLP).
+unavailable: each point takes one order-independent blend. A per-primitive spherical Gaussian with an
+MLP decoder therefore only overfits the sparse views ($34.24$~dB), and dropping it in favor of a
+single shared environment map changes the result little ($34.37$~dB). The gains come instead from the
+adaptive hierarchical maps ($+1.2$~dB over a single global map) and from the KAN decoder
+($+2.44$~dB over a parameter-matched MLP). App.~\ref{app:splitsum} replaces the KAN with prefiltered
+lookups and with a full split-sum shader inside our pipeline. Prefiltered lookups match our quality
+($37.9$~dB) at lower training cost. Split-sum trains about $3.5\times$ faster but loses $4.3$~dB, a
+clear quality--speed trade-off.
 
+\textbf{Representation versus a UV texture.} We do not claim that the 2D mixture beats a UV texture
+in quality at matched capacity. With both storing diffuse color only and no decoder, environment map
+or anti-aliasing, at roughly matched raw parameter counts ($10^6$ disks versus a $1730^2$ texture),
+the mixture reaches $27.11$~dB against $26.93$~dB on NeRF-Synthetic at similar frame rates
+($98.8$ vs.\ $101.8$ FPS; Table~\ref{tab:uv}). The difference is in capability: the mixture needs no
+global parameterization, so resolution can be added, removed or merged locally, and splat tools act
+on it directly (App.~\ref{app:uv}).
 
-
-\subsection{Efficiency}
+\subsection{Efficiency and Compaction}
+\label{sec:compaction}
 The full asset ($10^6$ disks, five environment maps, shader) occupies $48.3$ MB on disk. At
 $800{\times}800$ we render at $91.7$ FPS on NeRF-Synthetic and $68.6$ FPS on
 Shiny-Blender on an NVIDIA H100 (CUDA 12.8), and at $76.8$ FPS on Shiny-Blender on a consumer RTX
-4090 (WSL2, Ubuntu 22.04), with a mean CUDA memory footprint of $1.74$ GB (peak $2.75$ GB), all under \texttt{torch.compile}.
-
-% The full asset ($10^6$ disks, five environment maps, shader) occupies $48.3$ MB on disk. At
-% $800{\times}800$ we render the test views at $91.7$ FPS on NeRF-Synthetic and $68.6$ FPS on
-% Shiny-Blender on an NVIDIA H100 (CUDA 12.8), and at $76.8$ FPS on Shiny-Blender on a consumer RTX
-% 4090 (WSL2, Ubuntu 22.04), with a mean CUDA memory footprint of $1.74$ GB (peak $2.75$ GB). All measurements use \texttt{torch.compile}; the H100 figures are from a shared datacenter node.
-
-\subsection{Compaction}
-\label{sec:compaction}
-Because each disk is an ordinary splat rather than a bespoke primitive, we compact the baked
-asset with NanoGS~\citep{nanogs}, a training-free Gaussian-splat simplifier, with no change to our
-representation or pipeline. Table~\ref{tab:compaction} reports mean PSNR/SSIM/LPIPS on
-Shiny-Blender as we keep 100\%, 50\%, 25\%, and 10\% of the disks: at $10\times$ compaction, mean
-PSNR falls by only $2.0$~dB ($38.04\to36.03$), with SSIM and LPIPS degrading similarly gracefully.
-Per-scene results (Table~\ref{tab:compaction_perscene}, App.~\ref{app:compaction}) show \emph{teapot} and \emph{ball} essentially unaffected even at $10\times$, while the more detailed \emph{helmet} loses the most. Because compaction reuses tooling built for the Gaussian-splatting community rather than a bespoke method, our representation is compatible with that ecosystem by construction.
+4090 (WSL2, Ubuntu 22.04), with a mean CUDA memory footprint of $1.74$ GB (peak $2.75$ GB), all under
+\texttt{torch.compile}. Because each disk is an ordinary splat, we compact the baked asset with
+NanoGS~\citep{nanogs}, a training-free Gaussian-splat simplifier, with no change to our
+representation. Keeping 50\%, 25\% and 10\% of the disks (Table~\ref{tab:compaction}), mean
+PSNR falls by only $2.0$~dB at $10\times$ compaction ($38.04\to36.03$). \emph{Teapot} and
+\emph{ball} are essentially unaffected, and the detailed \emph{helmet} loses the most
+(App.~\ref{app:compaction}).
 \input{tabs/combine_table_ICLR}

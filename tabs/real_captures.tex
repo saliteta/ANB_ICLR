@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{\textbf{Real captures with reconstructed geometry} (Ref-NeRF real scenes). All methods use
+the same imperfect mesh, reconstructed by RefGS (TSDF fusion and marching cubes) and cropped to
+the reflective objects. PSNR$\uparrow$ is measured on held-out views, only on pixels the cropped
+mesh covers (the same mask for every method).}
+\label{tab:real}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Method & sedan & gardenspheres & toycar & Mean \\
+\midrule
+RefGS on mesh~\citep{refgs} & 25.81 & 22.00 & 23.23 & 23.68 \\
+Ours, frozen mesh & 26.17 & 22.72 & 23.48 & 24.12 \\
+Ours + mesh refinement (App.~\ref{app:refinement}) & \textbf{26.70} & \textbf{23.27} & \textbf{23.85} & \textbf{24.61} \\
+\bottomrule
+\end{tabular}
+\vspace{-2mm}
+\end{table}

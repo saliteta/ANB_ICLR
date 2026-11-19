@@ -13,7 +13,9 @@ Our pipeline retains the deferred, texture-like structure of this line
 while devoting explicit model capacity to sharp specularity.
 In addition, methods above presuppose a global UV atlas,
 whose seam-cutting and packing remain tedious to author and non-differentiable to optimize;
-by anchoring appearance in per-face barycentric coordinates, our formulation sidesteps this requirement entirely. Per-face texturing such as Ptex~\citep{ptex} likewise removes the atlas, but its static per-face textures cannot represent the high-frequency, view-dependent reflection that continuous splat representations later captured.
+by anchoring appearance in per-face barycentric coordinates, our formulation sidesteps this requirement entirely. Per-face texturing such as Ptex~\citep{ptex} likewise removes the atlas and, storing BSDF parameters, supports even mirror-like materials under path tracing; our goal differs in that appearance is baked automatically from images and evaluated by rasterization alone.
+Heat Kernel Textures~\citep{foti2026hktex} also place Gaussian-like kernels on the mesh, as geodesic heat kernels with per-kernel color rendered by ray tracing, without a UV map; they store view-independent color, whereas we target sharp view-dependent reflection under rasterization.
+Neural materials such as NeuMIP~\citep{kuznetsov2021neumip} and real-time neural appearance models~\citep{zeltner2024neuralappearance} decode learned UV-mapped latent textures with small networks inside a path tracer. They model a material that is then lit, not baked radiance, and assume a UV parameterization.
 
 \subsection{Modeling View-Dependent Appearance}
 A parallel line of work asks how to reconstruct sharp specular transport in the first place.
@@ -22,7 +24,7 @@ substantially improving specular fidelity within a volumetric field~\citep{refne
 In the splatting regime, recent methods evaluate reflections in screen space against a learned environment map:
 GaussianShader attaches simplified shading functions to each splat~\citep{gaussianShader},
 3DGS-DR defers reflection evaluation to a per-pixel normal buffer~\citep{3dgsDR},
-RefGS incorporates physically based deferred shading~\citep{refgs},
+RefGS incorporates physically based deferred shading~\citep{refgs}, MaterialRefGS adds multi-view-consistent material inference with split-sum environment lighting on 2D Gaussians~\citep{zhang2025materialrefgs},
 and Spec-Gaussian replaces spherical harmonics with anisotropic spherical Gaussians~\citep{specGaussian}.
 
 Whether it is an evaluated BRDF~\citep{cookTorrance} against a prefiltered environment map, as in classical real-time physically based shading~\citep{karis2013pbr, RealTimeRendering},
@@ -65,6 +67,17 @@ the rendered primitives remain three-dimensional, ambient-space objects composit
 and the domain of the appearance field never becomes the surface itself.
 \citet{neumesh} bind learnable codes on the vertices, but never allow the code representation to float inside the 2D manifold.
 The original EWA surface splatting~\citep{EWA} is, moreover, not differentiable.
+Two recent analyses are close to ours in spirit. \citet{wang2026when3dgs} study when 3DGS recovers the
+true surface rather than explaining images with view-dependent color: under a first-hit model,
+misaligned geometry turns spatial texture into angular signal, and bounded angular capacity favors
+surface-consistent solutions. Their question is whether free primitives \emph{find} the surface; we
+assume the surface is given and ask what representation can live on it, where coplanarity makes the
+compositing order degenerate (Theorem B). Our Theorem A1 likewise bounds angular capacity per
+primitive, but uses it to argue that view dependence must move to a shared representation.
+MLP Splatting~\citep{kim2026mlpsplatting} replaces kernels with a few localized MLP primitives that
+predict radiance and opacity, composited volumetrically with no explicit surface. Its view dependence
+comes from per-primitive networks rather than a shared environment, and it keeps an ambient-space
+domain, whereas ours is the mesh surface with order-free blending.
 In contrast, we define a strictly 2D, sort-free Gaussian mixture expressed in the barycentric coordinates on  the faces that is differentiable and free inside the 2D manifold.
 In this way the mesh is not scaffolding but the domain, and it remains the authoritative solid geometry for collision, physics, and animation.
 

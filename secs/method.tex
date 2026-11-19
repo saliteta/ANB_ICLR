@@ -42,7 +42,9 @@ with no regularizers on the disks. We utilize the Adam Optimizer \citep{adam}, w
 \label{sec:gmm}
 The albedo and reflectivity fields are stored by a mixture of $N$ two-dimensional Gaussian
 ``disks'' on the mesh surface ($N{=}10^6$ in our experiments). $N$ is fixed at initialization and
-never changes during training: there is no densification, pruning, or opacity culling. 
+never changes during training: there is no densification, pruning, or opacity culling.
+The disks are initialized uniformly over the surface, so each triangle receives a share proportional
+to its area. 
 
 \paragraph{On-manifold anchoring.}
 Each disk $i$ is assigned to a single triangle $f_i$ and a barycentric coordinate
@@ -84,12 +86,23 @@ disks rather than an alpha composite. This is the order-independence the represe
 around (Sec.~\ref{sec:intro}): the blend never asks which disk lies in front, so the coplanar depth
 ties cannot arise and the $\mathcal{O}(K)$ gather needs no sort.
 
+\paragraph{Continuity across faces.} Adjacent faces $f,f'$ gather from different sets
+$\mathcal{N}(f)\neq\mathcal{N}(f')$, so the blend can jump at their shared edge. At an edge point
+$\mathbf{x}$, the jump in $a$ is at most the normalized Gaussian weight that disks in only one of
+the two sets carry at $\mathbf{x}$ (App.~\ref{app:continuity}). Disks that weigh noticeably at an
+edge lie near both faces and so appear in both top-$K$ sets, which keeps this residual weight
+small.
+
 \subsection{Adaptive Environment Map}
 \label{sec:env}
 We describe the reflection lookup first without its learned parts, where it is ordinary environment mapping: a directional fetch and a weighted blend.
 
 \paragraph{Fetching.}
 Treat the environment as a classical equirectangular map. At a surface point with normal $\mathbf{n}$ seen from view direction $\mathbf{v}$, the mirror-reflected direction is $\boldsymbol{\omega}_r = 2(\mathbf{n}\cdot\mathbf{v})\,\mathbf{n} - \mathbf{v}$. We then convert to a longitude--elevation coordinate and bilinearly sample according to the direction.
+This is a single sharp fetch from a map that is not prefiltered. Glossy appearance comes from the
+decoder, which receives a roughness-attenuated encoding of $\boldsymbol{\omega}_r$
+(Sec.~\ref{sec:kan}). Replacing the fetch with a learned blend over a mip chain, or with a
+roughness-sized kernel footprint, gives the same quality (App.~\ref{app:splitsum}).
 
 \paragraph{Which map: near-convex parts.}
 A single global map assumes all light arrives from infinitely far away, so it cannot reproduce the
@@ -97,7 +110,7 @@ light an object casts on itself. We resolve this geometrically. Within a convex 
 self-occlusion and no self-reflection, so all incident light is external and a single directional
 map is a good approximation; what a global map cannot capture is the light exchanged \emph{between}
 parts. We therefore split the object into near-convex parts with a convex
-decomposition~\citep{coacd} and give each part its own map, so that light reaching a part from the
+decomposition~\citep{coacd}, which is fully automatic and runs once per asset in 30\,s to 1\,min, and give each part its own map, so that light reaching a part from the
 rest of the object is absorbed into that part's map and read back as an ordinary far-field lookup.
 The approximation is that this inter-part light is treated as distant and position-independent
 within a part, and
@@ -124,7 +137,11 @@ E(\boldsymbol{\omega}_r, f) = \sum_{p} \beta_p(f)\, E_p(\boldsymbol{\omega}_r),
 %
 where $d_p(f)$ is the distance from face $f$ to the nearest face assigned to map $p$, and $\tau$
 sets the blend width: $\beta$ is $\approx$ one-hot inside a region and blends smoothly within
-$\sim\tau$ of a border, so the weighted fetch removes the seam. Each $E_p$ stores a learned
+$\sim\tau$ of a border, so the weighted fetch removes the seam. Because
+$d_p$ changes by at most the distance $h$ between adjacent face centroids, the jump in $\beta$ across
+an edge is at most $2h/\tau$ (in $\ell_1$), and it vanishes inside a region
+(App.~\ref{app:continuity}). The per-part maps play the role of reflection probes in a game engine,
+except that they are placed and fit automatically. Each $E_p$ stores a learned
 multi-channel feature rather than RGB, decoded into reflected color by the network of
 Sec.~\ref{sec:kan}.
 
@@ -136,7 +153,8 @@ the view-dependent reflection $r(\mathbf{x},\mathbf{v})$ of Eq.~\eqref{eq:appear
 is interchangeable. We use a Fast Kolmogorov--Arnold Network, which places a learnable activation on
 every \emph{edge} rather than a fixed nonlinearity on every node~\citep{kan}, realized with Gaussian
 radial basis functions on a small fixed grid~\citep{fastkan}; on our task it outperforms a
-parameter-matched MLP by $2.44$ dB (Sec.~\ref{sec:ablation}). Where inference cost matters more than
+parameter-matched MLP by $2.44$ dB (Sec.~\ref{sec:ablation}).
+The MLP takes exactly the same inputs and uses all other components unchanged; only the trunk differs. Where inference cost matters more than
 fidelity, an MLP or a precomputed lookup table can occupy the same slot.
 
 \paragraph{Staged inputs.}

@@ -1,7 +1,7 @@
 \begin{table}[t]
 \centering
 \footnotesize
-\caption{\textbf{Results already reported in the paper, mapped to the claim each one supports.}
+\caption{\textbf{Results reported in the paper, mapped to the claim each one supports.}
 2DGS$^{*}$ uses $4$M primitives against $1$M disks for our representation; a matched-count
 comparison is left to future work.}
 \label{tab:theory_evidence}
@@ -16,6 +16,8 @@ Near-mirror \emph{ball} vs.\ \emph{teapot} & 2DGS$^{*}$ $20.99$ vs.\ $40.75$~dB 
 Order-free diffuse mixture & 2D GMM $31.40$ vs.\ 2DGS$^{*}$ $27.70$~dB & ordering removal alone helps \\
 Per-primitive SG (ablation) & $34.24$ vs.\ $34.37$~dB without SG & Cor.~A2 (overfits) \\
 Shared env.\ maps + KAN & $35.60\to38.04$~dB & Prop.~A4 \\
+Fixed-index order (RGB only, Table~\ref{tab:fixed_index}) & sorted $27.70$, fixed $26.89$, ours $31.40$~dB & Cor.~A3 (reordering is the only view dependence) \\
+RefGS bound to mesh & $27.31$ ($1\times$) $\to30.08$~dB ($2\times$ SSAA) & Thm.~B (ordering artifacts) \\
 \bottomrule
 \end{tabular}
 \end{table}

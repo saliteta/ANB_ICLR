@@ -8,14 +8,22 @@ is order-independent, so the asset needs no UV atlas and no depth sort and is ev
 at real-time rates. A 2D Gaussian mixture anchored in barycentric coordinates carries the
 view-independent fields, an adaptive hierarchical environment map the incident light, and a FastKAN
 decoder the view-dependent term. With this bridge in place, the next steps are engine
-integration, real captures, and element-level operations such as merging or editing disks directly.
+integration and element-level operations such as merging or editing disks directly.
 
-\paragraph{Scope.} Our method takes the mesh as input, is optimized per scene, and is evaluated on
-synthetic single-object benchmarks. Within a near-convex part, light from the rest of the object is treated as distant and position-independent, so strongly concave objects are the hardest
-case: \emph{toaster} has our lowest absolute PSNR, even though we still lead every context method
-there (Table~\ref{tab:shiny_perscene}). Real-time evaluation is demonstrated in
-nvdiffrast rather than a shipped shader. We evaluate with the provided meshes; behavior on
-reconstructed meshes is not studied in our main experiments. Because the anchoring is linear in the vertices, appearance gradients also reach the mesh; App.~\ref{app:refinement} uses this property to refine a reconstructed mesh as a demonstration, and a full study of refinement is left to future work.
+\paragraph{Scope and limitations.} Our method follows the baking setting: it takes a mesh and posed
+images as input, is optimized per scene, and bakes the illumination of the input images, including
+static shadows, as a lightmap does. Dynamic shadows from moving lights are outside this setting.
+When the illumination is known, the environment maps can be fixed to it during training and swapped
+or rotated at render time without retraining (App.~\ref{app:scope}), but a full relighting method is
+future work. Within a near-convex part, light from the rest of the object and from nearby
+surroundings is treated as distant and position-independent, like an uncorrected reflection probe.
+Strongly concave objects are therefore the hardest case: \emph{toaster} has our lowest absolute PSNR,
+though we still lead every context method there (Table~\ref{tab:shiny_perscene}). Nearby
+surroundings can show parallax error. In large scenes, ANB is meant to be applied per reflective
+asset, as specialized shaders are in production pipelines, so convex decomposition scales with the
+number of such assets, not with scene size. Real-time evaluation is demonstrated in nvdiffrast and in
+a Blender scene, not in a shipped engine shader. Our real-capture evaluation covers three
+object-centric scenes; scene-scale captures with strong near-field reflections remain to be tested.
 
 % mandatory not included in page limit
 \section{AI Disclosure}
@@ -29,8 +37,10 @@ We take full responsibility for the final content of this work, including text, 
 
 
 \section{Reproducibility}
-All datasets used, NeRF-Synthetic~\citep{NeRFVanilla} and Shiny-Blender~\citep{refnerf}, are public
-benchmarks with standard splits. The training objective
+All datasets used, NeRF-Synthetic~\citep{NeRFVanilla}, Shiny-Blender~\citep{refnerf}, and the
+real Ref-NeRF captures~\citep{refnerf, bakingNeRF}, are public benchmarks with standard splits. The
+protocols for the added baselines and real-capture experiments are given in App.~\ref{app:baselines}
+and Sec.~\ref{sec:real}. The training objective
 (Eq.~\eqref{eq:loss}, Adam optimizer, 30K iterations) is given in Sec.~\ref{sec:overview} and the mixture's hyperparameters in Sec.~\ref{sec:gmm}; the convex
 decomposition and adaptive environment-map budget in Sec.~\ref{sec:env}; and the FastKAN decoder
 architecture in Sec.~\ref{sec:kan}. We will release our full codebase upon the paper's acceptance or
